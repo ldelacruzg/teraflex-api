@@ -7,4 +7,5 @@ export const Environment = {
   DATABASE_USERNAME: process.env.DATABASE_USERNAME || 'root',
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD || 'root',
   DATABASE_NAME: process.env.DATABASE_NAME || 'teraflex',
+  DATABASE_SSL: process.env.DATABASE_SSL || false,
 };

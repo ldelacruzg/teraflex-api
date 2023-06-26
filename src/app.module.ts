@@ -14,6 +14,8 @@ import { Task } from './entities/task.entity';
 import { TaskCategory } from './entities/task-category.entity';
 import { TaskMultimedia } from './entities/task-multimedia.entity';
 import { UserValidation } from './entities/user-validation.entity';
+import { SecurityModule } from './security/security.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -37,8 +39,11 @@ import { UserValidation } from './entities/user-validation.entity';
         UserValidation,
       ],
       synchronize: true,
+      ssl: Environment.DATABASE_SSL as boolean,
     }),
     SharedModule,
+    SecurityModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
