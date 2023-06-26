@@ -1,0 +1,51 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity, JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Link } from './link.entity';
+import { Task } from './task.entity';
+import { User } from './user.entity';
+
+@Entity()
+export class TaskMultimedia {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ name: 'task_id', type: 'bigint' })
+  taskId: number;
+
+  @Column({ name: 'link_id', type: 'bigint' })
+  linkId: number;
+
+  @Column({ name: 'created_by', type: 'bigint' })
+  createdById: number;
+
+  @Column({ name: 'updated_by', type: 'bigint', nullable: true })
+  updatedById: number;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  updatedAt: Date;
+
+  @ManyToOne(() => Link, (link) => link.tasksMultimedia)
+  @JoinColumn({ name: 'link_id' })
+  link: Link;
+
+  @ManyToOne(() => Task, (task) => task.tasksMultimedia)
+  @JoinColumn({ name: 'task_id' })
+  task: Task;
+
+  @ManyToOne(() => User, (user) => user.tasksMultimediaCreated)
+  @JoinColumn({ name: 'created_by' })
+  createdBy: User;
+
+  @ManyToOne(() => User, (user) => user.tasksMultimediaUpdated)
+  @JoinColumn({ name: 'updated_by' })
+  updatedBy: User;
+}
