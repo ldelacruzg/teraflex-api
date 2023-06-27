@@ -9,7 +9,6 @@ import { Assignment } from './entities/assignment.entity';
 import { Category } from './entities/category.entity';
 import { Link } from './entities/link.entity';
 import { MultimediaType } from './entities/multimedia-type.entity';
-import { Role } from './entities/role.entity';
 import { Task } from './entities/task.entity';
 import { TaskCategory } from './entities/task-category.entity';
 import { TaskMultimedia } from './entities/task-multimedia.entity';
@@ -31,14 +30,13 @@ import { UserModule } from './user/user.module';
         Category,
         Link,
         MultimediaType,
-        Role,
         Task,
         TaskCategory,
         TaskMultimedia,
         User,
         UserValidation,
       ],
-      synchronize: false,
+      synchronize: true,
       ssl: Environment.DATABASE_SSL as boolean,
     }),
     SharedModule,

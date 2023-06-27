@@ -9,7 +9,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { Role } from './role.entity';
 import { UserValidation } from './user-validation.entity';
 import { Assignment } from './assignment.entity';
 import { Task } from './task.entity';
@@ -46,7 +45,7 @@ export class User {
   description: string;
 
   @Column({ type: 'boolean', default: true })
-  status: number;
+  status: boolean;
 
   @Column({ name: 'created_by', nullable: true })
   createdBy: number;
@@ -60,18 +59,8 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
   updatedAt: Date;
 
-  @Column({ name: 'role_id' })
-  roleId: number;
-
-  @ManyToOne(() => Role, (role) => role.users)
-  @JoinColumn({ name: 'role_id' })
-  role: Role;
-
-  @OneToMany(() => Role, (role) => role.updatedBy)
-  rolesUpdated: Role[];
-
-  @OneToMany(() => Role, (role) => role.createdBy)
-  rolesCreated: Role[];
+  @Column({ name: 'role', type: 'character varying', length: 25 })
+  role: string;
 
   @OneToMany(() => UserValidation, (userValidation) => userValidation.user)
   userValidations: UserValidation[];

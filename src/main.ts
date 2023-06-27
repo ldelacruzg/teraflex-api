@@ -10,8 +10,6 @@ async function bootstrap() {
     .setTitle('Teraflex API')
     .setDescription('Documentación de la API de Teraflex')
     .setVersion('1.0')
-    // .addServer('http://localhost:3000/', 'localhost')
-    // .addServer('http://localhost:3000/', 'servidor externo')
     .setExternalDoc('Módulo de seguridad', 'http://localhost:3000/api/security')
     .addBearerAuth()
     .build();
@@ -23,7 +21,6 @@ async function bootstrap() {
     .setTitle('Módulo de seguridad')
     .setDescription('Documentación de la API de Teraflex')
     .setVersion('1.0')
-    // .addServer('http://localhost:3000/', 'localhost')
     .addBearerAuth()
     .build();
 

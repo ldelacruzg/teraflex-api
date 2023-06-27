@@ -40,8 +40,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
-  // @Role(RoleEnum.THERAPIST)
-  @Role(RoleEnum.ADMIN)
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   @Get('otp/:docNumber')
   @ApiOperation({ summary: 'Obtener OTP' })
   async getOTP(@Param('docNumber') docNumber: string) {
@@ -51,5 +50,17 @@ export class AuthController {
     //   throw new HttpException(e.message, 400);
     // }
     throw new HttpException('No implementado', HttpStatus.NOT_IMPLEMENTED);
+  }
+
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  @Get('otp/validate/:docNumber/:otp')
+  @ApiOperation({ summary: 'Validar OTP' })
+  async validateOTP(@Param('docNumber') docNumber: string, @Param('otp') otp: string) {
+    try {
+      return await this.authService.validateOTP(docNumber, otp);
+    } catch (e) {
+      throw new HttpException(e.message, 400);
+    }
   }
 }

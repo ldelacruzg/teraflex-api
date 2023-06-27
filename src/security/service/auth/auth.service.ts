@@ -20,7 +20,6 @@ export class AuthService {
       // TODO: Cambiar por el repositorio de usuario
       const user = await this.cnx.findOne(User, {
         where: { docNumber: payload.username },
-        relations: ['role'],
       });
 
       if (!user) {
@@ -38,16 +37,16 @@ export class AuthService {
           {
             id: user.id,
             docNumber: user.docNumber,
-            role: user.role.name,
+            role: user.role,
           },
           {
             expiresIn:
-              user.role.name == RoleEnum.PATIENT
+              user.role == RoleEnum.PATIENT
                 ? Number.MAX_SAFE_INTEGER
                 : '8h',
           },
         ),
-        role: user.role.name,
+        role: user.role,
       };
     } catch (e) {
       throw e;
@@ -72,6 +71,32 @@ export class AuthService {
       });
 
       return 'Código de validación enviado';
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async validateOTP(docNumber: string, validationCode: string) {
+    try {
+      const user = await this.cnx.findOne(User, {
+        where: { docNumber: docNumber },
+      });
+
+      if (!user) {
+        throw new Error('No existe el usuario');
+      }
+
+      const userValidation = await this.cnx.findOne(UserValidation, {
+        where: { validationCode, userId: user.id },
+      });
+
+      if (!userValidation) {
+        throw new Error('Código de validación incorrecto');
+      }
+
+      await this.cnx.update(UserValidation, { id: userValidation.id }, { validated: true });
+
+      return 'Código de validación correcto';
     } catch (e) {
       throw e;
     }
