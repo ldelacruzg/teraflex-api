@@ -38,7 +38,7 @@ import { UserModule } from './user/user.module';
         User,
         UserValidation,
       ],
-      synchronize: true,
+      synchronize: false,
       ssl: Environment.DATABASE_SSL as boolean,
     }),
     SharedModule,
