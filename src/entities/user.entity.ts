@@ -16,6 +16,7 @@ import { Category } from './category.entity';
 import { Link } from './link.entity';
 import { TaskCategory } from './task-category.entity';
 import { TaskMultimedia } from './task-multimedia.entity';
+import { RoleEnum } from 'src/security/jwt-strategy/role.enum';
 
 @Entity('user')
 export class User {
@@ -60,7 +61,7 @@ export class User {
   updatedAt: Date;
 
   @Column({ name: 'role', type: 'character varying', length: 25 })
-  role: string;
+  role: RoleEnum;
 
   @OneToMany(() => UserValidation, (userValidation) => userValidation.user)
   userValidations: UserValidation[];

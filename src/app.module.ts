@@ -38,6 +38,7 @@ import { UserModule } from './user/user.module';
       ],
       synchronize: true,
       ssl: Environment.DATABASE_SSL as boolean,
+      logging: ['error', 'warn'],
     }),
     SharedModule,
     SecurityModule,
