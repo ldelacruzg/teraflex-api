@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserValidation } from '../entities/user-validation.entity';
 import { User } from '../entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PassportModule } from '@nestjs/passport';
       secret: Environment.JWT_SECRETKEY,
     }),
     SharedModule,
+    UserModule,
     TypeOrmModule.forFeature([UserValidation, User]),
   ],
   providers: [JwtStrategy, AuthService],

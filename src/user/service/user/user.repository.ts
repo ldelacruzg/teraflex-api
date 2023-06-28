@@ -1,22 +1,24 @@
-import { Injectable } from "@nestjs/common";
-import { InjectEntityManager } from "@nestjs/typeorm";
-import { User } from "src/entities/user.entity";
-import { EntityManager } from "typeorm";
+import { Injectable } from '@nestjs/common';
+import { User } from 'src/entities/user.entity';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
-export class UserRepository{
-    constructor(@InjectEntityManager() private cnx: EntityManager){}
+export class UserRepository {
+  async findById(cnx: EntityManager, id: number) {
+    return await cnx.findOneBy(User, { id });
+  }
 
-    async findById(id: number){
-        return await this.cnx.findOneBy(User, { id });
-    }
+  async getPassword(cnx: EntityManager, id: number) {
+    return (await cnx.findOne(User, { select: ['password'], where: { id } }))
+      .password;
+  }
 
-    async findByDocNumber(docNumber: string){
-        return await this.cnx.findOneBy(User, { docNumber });
-    }
+  async findByDocNumber(cnx: EntityManager, docNumber: string) {
+    return await cnx.findOneBy(User, { docNumber });
+  }
 
-    async create(user: User){
-        const data = await this.cnx.create(User, user);
-        return await this.cnx.save(data);
-    }
+  async create(cnx: EntityManager, user: User) {
+    const data = await cnx.create(User, user);
+    return await cnx.save(data);
+  }
 }

@@ -2,8 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -29,11 +27,15 @@ export class User {
   @Column({ type: 'character varying', length: 100, name: 'last_name' })
   lastName: string;
 
-  @Column({ type: 'character varying', length: 13, name: 'doc_number' })
+  @Column({
+    type: 'character varying',
+    length: 13,
+    name: 'doc_number',
+    unique: true,
+  })
   docNumber: string;
 
-  @Column({ type: 'character varying', length: 100 })
-  @Exclude()
+  @Column({ type: 'character varying', length: 100, select: false })
   password: string;
 
   @Column({ type: 'character varying', length: 10, nullable: true })

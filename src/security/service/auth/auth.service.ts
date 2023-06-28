@@ -1,32 +1,26 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { InjectEntityManager } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { LoginDto } from '../../controller/auth/dto/login.dto';
-import { User } from '../../../entities/user.entity';
 import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RoleEnum } from '../../jwt-strategy/role.enum';
 import { UserValidation } from '../../../entities/user-validation.entity';
+import { UserService } from '../../../user/service/user/user.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @InjectEntityManager() private cnx: EntityManager,
-    private jwt: JwtService,
-  ) {}
+  constructor(private jwt: JwtService, private userService: UserService) {}
 
-  async login(payload: LoginDto) {
+  async login(cnx: EntityManager, payload: LoginDto) {
     try {
-      // TODO: Cambiar por el repositorio de usuario
-      const user = await this.cnx.findOne(User, {
-        where: { docNumber: payload.username },
-      });
+      const user = await this.userService.findByDocNumber(
+        cnx,
+        payload.identification,
+      );
 
-      if (!user) {
-        throw new Error('No existe el usuario');
-      }
+      const password = await this.userService.getPassword(cnx, user.id);
 
-      const passwordValidated = await compare(payload.password, user.password);
+      const passwordValidated = await compare(payload.password, password);
 
       if (!passwordValidated) {
         throw new Error('Contraseña incorrecta');
@@ -41,9 +35,7 @@ export class AuthService {
           },
           {
             expiresIn:
-              user.role == RoleEnum.PATIENT
-                ? Number.MAX_SAFE_INTEGER
-                : '8h',
+              user.role == RoleEnum.PATIENT ? Number.MAX_SAFE_INTEGER : '8h',
           },
         ),
         role: user.role,
@@ -53,19 +45,13 @@ export class AuthService {
     }
   }
 
-  async getOTP(docNumber: string) {
+  async getOTP(cnx: EntityManager, docNumber: string) {
     try {
-      const user = await this.cnx.findOne(User, {
-        where: { docNumber: docNumber },
-      });
-
-      if (!user) {
-        throw new Error('No existe el usuario');
-      }
+      const user = await this.userService.findByDocNumber(cnx, docNumber);
 
       const validationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-      const userValidation = await this.cnx.insert(UserValidation, {
+      const userValidation = await cnx.insert(UserValidation, {
         user,
         validationCode,
       });
@@ -76,17 +62,15 @@ export class AuthService {
     }
   }
 
-  async validateOTP(docNumber: string, validationCode: string) {
+  async validateOTP(
+    cnx: EntityManager,
+    docNumber: string,
+    validationCode: string,
+  ) {
     try {
-      const user = await this.cnx.findOne(User, {
-        where: { docNumber: docNumber },
-      });
+      const user = await this.userService.findByDocNumber(cnx, docNumber);
 
-      if (!user) {
-        throw new Error('No existe el usuario');
-      }
-
-      const userValidation = await this.cnx.findOne(UserValidation, {
+      const userValidation = await cnx.findOne(UserValidation, {
         where: { validationCode, userId: user.id },
       });
 
@@ -94,7 +78,11 @@ export class AuthService {
         throw new Error('Código de validación incorrecto');
       }
 
-      await this.cnx.update(UserValidation, { id: userValidation.id }, { validated: true });
+      await cnx.update(
+        UserValidation,
+        { id: userValidation.id },
+        { validated: true },
+      );
 
       return 'Código de validación correcto';
     } catch (e) {

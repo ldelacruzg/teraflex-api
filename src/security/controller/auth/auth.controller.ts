@@ -20,20 +20,25 @@ import { JwtAuthGuard } from '../../jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '../../jwt-strategy/roles.guard';
 import { Role } from '../../jwt-strategy/roles.decorator';
 import { RoleEnum } from '../../jwt-strategy/role.enum';
+import { InjectEntityManager } from '@nestjs/typeorm';
+import { EntityManager } from 'typeorm';
 
 @Controller('auth')
 @ApiTags('auth')
 @ApiBearerAuth()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    @InjectEntityManager() private cnx: EntityManager,
+  ) {}
 
   @Post('login')
   @ApiOperation({ summary: 'Inicio de sesión' })
-  @ApiHeader({ name: 'username', description: 'Número de cédula' })
+  @ApiHeader({ name: 'identification', description: 'Número de cédula' })
   @ApiHeader({ name: 'password', description: 'Contraseña' })
   async login(@Headers() payload: LoginDto) {
     try {
-      return await this.authService.login(payload);
+      return await this.authService.login(this.cnx, payload);
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -41,9 +46,9 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  @Get('otp/:docNumber')
+  @Get('otp/:identification')
   @ApiOperation({ summary: 'Obtener OTP' })
-  async getOTP(@Param('docNumber') docNumber: string) {
+  async getOTP(@Param('identification') identification: string) {
     // try {
     //   return await this.authService.getOTP(docNumber);
     // } catch (e) {
@@ -54,11 +59,14 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  @Get('otp/validate/:docNumber/:otp')
+  @Get('otp/validate/:identification/:otp')
   @ApiOperation({ summary: 'Validar OTP' })
-  async validateOTP(@Param('docNumber') docNumber: string, @Param('otp') otp: string) {
+  async validateOTP(
+    @Param('identification') identification: string,
+    @Param('otp') otp: string,
+  ) {
     try {
-      return await this.authService.validateOTP(docNumber, otp);
+      return await this.authService.validateOTP(this.cnx, identification, otp);
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
