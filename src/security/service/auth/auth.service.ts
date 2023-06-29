@@ -20,9 +20,7 @@ export class AuthService {
 
       const password = await this.userService.getPassword(cnx, user.id);
 
-      const passwordValidated = await compare(payload.password, password);
-
-      if (!passwordValidated) {
+      if (!(await compare(payload.password, password))) {
         throw new Error('Contraseña incorrecta');
       }
 

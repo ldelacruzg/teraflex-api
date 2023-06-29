@@ -15,6 +15,7 @@ import { TaskMultimedia } from './entities/task-multimedia.entity';
 import { UserValidation } from './entities/user-validation.entity';
 import { SecurityModule } from './security/security.module';
 import { UserModule } from './user/user.module';
+import { Group } from './entities/group.entity';
 
 @Module({
   imports: [
@@ -35,8 +36,9 @@ import { UserModule } from './user/user.module';
         TaskMultimedia,
         User,
         UserValidation,
+        Group,
       ],
-      synchronize: true,
+      synchronize: false,
       ssl: Environment.DATABASE_SSL as boolean,
       logging: ['error', 'warn'],
     }),

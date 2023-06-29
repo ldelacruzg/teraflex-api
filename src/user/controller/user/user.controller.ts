@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Param,
@@ -74,9 +75,27 @@ export class UserController {
   @Get('by-identification/:identification')
   @ApiOperation({ summary: 'Buscar por número de cédula' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async findByDocNumber(@Param('identification') identification: string) {
+  async findByDocNumber(
+    @Param('identification') identification: string,
+    @Req() req,
+  ) {
     try {
-      return await this.service.findByDocNumber(this.cnx, identification);
+      return await this.service.findByDocNumber(
+        this.cnx,
+        identification,
+        req.user.role,
+      );
+    } catch (e) {
+      throw new HttpException(e.message, 400);
+    }
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Desactivar usuario' })
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  async delete(@Param('id') id: number, @Req() req) {
+    try {
+      return await this.service.delete(this.cnx, id, req.user);
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
