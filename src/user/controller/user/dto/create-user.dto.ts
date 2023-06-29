@@ -4,8 +4,12 @@ import { IsDate, IsOptional, IsString, Max, Min } from 'class-validator';
 export class CreateUserDto {
   @ApiProperty()
   @IsString()
-  @Max(13)
-  @Min(10)
+  @Max(13, {
+    message: 'El número de documento debe tener máximo 13 caracteres',
+  })
+  @Min(10, {
+    message: 'El número de documento debe tener mínimo 10 caracteres',
+  })
   docNumber: string;
 
   @ApiProperty()

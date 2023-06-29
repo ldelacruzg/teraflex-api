@@ -15,6 +15,7 @@ import { Link } from './link.entity';
 import { TaskCategory } from './task-category.entity';
 import { TaskMultimedia } from './task-multimedia.entity';
 import { RoleEnum } from 'src/security/jwt-strategy/role.enum';
+import { Group } from './group.entity';
 
 @Entity('user')
 export class User {
@@ -41,7 +42,7 @@ export class User {
   @Column({ type: 'character varying', length: 10, nullable: true })
   phone: string;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'date', nullable: true, name: 'birth_date' })
   birthDate: Date;
 
   @Column({ type: 'text', nullable: true })
@@ -106,4 +107,10 @@ export class User {
 
   @OneToMany(() => TaskMultimedia, (taskMultimedia) => taskMultimedia.updatedBy)
   tasksMultimediaUpdated: TaskMultimedia[];
+
+  @OneToMany(() => Group, (group) => group.therapist)
+  groupTherapist: Group[];
+
+  @OneToMany(() => Group, (group) => group.patient)
+  groupPatient: Group[];
 }
