@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 
 export class CreateCategoryDto {
   @ApiProperty()
@@ -7,7 +13,10 @@ export class CreateCategoryDto {
     message: 'El nombre debe tener entre 3 y 100 caracteres',
   })
   @IsString({
-    message: 'El nombre debe ser una cadena',
+    message: 'El nombre debe ser de tipo caracteres',
+  })
+  @IsNotEmpty({
+    message: 'El nombre es requerido',
   })
   name: string;
 
@@ -24,7 +33,7 @@ export class CreateCategoryDto {
   @ApiProperty()
   @IsOptional()
   @IsBoolean({
-    message: 'El estado debe ser de tipo booleano (verdadero/falso)',
+    message: 'El estado debe ser de tipo booleano (true/false)',
   })
   status: boolean;
 
