@@ -7,12 +7,14 @@ import { Task } from 'src/entities/task.entity';
 import { User } from 'src/entities/user.entity';
 import { CategoryService } from './services/category/category.service';
 import { CategoryController } from './controllers/category/category.controller';
+import { TaskService } from './services/task/task.service';
+import { TaskController } from './controllers/task/task.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Task, Category, Assignment, TaskCategory, User]),
   ],
-  providers: [CategoryService],
-  controllers: [CategoryController],
+  providers: [CategoryService, TaskService],
+  controllers: [CategoryController, TaskController],
 })
 export class ActivityModule {}
