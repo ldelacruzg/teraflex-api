@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  ArrayMinSize,
+  ArrayNotEmpty,
+  ArrayUnique,
+  IsArray,
   IsBoolean,
   IsNotEmpty,
   IsNumber,
@@ -72,6 +76,21 @@ export class CreateTaskDto {
     message: 'Es público es requerido',
   })
   isPublic: boolean;
+
+  @ApiProperty()
+  @ArrayUnique({
+    message: 'Las categorias debe ser únicas',
+  })
+  @ArrayMinSize(1, {
+    message: 'Debe haber por lo menos 1 categoría',
+  })
+  @IsArray({
+    message: 'Las categorias debe ser de tipo arreglo',
+  })
+  @ArrayNotEmpty({
+    message: 'Las categorias son requeridas',
+  })
+  categories: number[];
 
   createdById: number;
 }
