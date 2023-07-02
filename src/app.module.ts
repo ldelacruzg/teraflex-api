@@ -16,6 +16,7 @@ import { UserValidation } from './entities/user-validation.entity';
 import { SecurityModule } from './security/security.module';
 import { UserModule } from './user/user.module';
 import { Group } from './entities/group.entity';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { Group } from './entities/group.entity';
     SharedModule,
     SecurityModule,
     UserModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
