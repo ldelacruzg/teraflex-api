@@ -52,4 +52,26 @@ export class UserRepository {
   async updateStatus(cnx: EntityManager, id: number, status: boolean) {
     return await cnx.update(User, { id }, { status });
   }
+
+  async update(cnx: EntityManager, id: number, user: User) {
+    const query = cnx
+      .createQueryBuilder(User, 'user')
+      .update(User)
+      .set(user)
+      .where('id = :id', { id })
+      .returning([
+        'user.id as id',
+        'user.first_name as "firstName"',
+        'user.last_name as "lastName"',
+        'user.doc_number as "docNumber"',
+        'user.phone as phone',
+        'user.description as description',
+        'user.birth_date as "birthDate"',
+        'user.created_at as "createdAt"',
+        'user.updated_at as "updatedAt"',
+        'user.role as role',
+      ]);
+    console.log(query.getQueryAndParameters());
+    return await query.execute();
+  }
 }

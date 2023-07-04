@@ -24,7 +24,7 @@ export class Assignment {
   @Column({ type: 'boolean', default: true })
   status: boolean;
 
-  @Column({ name: 'estimated_time', type: 'bigint', default: 6000 })
+  @Column({ name: 'estimated_time', type: 'smallint', default: 6000 })
   estimatedTime: number;
 
   @Column({ name: 'created_by', type: 'bigint' })

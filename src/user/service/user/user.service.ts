@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { EntityManager } from 'typeorm';
 import { RoleEnum } from 'src/security/jwt-strategy/role.enum';
@@ -8,12 +8,15 @@ import { hashSync } from 'bcrypt';
 import { InfoUserInterface } from '../../../security/jwt-strategy/info-user.interface';
 import { GroupRepository } from '../group/group.repository';
 import { Group } from '../../../entities/group.entity';
+import { InjectEntityManager } from '@nestjs/typeorm';
+import { UpdateUserDto } from '../../controller/user/dto/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     private repo: UserRepository,
     private groupRepository: GroupRepository,
+    @InjectEntityManager() private cnx: EntityManager,
   ) {}
 
   async create(
@@ -134,5 +137,21 @@ export class UserService {
         throw e;
       }
     });
+  }
+
+  async update(id: number, data: UpdateUserDto) {
+    const user = await this.repo.findById(this.cnx, id);
+
+    if (!user) throw new NotFoundException('No existe el usuario');
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const updated = await this.repo.update(this.cnx, id, data as User);
+    console.log(updated);
+
+    if (updated.affected == 0)
+      throw new Error('Error al actualizar el usuario');
+
+    return updated.raw;
   }
 }
