@@ -1,7 +1,8 @@
 import {
   Column,
   CreateDateColumn,
-  Entity, JoinColumn,
+  Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -48,4 +49,7 @@ export class Category {
   @ManyToOne(() => User, (user) => user.categoriesUpdated)
   @JoinColumn({ name: 'updated_by' })
   updatedBy: User;
+
+  @OneToMany(() => User, (user) => user.category)
+  therapists: User[];
 }

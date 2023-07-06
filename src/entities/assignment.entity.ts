@@ -27,6 +27,9 @@ export class Assignment {
   @Column({ name: 'estimated_time', type: 'smallint', default: 6000 })
   estimatedTime: number;
 
+  @Column({ name: 'due_date', type: 'timestamp' })
+  dueDate: Date;
+
   @Column({ name: 'created_by', type: 'bigint' })
   createdById: number;
 
