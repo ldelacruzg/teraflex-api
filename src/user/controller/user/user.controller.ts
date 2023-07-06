@@ -6,6 +6,7 @@ import {
   HttpException,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,8 @@ import { JwtAuthGuard } from '../../../security/jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '../../../security/jwt-strategy/roles.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role } from '../../../security/jwt-strategy/roles.decorator';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { InfoUserInterface } from '../../../security/jwt-strategy/info-user.interface';
 
 @Controller('user')
 @ApiTags('user')
@@ -99,5 +102,17 @@ export class UserController {
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Actualizar usuario' })
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  async update(
+    @Param('id') id: number,
+    @Req() req,
+    @Body() body: UpdateUserDto,
+  ) {
+    body.updatedBy = (req.user as InfoUserInterface).id;
+    return await this.service.update(id, body);
   }
 }

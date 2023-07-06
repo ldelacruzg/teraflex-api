@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -65,6 +67,13 @@ export class User {
 
   @Column({ name: 'role', type: 'character varying', length: 25 })
   role: RoleEnum;
+
+  @Column({ name: 'category_id', type: 'bigint', nullable: true })
+  categoryId: number;
+
+  @ManyToOne(() => Category, (category) => category.therapists)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 
   @OneToMany(() => UserValidation, (userValidation) => userValidation.user)
   userValidations: UserValidation[];

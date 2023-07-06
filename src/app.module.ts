@@ -39,7 +39,7 @@ import { ActivityModule } from './activity/activity.module';
         UserValidation,
         Group,
       ],
-      synchronize: false,
+      synchronize: true,
       ssl: Environment.DATABASE_SSL as boolean,
       logging: ['error', 'warn'],
     }),

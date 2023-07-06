@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from 'src/entities/user.entity';
 import { EntityManager } from 'typeorm';
 import { RoleEnum } from '../../../security/jwt-strategy/role.enum';
+import { Category } from '../../../entities/category.entity';
 
 @Injectable()
 export class UserRepository {
@@ -31,9 +32,12 @@ export class UserRepository {
         'user.birth_date as "birthDate"',
         'user.created_at as "createdAt"',
         'user.updated_at as "updatedAt"',
+        'category.id as "categoryId"',
+        'category.name as "categoryName"',
         'user.role as role',
       ])
       .from(User, 'user')
+      .innerJoin(Category, 'category', 'category.id = user.category_id')
       .where('user.status = :status', { status: true })
       .where('user.doc_number = :docNumber', { docNumber });
 
@@ -51,5 +55,26 @@ export class UserRepository {
 
   async updateStatus(cnx: EntityManager, id: number, status: boolean) {
     return await cnx.update(User, { id }, { status });
+  }
+
+  async update(cnx: EntityManager, id: number, user: User) {
+    return await cnx
+      .createQueryBuilder()
+      .update(User)
+      .set(user)
+      .returning(
+        'id, ' +
+          'first_name as "firstName",' +
+          'last_name as "lastName",' +
+          'doc_number as "docNumber",' +
+          'phone as phone,' +
+          'description as description,' +
+          'birth_date as "birthDate",' +
+          'created_at as "createdAt",' +
+          'updated_at as "updatedAt",' +
+          'role as role',
+      )
+      .where('id = :id', { id })
+      .execute();
   }
 }

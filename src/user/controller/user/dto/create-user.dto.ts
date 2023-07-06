@@ -1,14 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsDateString, IsOptional, IsString, Length } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty()
   @IsString()
-  @Max(13, {
-    message: 'El número de documento debe tener máximo 13 caracteres',
-  })
-  @Min(10, {
-    message: 'El número de documento debe tener mínimo 10 caracteres',
+  @Length(10, 13, {
+    message: 'El número de documento debe tener entre 10 y 13 caracteres',
   })
   docNumber: string;
 
@@ -21,14 +18,15 @@ export class CreateUserDto {
   lastName: string;
 
   @ApiProperty()
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   birthDate: Date;
 
   @ApiProperty()
   @IsString()
-  @Max(10)
-  @Min(10)
+  @Length(10, 10, {
+    message: 'El número de teléfono debe tener 10 caracteres',
+  })
   @IsOptional()
   phone: string;
 
@@ -36,4 +34,6 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   description: string;
+
+  createdBy: number;
 }
