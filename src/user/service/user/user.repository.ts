@@ -37,9 +37,9 @@ export class UserRepository {
         'user.role as role',
       ])
       .from(User, 'user')
-      .innerJoin(Category, 'category', 'category.id = user.category_id')
+      .leftJoin(Category, 'category', 'category.id = user.category_id')
       .where('user.status = :status', { status: true })
-      .where('user.doc_number = :docNumber', { docNumber });
+      .andWhere('user.doc_number = :docNumber', { docNumber });
 
     if (currentRole !== undefined && currentRole === RoleEnum.THERAPIST) {
       query.andWhere('user.role = :role', { role: RoleEnum.PATIENT });
