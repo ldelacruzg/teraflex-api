@@ -20,6 +20,28 @@ export class AssignmentService {
     private taskRepository: Repository<Task>,
   ) {}
 
+  // list all the tasks assigned to a pacient
+  async listTasksByUser(userId: number) {
+    // verify if the user exists and is a patient
+    const user = await this.userRepository.findOneBy({
+      id: userId,
+      role: RoleEnum.PATIENT,
+    });
+
+    // verify if the user exists
+    if (!user) {
+      throw new NotFoundException(`El paciente con Id "${userId}" no existe`);
+    }
+
+    // get the tasks assigned to the user
+    const tasks = await this.assignmentRepository.find({
+      where: { userId },
+      relations: ['task'],
+    });
+
+    return tasks;
+  }
+
   // assign one or more tasks to a user
   async assignTasksToUser(createManyAssignmentDto: CreateManyAssignmentsDto) {
     const { userId, taskIds } = createManyAssignmentDto;

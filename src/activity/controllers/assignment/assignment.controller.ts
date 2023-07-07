@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Delete, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Req,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AssignmentService } from 'src/activity/services/assignment/assignment.service';
 import { JwtAuthGuard } from 'src/security/jwt-strategy/jwt-auth.guard';
@@ -15,6 +24,13 @@ import { RemoveManyAssignmentDto } from './dto/remove-many-assigments.dto';
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class AssignmentController {
   constructor(private assignmentService: AssignmentService) {}
+
+  @Get(':userId/tasks')
+  @ApiOperation({ summary: 'List all the tasks assigned to a pacient' })
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
+  async listTasksByUser(@Param('userId') userId: number) {
+    return this.assignmentService.listTasksByUser(userId);
+  }
 
   @Post()
   @ApiOperation({ summary: 'Assign one or more tasks to a user' })
