@@ -7,6 +7,7 @@ import {
   Req,
   Param,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AssignmentService } from 'src/activity/services/assignment/assignment.service';
@@ -28,7 +29,7 @@ export class AssignmentController {
   @Get(':userId/tasks')
   @ApiOperation({ summary: 'List all the tasks assigned to a pacient' })
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
-  async listTasksByUser(@Param('userId') userId: number) {
+  async listTasksByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.assignmentService.listTasksByUser(userId);
   }
 

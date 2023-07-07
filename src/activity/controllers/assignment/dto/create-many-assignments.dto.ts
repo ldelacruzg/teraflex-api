@@ -3,8 +3,10 @@ import {
   ArrayNotEmpty,
   ArrayUnique,
   IsBoolean,
+  IsDate,
   IsNotEmpty,
   IsPositive,
+  Matches,
   Max,
 } from 'class-validator';
 
@@ -29,6 +31,12 @@ export class CreateManyAssignmentsDto {
   @ApiProperty()
   @IsBoolean()
   status?: boolean;
+
+  @ApiProperty()
+  //@Matches(/^d{4}-d{2}-d{2} d{2}:d{2}:d{2}$/)
+  //@IsDate()
+  @IsNotEmpty()
+  dueDate: Date;
 
   createdById?: number;
 }

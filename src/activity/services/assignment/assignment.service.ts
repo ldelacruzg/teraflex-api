@@ -39,7 +39,16 @@ export class AssignmentService {
       relations: ['task'],
     });
 
-    return tasks;
+    return tasks.map(({ task, createdAt, estimatedTime, dueDate, id }) => ({
+      id,
+      task: {
+        id: task.id,
+        title: task.title,
+      },
+      estimatedTime,
+      createdAt,
+      dueDate,
+    }));
   }
 
   // assign one or more tasks to a user
