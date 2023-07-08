@@ -53,7 +53,7 @@ export class AssignmentService {
 
   // assign one or more tasks to a user
   async assignTasksToUser(createManyAssignmentDto: CreateManyAssignmentsDto) {
-    const { userId, taskIds } = createManyAssignmentDto;
+    const { userId, tasks } = createManyAssignmentDto;
 
     // verify if the user exists and is a patient
     const user = await this.userRepository.findOneBy({
@@ -64,6 +64,9 @@ export class AssignmentService {
     if (!user) {
       throw new NotFoundException(`El paciente con Id "${userId}" no existe`);
     }
+
+    // get the ids of the tasks
+    const taskIds = tasks.map(({ id }) => id);
 
     // verify if the tasks exist
     const numTasksFound = await this.taskRepository
@@ -78,10 +81,13 @@ export class AssignmentService {
     }
 
     // create the data to insert
-    const dataAssignments: CreateAssignmentDto[] = taskIds.map((taskId) => ({
-      ...createManyAssignmentDto,
-      taskId,
-    }));
+    const dataAssignments: CreateAssignmentDto[] = tasks.map(
+      ({ id, estimatedTime }) => ({
+        ...createManyAssignmentDto,
+        taskId: id,
+        estimatedTime,
+      }),
+    );
 
     // create the assignments
     return this.assignmentRepository
