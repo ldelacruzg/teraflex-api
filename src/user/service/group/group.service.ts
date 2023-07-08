@@ -5,22 +5,20 @@ import { EntityManager } from 'typeorm';
 import { InfoUserInterface } from '../../../security/jwt-strategy/info-user.interface';
 import { UserService } from '../user/user.service';
 import { RoleEnum } from '../../../security/jwt-strategy/role.enum';
+import { InjectEntityManager } from '@nestjs/typeorm';
 
 @Injectable()
 export class GroupService {
   constructor(
     private repo: GroupRepository,
     private userService: UserService,
+    @InjectEntityManager() private cnx: EntityManager,
   ) {}
 
-  async addPatient(
-    cnx: EntityManager,
-    patientId: number,
-    therapist: InfoUserInterface,
-  ) {
-    return await cnx.transaction(async (manager) => {
+  async addPatient(patientId: number, therapist: InfoUserInterface) {
+    return await this.cnx.transaction(async (manager) => {
       try {
-        const pacient = await this.userService.findById(manager, patientId);
+        const pacient = await this.userService.findById(patientId);
 
         if (!pacient) throw new Error('Paciente no encontrado');
         if (pacient.role !== RoleEnum.PATIENT)
@@ -48,17 +46,13 @@ export class GroupService {
     });
   }
 
-  async deletePatient(
-    cnx: EntityManager,
-    patientId: number,
-    therapist: InfoUserInterface,
-  ) {
+  async deletePatient(patientId: number, therapist: InfoUserInterface) {
     try {
-      const patient = await this.userService.findById(cnx, patientId);
+      const patient = await this.userService.findById(patientId);
       if (!patient) throw new Error('Paciente no encontrado');
 
       const deletePatient = await this.repo.deletePatient(
-        cnx,
+        this.cnx,
         therapist.id,
         patientId,
       );
@@ -72,9 +66,9 @@ export class GroupService {
     }
   }
 
-  async getAllByTherapist(cnx: EntityManager, therapistId: number) {
+  async getAllByTherapist(therapistId: number) {
     try {
-      const patients = await this.repo.getAllByTherapist(cnx, therapistId);
+      const patients = await this.repo.getAllByTherapist(this.cnx, therapistId);
 
       if (!patients) throw new Error('No se encontraron pacientes');
 

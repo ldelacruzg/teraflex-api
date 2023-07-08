@@ -18,4 +18,6 @@ export class UpdateUserDto extends PickType(CreateUserDto, [
   lastName: string;
 
   updatedBy: number;
+
+  password?: string;
 }
