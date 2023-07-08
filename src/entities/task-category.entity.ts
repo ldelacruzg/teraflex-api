@@ -37,21 +37,19 @@ export class TaskCategory {
   @Column({ name: 'category_id', type: 'bigint' })
   categoryId: number;
 
-  @ManyToOne(() => Category, (category) => category.tasksCategories, {
-    eager: true,
-  })
+  @ManyToOne(() => Category, (category) => category.tasksCategories)
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @ManyToOne(() => Task, (task) => task.tasksCategories, { eager: true })
+  @ManyToOne(() => Task, (task) => task.tasksCategories)
   @JoinColumn({ name: 'task_id' })
   task: Task;
 
-  @ManyToOne(() => User, (user) => user.tasksCategoriesCreated, { eager: true })
+  @ManyToOne(() => User, (user) => user.tasksCategoriesCreated)
   @JoinColumn({ name: 'created_by' })
   createdBy: User;
 
-  @ManyToOne(() => User, (user) => user.tasksCategoriesUpdated, { eager: true })
+  @ManyToOne(() => User, (user) => user.tasksCategoriesUpdated)
   @JoinColumn({ name: 'updated_by' })
   updatedBy: User;
 }
