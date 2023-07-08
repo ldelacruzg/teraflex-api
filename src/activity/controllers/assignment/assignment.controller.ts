@@ -8,6 +8,7 @@ import {
   Param,
   UseGuards,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AssignmentService } from 'src/activity/services/assignment/assignment.service';
@@ -34,7 +35,7 @@ export class AssignmentController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Assign one or more tasks to a user' })
+  @ApiOperation({ summary: 'Assign one or more tasks to a patient' })
   @Role(RoleEnum.THERAPIST)
   async assignTasksToUser(
     @Req() req,
@@ -49,12 +50,28 @@ export class AssignmentController {
   }
 
   @Delete()
-  @ApiOperation({ summary: 'Delete one or more tasks from a user' })
+  @ApiOperation({ summary: 'Delete one or more tasks from a patient' })
   @Role(RoleEnum.THERAPIST)
   async deleteTasksFromUser(
     @Req() req,
     @Body() removeManyAssignmentDto: RemoveManyAssignmentDto,
   ) {
     return this.assignmentService.removeTasksFromUser(removeManyAssignmentDto);
+  }
+
+  @Patch(':assignmentId/completed')
+  @ApiOperation({ summary: 'Change the progress status of a patient task' })
+  @Role(RoleEnum.PATIENT)
+  async changeIsCompletedAssignment(
+    @Req() req,
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+  ) {
+    // get the user logged
+    const userLogged = req.user as InfoUserInterface;
+
+    return this.assignmentService.changeIsCompletedAssignment({
+      assignmentId,
+      userLoggedId: userLogged.id,
+    });
   }
 }

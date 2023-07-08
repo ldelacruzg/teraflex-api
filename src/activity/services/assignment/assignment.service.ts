@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAssignmentDto } from 'src/activity/controllers/assignment/dto/create-assigment.dto';
 import { CreateManyAssignmentsDto } from 'src/activity/controllers/assignment/dto/create-many-assignments.dto';
@@ -133,5 +137,36 @@ export class AssignmentService {
       .from(Assignment)
       .where('id IN (:...ids)', { ids: assignmentIds })
       .execute();
+  }
+
+  // change the isCompleted property of an assignment
+  async changeIsCompletedAssignment(
+    changeIsCompletedAssignment: ChangeIsCompletedAssignment,
+  ) {
+    const { assignmentId, userLoggedId } = changeIsCompletedAssignment;
+
+    // verify if the assignment exists
+    const assignmentFound = await this.assignmentRepository.findOneBy({
+      id: assignmentId,
+    });
+
+    if (!assignmentFound) {
+      throw new NotFoundException(
+        `La asignación con Id "${assignmentId}" no existe`,
+      );
+    }
+
+    // verify if the assignment belongs to the patient logged
+    if (assignmentFound.userId !== userLoggedId) {
+      throw new ForbiddenException(
+        `La asignación con Id "${assignmentId}" no pertenece al paciente logueado`,
+      );
+    }
+
+    // change the isCompleted property
+    return this.assignmentRepository.update(
+      { id: assignmentId },
+      { isCompleted: !assignmentFound.isCompleted, updatedById: userLoggedId },
+    );
   }
 }
