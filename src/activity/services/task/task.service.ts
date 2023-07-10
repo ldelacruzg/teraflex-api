@@ -24,13 +24,44 @@ export class TaskService {
   ) {}
 
   async getAllTasks() {
-    return this.taksRepository.find();
+    return this.taksRepository.find({
+      where: { status: true },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        estimatedTime: true,
+        isPublic: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
   }
 
   async getTask(id: number) {
     // Consulta la tarea por Id
-    const task = await this.taksRepository.findOneBy({
-      id,
+    const task = await this.entityManager.findOne(Task, {
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        estimatedTime: true,
+        isPublic: true,
+        tasksCategories: {
+          id: true,
+          category: {
+            name: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+      relations: {
+        tasksCategories: {
+          category: true,
+        },
+      },
     });
 
     // Verifica si no existe la categoria
@@ -38,8 +69,17 @@ export class TaskService {
       throw new NotFoundException(`La tarea con Id "${id}" no existe`);
     }
 
+    // Se obtiene las categorias de la tarea
+    const categories = task.tasksCategories.map(({ category }) => ({
+      name: category.name,
+    }));
+
     // Devolver la tarea encontrada
-    return task;
+    delete task.tasksCategories;
+    return {
+      ...task,
+      categories,
+    };
   }
 
   async createTask(createTaskDto: CreateTaskDto) {
@@ -168,7 +208,9 @@ export class TaskService {
     });
   }
 
-  async deleteTask(id: number) {
+  async deleteTask(data: { id: number; updatedById: number }) {
+    const { id, updatedById } = data;
+
     // Consulta la tarea por Id
     const task = await this.taksRepository.findOneBy({
       id,
@@ -179,38 +221,7 @@ export class TaskService {
       throw new NotFoundException(`La tarea con Id "${id}" no existe`);
     }
 
-    return this.entityManager.transaction(async (transaction) => {
-      // Se obtienen las categorias actuales de la tarea
-      const tasksCategories = await this.taskCategoryRepository.findBy({
-        taskId: id,
-      });
-
-      // Las categorias actuales de la tarea solo ids
-      const currentTasksCategories = tasksCategories.map(
-        (taskCategory) => taskCategory.categoryId,
-      );
-
-      const deleteTaskCategory = currentTasksCategories.map((categoryId) => ({
-        taskId: id,
-        categoryId,
-      }));
-
-      for (const criteria of deleteTaskCategory) {
-        await transaction.delete(TaskCategory, criteria);
-      }
-
-      // Devuelve la tarea eliminada
-      return await transaction.delete(Task, { id });
-    });
-  }
-
-  private retrieveEntityProperties() {
-    const taskMetadata = this.entityManager.connection.getMetadata(Task);
-
-    const properties = taskMetadata.columns.map(
-      (column) => column.propertyName,
-    );
-
-    return properties;
+    // cambia el estado de la tarea como "eliminada" (false)
+    return this.taksRepository.update({ id }, { status: false, updatedById });
   }
 }

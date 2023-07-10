@@ -66,16 +66,12 @@ export class CategoryService {
     }
 
     // Devolver la categoria modificada
-    return this.categoryRepository
-      .createQueryBuilder()
-      .update(Category)
-      .set(updateCategoryDto)
-      .where('id = :id', { id })
-      .returning(this.retrieveEntityProperties())
-      .execute();
+    return this.categoryRepository.update({ id }, updateCategoryDto);
   }
 
-  async deleteCategory(id: number) {
+  async deleteCategory(data: { id: number; updatedById: number }) {
+    const { id, updatedById } = data;
+
     // Consulta la categoria por Id
     const category = await this.categoryRepository.findOneBy({
       id,
@@ -87,22 +83,9 @@ export class CategoryService {
     }
 
     // Devolver la categoria eliminada
-    return this.categoryRepository
-      .createQueryBuilder()
-      .delete()
-      .where('id = :id', { id })
-      .returning(this.retrieveEntityProperties())
-      .execute();
-  }
-
-  private retrieveEntityProperties() {
-    const categoryMetadata =
-      this.entityManager.connection.getMetadata(Category);
-
-    const properties = categoryMetadata.columns.map(
-      (column) => column.propertyName,
+    return this.categoryRepository.update(
+      { id },
+      { status: false, updatedById },
     );
-
-    return properties;
   }
 }

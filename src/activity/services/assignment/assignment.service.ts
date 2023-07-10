@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAssignmentDto } from 'src/activity/controllers/assignment/dto/create-assigment.dto';
 import { CreateManyAssignmentsDto } from 'src/activity/controllers/assignment/dto/create-many-assignments.dto';
@@ -20,9 +24,40 @@ export class AssignmentService {
     private taskRepository: Repository<Task>,
   ) {}
 
+  // list all the tasks assigned to a pacient
+  async listTasksByUser(userId: number) {
+    // verify if the user exists and is a patient
+    const user = await this.userRepository.findOneBy({
+      id: userId,
+      role: RoleEnum.PATIENT,
+    });
+
+    // verify if the user exists
+    if (!user) {
+      throw new NotFoundException(`El paciente con Id "${userId}" no existe`);
+    }
+
+    // get the tasks assigned to the user
+    const tasks = await this.assignmentRepository.find({
+      where: { userId },
+      relations: ['task'],
+    });
+
+    return tasks.map(({ task, createdAt, estimatedTime, dueDate, id }) => ({
+      id,
+      task: {
+        id: task.id,
+        title: task.title,
+      },
+      estimatedTime,
+      createdAt,
+      dueDate,
+    }));
+  }
+
   // assign one or more tasks to a user
   async assignTasksToUser(createManyAssignmentDto: CreateManyAssignmentsDto) {
-    const { userId, taskIds } = createManyAssignmentDto;
+    const { userId, tasks } = createManyAssignmentDto;
 
     // verify if the user exists and is a patient
     const user = await this.userRepository.findOneBy({
@@ -33,6 +68,9 @@ export class AssignmentService {
     if (!user) {
       throw new NotFoundException(`El paciente con Id "${userId}" no existe`);
     }
+
+    // get the ids of the tasks
+    const taskIds = tasks.map(({ id }) => id);
 
     // verify if the tasks exist
     const numTasksFound = await this.taskRepository
@@ -47,10 +85,13 @@ export class AssignmentService {
     }
 
     // create the data to insert
-    const dataAssignments: CreateAssignmentDto[] = taskIds.map((taskId) => ({
-      ...createManyAssignmentDto,
-      taskId,
-    }));
+    const dataAssignments: CreateAssignmentDto[] = tasks.map(
+      ({ id, estimatedTime }) => ({
+        ...createManyAssignmentDto,
+        taskId: id,
+        estimatedTime,
+      }),
+    );
 
     // create the assignments
     return this.assignmentRepository
@@ -96,5 +137,36 @@ export class AssignmentService {
       .from(Assignment)
       .where('id IN (:...ids)', { ids: assignmentIds })
       .execute();
+  }
+
+  // change the isCompleted property of an assignment
+  async changeIsCompletedAssignment(
+    changeIsCompletedAssignment: ChangeIsCompletedAssignment,
+  ) {
+    const { assignmentId, userLoggedId } = changeIsCompletedAssignment;
+
+    // verify if the assignment exists
+    const assignmentFound = await this.assignmentRepository.findOneBy({
+      id: assignmentId,
+    });
+
+    if (!assignmentFound) {
+      throw new NotFoundException(
+        `La asignación con Id "${assignmentId}" no existe`,
+      );
+    }
+
+    // verify if the assignment belongs to the patient logged
+    if (assignmentFound.userId !== userLoggedId) {
+      throw new ForbiddenException(
+        `La asignación con Id "${assignmentId}" no pertenece al paciente logueado`,
+      );
+    }
+
+    // change the isCompleted property
+    return this.assignmentRepository.update(
+      { id: assignmentId },
+      { isCompleted: !assignmentFound.isCompleted, updatedById: userLoggedId },
+    );
   }
 }

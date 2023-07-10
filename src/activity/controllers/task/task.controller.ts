@@ -72,8 +72,8 @@ export class TaskController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a task' })
   @Role(RoleEnum.THERAPIST)
-  async deleteTask(@Param('id', ParseIntPipe) id: number) {
+  async deleteTask(@Req() req, @Param('id', ParseIntPipe) id: number) {
     // Devuelve la tarea eliminada
-    return this.taskService.deleteTask(id);
+    return this.taskService.deleteTask({ id, updatedById: req.user.id });
   }
 }

@@ -37,9 +37,7 @@ export class Category {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
   updatedAt: Date;
 
-  @OneToMany(() => TaskCategory, (taskCategory) => taskCategory.category, {
-    cascade: true,
-  })
+  @OneToMany(() => TaskCategory, (taskCategory) => taskCategory.category)
   tasksCategories: TaskCategory[];
 
   @ManyToOne(() => User, (user) => user.categoriesCreated)

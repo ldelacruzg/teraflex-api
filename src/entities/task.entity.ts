@@ -48,11 +48,11 @@ export class Task {
   @OneToMany(() => Assignment, (assignment) => assignment.task)
   assignments: Assignment[];
 
-  @ManyToOne(() => User, (user) => user.tasksCreated, { eager: true })
+  @ManyToOne(() => User, (user) => user.tasksCreated)
   @JoinColumn({ name: 'created_by' })
   createdBy: User;
 
-  @ManyToOne(() => User, (user) => user.tasksUpdated, { eager: true })
+  @ManyToOne(() => User, (user) => user.tasksUpdated)
   @JoinColumn({ name: 'updated_by' })
   updatedBy: User;
 

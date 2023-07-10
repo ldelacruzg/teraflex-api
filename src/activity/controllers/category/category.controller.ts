@@ -81,7 +81,10 @@ export class CategoryController {
   @Delete(':id')
   @ApiOperation({ summary: 'Detele a category' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async deleteCategory(@Param('id', ParseIntPipe) id: number) {
-    return this.categoryService.deleteCategory(id);
+  async deleteCategory(@Req() req, @Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.deleteCategory({
+      id,
+      updatedById: req.user.id,
+    });
   }
 }
