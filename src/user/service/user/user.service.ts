@@ -10,6 +10,8 @@ import { GroupRepository } from '../group/group.repository';
 import { Group } from '../../../entities/group.entity';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { UpdateUserDto } from '../../controller/user/dto/update-user.dto';
+import { ResponseDataInterface } from 'src/shared/interfaces/response-data.interface';
+import { insertSucessful } from 'src/shared/constants/messages';
 
 @Injectable()
 export class UserService {
@@ -20,12 +22,11 @@ export class UserService {
   ) {}
 
   async create(
-    cnx: EntityManager,
     user: CreateUserDto,
     role: RoleEnum,
     currentUser: InfoUserInterface,
   ) {
-    return await cnx.transaction(async (manager) => {
+    return await this.cnx.transaction(async (manager) => {
       try {
         const userExist = await this.repo.findByDocNumber(
           manager,
@@ -48,29 +49,44 @@ export class UserService {
         }
 
         if (currentUser.role === RoleEnum.THERAPIST) {
-          const group = {
-            therapistId: currentUser.id,
-            patientId: userExist?.id ?? userCreated?.id,
-          } as Group;
-
-          const newGroup = await this.groupRepository.addPatient(
-            manager,
-            group,
-          );
-
-          if (!newGroup) throw new Error('Error al agregar paciente al grupo');
+          await this.addToGroup(userCreated ?? userExist, currentUser, manager);
         }
 
-        return 'Usuario creado correctamente';
+        return insertSucessful(
+          role == RoleEnum.PATIENT ? 'paciente' : 'terapeuta',
+        );
       } catch (error) {
         throw error;
       }
     });
   }
 
-  async findById(cnx: EntityManager, id: number) {
+  private async addToGroup(
+    user: any,
+    currentUser: InfoUserInterface,
+    cnx: EntityManager,
+  ) {
+    const inGroup = await this.groupRepository.findPacientByTherapist(
+      this.cnx,
+      user.id,
+      currentUser.id,
+    );
+
+    if (inGroup) throw new Error('El paciente ya se encuentra en el grupo');
+
+    const group = {
+      therapistId: currentUser.id,
+      patientId: user.id,
+    } as Group;
+
+    const newGroup = await this.groupRepository.addPatient(cnx, group);
+
+    if (!newGroup) throw new Error('Error al agregar paciente al grupo');
+  }
+
+  async findById(id: number) {
     try {
-      const data = await this.repo.findById(cnx, id);
+      const data = await this.repo.findById(this.cnx, id);
 
       if (!data) throw new Error('No existe el usuario');
 
@@ -92,13 +108,13 @@ export class UserService {
     }
   }
 
-  async findByDocNumber(
-    cnx: EntityManager,
-    identification: string,
-    role?: RoleEnum,
-  ) {
+  async findByDocNumber(identification: string, role?: RoleEnum) {
     try {
-      const data = await this.repo.findByDocNumber(cnx, identification, role);
+      const data = await this.repo.findByDocNumber(
+        this.cnx,
+        identification,
+        role,
+      );
 
       if (!data) throw new Error('No existe el usuario');
 
@@ -108,8 +124,8 @@ export class UserService {
     }
   }
 
-  async delete(cnx: EntityManager, id: number, currentUser: InfoUserInterface) {
-    return await cnx.transaction(async (manager) => {
+  async delete(id: number, currentUser: InfoUserInterface) {
+    return await this.cnx.transaction(async (manager) => {
       try {
         const user = await this.repo.findById(manager, id);
 
@@ -147,7 +163,6 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const updated = await this.repo.update(this.cnx, id, data as User);
-    console.log(updated);
 
     if (updated.affected == 0)
       throw new Error('Error al actualizar el usuario');

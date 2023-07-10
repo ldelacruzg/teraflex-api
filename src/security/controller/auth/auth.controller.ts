@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
@@ -70,5 +71,13 @@ export class AuthController {
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
+  }
+
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  @Get('forgot-password/:id')
+  @ApiOperation({ summary: 'Generar nueva contraseña' })
+  async forgotPassword(@Param('id') id: number, @Req() req) {
+    return await this.authService.newPassword(id, req.user.id);
   }
 }

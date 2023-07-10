@@ -23,16 +23,13 @@ import { RoleEnum } from '../../../security/jwt-strategy/role.enum';
 @ApiBearerAuth()
 @Role(RoleEnum.THERAPIST)
 export class GroupController {
-  constructor(
-    private service: GroupService,
-    @InjectEntityManager() private cnx: EntityManager,
-  ) {}
+  constructor(private service: GroupService) {}
 
   @Post('add/:id')
   @ApiOperation({ summary: 'Asociar paciente a terapista' })
   async addPatient(@Req() req, @Param('id') id: number) {
     try {
-      return await this.service.addPatient(this.cnx, id, req.user);
+      return await this.service.addPatient(id, req.user);
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -42,7 +39,7 @@ export class GroupController {
   @ApiOperation({ summary: 'Desasociar paciente de terapista' })
   async deletePatient(@Req() req, @Param('id') id: number) {
     try {
-      return await this.service.deletePatient(this.cnx, id, req.user);
+      return await this.service.deletePatient(id, req.user);
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -54,7 +51,7 @@ export class GroupController {
   })
   async getAllByTherapist(@Req() req) {
     try {
-      return await this.service.getAllByTherapist(this.cnx, req.user.id);
+      return await this.service.getAllByTherapist(req.user.id);
     } catch (e) {
       throw new HttpException(e.message, 400);
     }

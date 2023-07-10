@@ -21,28 +21,24 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role } from '../../../security/jwt-strategy/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InfoUserInterface } from '../../../security/jwt-strategy/info-user.interface';
+import { ResponseDataInterface } from 'src/shared/interfaces/response-data.interface';
 
 @Controller('user')
 @ApiTags('user')
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class UserController {
-  constructor(
-    @InjectEntityManager() private cnx: EntityManager,
-    private service: UserService,
-  ) {}
+  constructor(private service: UserService) {}
 
   @Post('therapist')
   @ApiOperation({ summary: 'Crear terapeuta' })
   @Role(RoleEnum.ADMIN)
   async createTherapist(@Req() req, @Body() body: CreateUserDto) {
     try {
-      return await this.service.create(
-        this.cnx,
-        body,
-        RoleEnum.THERAPIST,
-        req.user,
-      );
+      return {
+        data: null,
+        message: await this.service.create(body, RoleEnum.THERAPIST, req.user),
+      } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -53,12 +49,10 @@ export class UserController {
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async createPatient(@Req() req, @Body() body: CreateUserDto) {
     try {
-      return await this.service.create(
-        this.cnx,
-        body,
-        RoleEnum.PATIENT,
-        req.user,
-      );
+      return {
+        data: null,
+        message: await this.service.create(body, RoleEnum.PATIENT, req.user),
+      } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -69,7 +63,10 @@ export class UserController {
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async findById(@Param('id') id: number) {
     try {
-      return await this.service.findById(this.cnx, id);
+      return {
+        data: await this.service.findById(id),
+        message: null,
+      } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -83,11 +80,9 @@ export class UserController {
     @Req() req,
   ) {
     try {
-      return await this.service.findByDocNumber(
-        this.cnx,
-        identification,
-        req.user.role,
-      );
+      return {
+        data: await this.service.findByDocNumber(identification, req.user.role),
+      } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -98,7 +93,9 @@ export class UserController {
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async delete(@Param('id') id: number, @Req() req) {
     try {
-      return await this.service.delete(this.cnx, id, req.user);
+      return {
+        message: await this.service.delete(id, req.user),
+      } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -113,6 +110,9 @@ export class UserController {
     @Body() body: UpdateUserDto,
   ) {
     body.updatedBy = (req.user as InfoUserInterface).id;
-    return await this.service.update(id, body);
+    return {
+      data: await this.service.update(id, body),
+      message: null,
+    } as ResponseDataInterface;
   }
 }
