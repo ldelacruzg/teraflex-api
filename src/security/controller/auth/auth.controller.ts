@@ -35,8 +35,12 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Inicio de sesión' })
-  @ApiHeader({ name: 'identification', description: 'Número de cédula' })
-  @ApiHeader({ name: 'password', description: 'Contraseña' })
+  @ApiHeader({
+    name: 'identification',
+    description: 'Número de cédula',
+    required: true,
+  })
+  @ApiHeader({ name: 'password', description: 'Contraseña', required: true })
   async login(@Headers() payload: LoginDto) {
     try {
       return await this.authService.login(this.cnx, payload);

@@ -115,4 +115,14 @@ export class UserController {
       message: null,
     } as ResponseDataInterface;
   }
+
+  @Get('my-profile')
+  @ApiOperation({ summary: 'Obtener datos de mi perfil' })
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST, RoleEnum.PATIENT)
+  async getMyProfile(@Req() req) {
+    return {
+      data: await this.service.findById((req.user as InfoUserInterface).id),
+      message: null,
+    } as ResponseDataInterface;
+  }
 }

@@ -1,11 +1,10 @@
-import { IsString, Max, Min } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
 export class LoginDto {
-  @IsString({ always: true })
-  @Max(13)
-  @Min(10)
+  @IsString()
+  @Length(10, 13)
   identification: string;
 
-  @IsString({ always: true })
+  @IsString()
   password: string;
 }
