@@ -7,7 +7,26 @@ import { Category } from '../../../entities/category.entity';
 @Injectable()
 export class UserRepository {
   async findById(cnx: EntityManager, id: number) {
-    return await cnx.findOneBy(User, { id });
+    return await cnx
+      .createQueryBuilder()
+      .select([
+        'user.id as id',
+        'user.firstName as "firstName"',
+        'user.lastName as "lastName"',
+        'user.docNumber as "docNumber"',
+        'user.phone as phone',
+        'user.description as description',
+        'user.birthDate as "birthDate"',
+        'user.createdAt as "createdAt"',
+        'user.updatedAt as "updatedAt"',
+        'user.role as role',
+        'category.id as "categoryId"',
+        'category.name as "categoryName"',
+      ])
+      .from(User, 'user')
+      .leftJoin(Category, 'category', 'category.id = user.categoryId')
+      .where('user.id = :id', { id })
+      .getRawOne();
   }
 
   async getPassword(cnx: EntityManager, id: number) {
