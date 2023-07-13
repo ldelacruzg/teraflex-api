@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as fs from 'fs';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
@@ -40,33 +44,37 @@ export class MultimediaService {
           if (!created) throw new Error('Error al guardar recurso');
         }
 
-        return insertSucessful('Recurso');
+        return insertSucessful('Recursos');
       } catch (e) {
         throw new BadRequestException(e.message);
       }
     });
   }
 
-  async saveMultimediaOnline(data: CreateLinkDto) {
-    try {
-      const payload = {
-        ...data,
-        type: 'online',
-      } as Link;
+  async saveMultimediaOnline(data: CreateLinkDto[]) {
+    return await this.entityManager.transaction(async (manager) => {
+      try {
+        for (const element of data) {
+          const payload = {
+            ...element,
+            type: 'online',
+          } as Link;
 
-      const created = await this.repo.create(this.entityManager, payload);
+          const created = await this.repo.create(manager, payload);
 
-      if (!created) throw new Error('Error al guardar recurso');
+          if (!created) throw new Error('Error al guardar recurso');
+        }
 
-      return created;
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+        return insertSucessful('Recursos');
+      } catch (e) {
+        throw new BadRequestException(e.message);
+      }
+    });
   }
 
   async getMultimedia(id: number) {
     try {
-      const multimedia = await this.repo.get(this.entityManager, id);
+      const multimedia = await this.repo.getById(this.entityManager, id);
 
       if (!multimedia) throw new Error('Recurso no encontrado');
 
@@ -79,5 +87,16 @@ export class MultimediaService {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
+  }
+
+  async getByUserAndPublic(id: number) {
+    const multimedia = await this.repo.getByUserAndPublic(
+      this.entityManager,
+      id,
+    );
+
+    if (!multimedia) throw new NotFoundException('No se encontraron recursos');
+
+    return multimedia;
   }
 }
