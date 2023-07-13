@@ -8,7 +8,6 @@ import { User } from './entities/user.entity';
 import { Assignment } from './entities/assignment.entity';
 import { Category } from './entities/category.entity';
 import { Link } from './entities/link.entity';
-import { MultimediaType } from './entities/multimedia-type.entity';
 import { Task } from './entities/task.entity';
 import { TaskCategory } from './entities/task-category.entity';
 import { TaskMultimedia } from './entities/task-multimedia.entity';
@@ -17,6 +16,7 @@ import { SecurityModule } from './security/security.module';
 import { UserModule } from './user/user.module';
 import { Group } from './entities/group.entity';
 import { ActivityModule } from './activity/activity.module';
+import { MultimediaModule } from './multimedia/multimedia.module';
 
 @Module({
   imports: [
@@ -31,7 +31,6 @@ import { ActivityModule } from './activity/activity.module';
         Assignment,
         Category,
         Link,
-        MultimediaType,
         Task,
         TaskCategory,
         TaskMultimedia,
@@ -52,6 +51,7 @@ import { ActivityModule } from './activity/activity.module';
     SecurityModule,
     UserModule,
     ActivityModule,
+    MultimediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

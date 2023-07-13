@@ -8,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { MultimediaType } from './multimedia-type.entity';
 import { TaskMultimedia } from './task-multimedia.entity';
 import { User } from './user.entity';
 
@@ -23,11 +22,8 @@ export class Link {
   @Column({ type: 'character varying', nullable: true })
   description: string;
 
-  @Column({ type: 'character varying', nullable: true })
+  @Column({ type: 'character varying', nullable: true, default: false })
   isPublic: boolean;
-
-  @Column({ name: 'multimedia_type' })
-  multimediaTypeId: number;
 
   @Column({ type: 'boolean', default: true })
   status: boolean;
@@ -44,11 +40,8 @@ export class Link {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
   updatedAt: Date;
 
-  @ManyToOne(() => MultimediaType, (multimediaType) => multimediaType.links, {
-    eager: true,
-  })
-  @JoinColumn({ name: 'multimedia_type' })
-  multimediaType: MultimediaType;
+  @Column({ type: 'character varying', name: 'type', length: 20 })
+  type: string;
 
   @OneToMany(() => TaskMultimedia, (taskMultimedia) => taskMultimedia.link)
   tasksMultimedia: TaskMultimedia[];
