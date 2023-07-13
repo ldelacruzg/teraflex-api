@@ -30,7 +30,7 @@ export class Assignment {
   @Column({ name: 'is_completed', type: 'boolean', default: false })
   isCompleted: boolean;
 
-  @Column({ name: 'due_date', type: 'timestamp' })
+  @Column({ name: 'due_date', type: 'timestamp with time zone' })
   dueDate: Date;
 
   @Column({ name: 'created_by', type: 'bigint' })
@@ -39,10 +39,14 @@ export class Assignment {
   @Column({ name: 'updated_by', type: 'bigint', nullable: true })
   updatedById: number;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   updatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.assignments, { eager: true })

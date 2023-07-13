@@ -4,9 +4,9 @@ import * as moment from 'moment-timezone';
 @Injectable()
 export class FormatDateService {
   private formatDate(date: Date): string {
-    return moment(date)
+    return moment(date, 'UTC')
       .locale('es')
-      .tz('America/Guayaquil')
+      .tz('America/Guayaquil', false)
       .format('dddd, MMMM D YYYY, h:mm:ss a');
   }
 

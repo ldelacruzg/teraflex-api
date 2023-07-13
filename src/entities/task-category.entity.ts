@@ -25,10 +25,14 @@ export class TaskCategory {
   @Column({ name: 'updated_by', type: 'bigint', nullable: true })
   updatedById: number;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   updatedAt: Date;
 
   @Column({ name: 'task_id', type: 'bigint' })

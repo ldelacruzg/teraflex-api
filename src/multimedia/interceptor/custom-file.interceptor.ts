@@ -39,7 +39,8 @@ export class CustomFileInterceptor implements MulterOptionsFactory {
         } else cb(null, true);
       },
       limits: {
-        fileSize: 10000000, // Tamaño máximo del archivo (en bytes)
+        fileSize: 15000000, // Tamaño máximo del archivo (en bytes)
+        files: 5, // Número máximo de archivos,
       },
     };
   }

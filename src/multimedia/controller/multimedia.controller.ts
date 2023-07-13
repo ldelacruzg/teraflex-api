@@ -2,12 +2,11 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
   Param,
   Post,
   Req,
   Res,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,12 +16,15 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../security/jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '../../security/jwt-strategy/roles.guard';
+import { CreateLinkDto, uploadMultimediaDto } from './dtos/create-link.dto';
+import { ResponseDataInterface } from '../../shared/interfaces/response-data.interface';
+import { Role } from '../../security/jwt-strategy/roles.decorator';
+import { RoleEnum } from '../../security/jwt-strategy/role.enum';
 
 @Controller('multimedia')
 @ApiTags('multimedia')
@@ -31,37 +33,45 @@ import { RoleGuard } from '../../security/jwt-strategy/roles.guard';
 export class MultimediaController {
   constructor(private service: MultimediaService) {}
 
-  @Post('upload/file')
-  // @UseInterceptors(CustomFileInterceptor)
-  @UseInterceptors(FileInterceptor('file'))
+  @Post('upload/files')
+  @Role(RoleEnum.THERAPIST)
+  @UseInterceptors(FilesInterceptor('files'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
+    type: uploadMultimediaDto,
+    description: 'Cargar uno o varios videos y/o imágenes',
   })
-  @ApiOperation({ description: 'Cargar un video o imágen' })
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
-    return await this.service.saveMultimedia(file, req.user.id);
+  @ApiOperation({ summary: 'Cargar uno o varios videos y/o imágenes' })
+  async uploadFiles(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Req() req: any,
+    @Body() body: uploadMultimediaDto,
+  ) {
+    return {
+      message: await this.service.saveMultimedia(files, body, req.user.id),
+    };
   }
 
   @Post('upload/online')
-  @ApiOperation({ description: 'Cargar un recurso online' })
-  async uploadOnline(@Body() body: { url: string }, @Req() req: any) {
-    return await this.service.saveMultimediaOnline({
-      ...body,
-      createdById: req.user.id,
-    });
+  @Role(RoleEnum.THERAPIST)
+  @ApiOperation({ summary: 'Cargar un recurso online' })
+  @ApiBody({
+    type: [CreateLinkDto],
+    description: 'Cargar uno o varios recursos online',
+  })
+  async uploadOnline(@Body() body: CreateLinkDto[], @Req() req: any) {
+    for (const element of body) {
+      element.createdById = req.user.id;
+    }
+
+    return {
+      message: await this.service.saveMultimediaOnline(body),
+    };
   }
 
   @Get('download/:id')
-  @ApiOperation({ description: 'Descargar un recurso' })
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
+  @ApiOperation({ summary: 'Descargar un recurso' })
   async download(@Param('id') id: number, @Res() res: any) {
     const file = await this.service.getMultimedia(id);
 
@@ -71,5 +81,16 @@ export class MultimediaController {
       'x-processed-filename': `${file.name}`,
     });
     res.send(file.buffer);
+  }
+
+  @Get('all')
+  @Role(RoleEnum.THERAPIST)
+  @ApiOperation({
+    summary: 'Obtener todos los recursos públic y creados por el usuario',
+  })
+  async getAll(@Req() req: any) {
+    return {
+      data: await this.service.getByUserAndPublic(req.user.id),
+    } as ResponseDataInterface;
   }
 }
