@@ -47,18 +47,18 @@ export class TaskController {
   async getTasksByTherapistId(
     @Param('therapistId', ParseIntPipe) therapistId: number,
   ) {
-    return this.taskService.getTasksByTherapistId(therapistId);
+    return this.taskService.getAllTasks({ userId: therapistId });
   }
 
   @Get('logged/tasks')
-  @ApiOperation({ summary: 'Get tasks by logged therapist' })
+  @ApiOperation({ summary: 'Get tasks created by the logged in user' })
   @Role(RoleEnum.THERAPIST)
   async getTasksByLoggedTherapist(@Req() req) {
     // get user logged
     const userLogged = req.user as InfoUserInterface;
 
     // get tasks by therapist id
-    return this.taskService.getTasksByTherapistId(userLogged.id);
+    return this.taskService.getAllTasks({ userId: userLogged.id });
   }
 
   @Post('tasks')

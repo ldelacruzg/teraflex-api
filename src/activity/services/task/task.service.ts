@@ -23,19 +23,29 @@ export class TaskService {
     @InjectEntityManager() private entityManager: EntityManager,
   ) {}
 
-  async getAllTasks() {
-    return this.taksRepository.find({
-      where: { status: true },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        estimatedTime: true,
-        isPublic: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+  async getAllTasks(options?: { userId: number }) {
+    const { userId } = options;
+
+    // create query builder and select fields
+    const query = await this.taksRepository
+      .createQueryBuilder('task')
+      .select([
+        'task.id',
+        'task.title',
+        'task.description',
+        'task.estimatedTime',
+        'task.isPublic',
+        'task.createdAt',
+        'task.updatedAt',
+      ]);
+
+    // if userId exists, add where clause
+    if (userId) {
+      query.where('task.createdById = :userId', { userId });
+    }
+
+    // return tasks
+    return query.getMany();
   }
 
   async getTask(id: number) {
@@ -80,12 +90,6 @@ export class TaskService {
       ...task,
       categories,
     };
-  }
-
-  async getTasksByTherapistId(therapistId: number) {
-    return this.taksRepository.find({
-      where: { createdById: therapistId },
-    });
   }
 
   async createTask(createTaskDto: CreateTaskDto) {
