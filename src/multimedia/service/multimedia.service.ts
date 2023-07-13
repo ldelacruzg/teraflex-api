@@ -6,6 +6,11 @@ import { MultimediaRepository } from './multimedia.repository';
 import { Link } from '../../entities/link.entity';
 import { extname } from 'path';
 import { Environment } from '../../shared/constants/environment';
+import { insertSucessful } from '../../shared/constants/messages';
+import {
+  CreateLinkDto,
+  uploadMultimediaDto,
+} from '../controller/dtos/create-link.dto';
 
 @Injectable()
 export class MultimediaService {
@@ -14,25 +19,35 @@ export class MultimediaService {
     private repo: MultimediaRepository,
   ) {}
 
-  async saveMultimedia(file: Express.Multer.File, currentUserId: number) {
-    try {
-      const payload = {
-        url: file.filename,
-        type: extname(file.filename).replace('.', ''),
-        createdById: currentUserId,
-      } as Link;
+  async saveMultimedia(
+    files: Express.Multer.File[],
+    data: uploadMultimediaDto,
+    currentUserId: number,
+  ) {
+    return await this.entityManager.transaction(async (manager) => {
+      try {
+        for (const file of files) {
+          const payload = {
+            url: file.filename,
+            type: extname(file.filename).replace('.', ''),
+            createdById: currentUserId,
+            isPublic: data.isPublic,
+            description: data.description,
+          } as Link;
 
-      const created = await this.repo.create(this.entityManager, payload);
+          const created = await this.repo.create(manager, payload);
 
-      if (!created) throw new Error('Error al guardar recurso');
+          if (!created) throw new Error('Error al guardar recurso');
+        }
 
-      return created;
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+        return insertSucessful('Recurso');
+      } catch (e) {
+        throw new BadRequestException(e.message);
+      }
+    });
   }
 
-  async saveMultimediaOnline(data: { url: string; createdById: number }) {
+  async saveMultimediaOnline(data: CreateLinkDto) {
     try {
       const payload = {
         ...data,

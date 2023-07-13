@@ -1,6 +1,8 @@
 import { EntityManager } from 'typeorm';
 import { Link } from '../../entities/link.entity';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class MultimediaRepository {
   async create(cnx: EntityManager, payload: Link) {
     const obj = cnx.create(Link, payload);
