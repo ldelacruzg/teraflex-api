@@ -82,6 +82,12 @@ export class TaskService {
     };
   }
 
+  async getTasksByTherapistId(therapistId: number) {
+    return this.taksRepository.find({
+      where: { createdById: therapistId },
+    });
+  }
+
   async createTask(createTaskDto: CreateTaskDto) {
     const { categories, createdById } = createTaskDto;
 

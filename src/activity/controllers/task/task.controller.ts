@@ -20,28 +20,48 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { InfoUserInterface } from 'src/security/jwt-strategy/info-user.interface';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
-@Controller('tasks')
+@Controller()
 @ApiTags('Tasks')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
-  @Get()
+  @Get('tasks')
   @ApiOperation({ summary: 'Get all tasks' })
   @Role(RoleEnum.THERAPIST)
   async getAllTasks() {
     return this.taskService.getAllTasks();
   }
 
-  @Get(':id')
+  @Get('tasks/:id')
   @ApiOperation({ summary: 'Get a task' })
-  @Role(RoleEnum.THERAPIST)
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   async getTask(@Param('id', ParseIntPipe) id: number) {
     return this.taskService.getTask(id);
   }
 
-  @Post()
+  @Get('therapists/:therapistId/tasks')
+  @ApiOperation({ summary: 'Get tasks by therapist id' })
+  @Role(RoleEnum.THERAPIST)
+  async getTasksByTherapistId(
+    @Param('therapistId', ParseIntPipe) therapistId: number,
+  ) {
+    return this.taskService.getTasksByTherapistId(therapistId);
+  }
+
+  @Get('logged/tasks')
+  @ApiOperation({ summary: 'Get tasks by logged therapist' })
+  @Role(RoleEnum.THERAPIST)
+  async getTasksByLoggedTherapist(@Req() req) {
+    // get user logged
+    const userLogged = req.user as InfoUserInterface;
+
+    // get tasks by therapist id
+    return this.taskService.getTasksByTherapistId(userLogged.id);
+  }
+
+  @Post('tasks')
   @ApiOperation({ summary: 'Create a task' })
   @Role(RoleEnum.THERAPIST)
   async createTask(@Req() req, @Body() createTaskDto: CreateTaskDto) {
@@ -53,7 +73,7 @@ export class TaskController {
     return this.taskService.createTask(createTaskDto);
   }
 
-  @Put(':id')
+  @Put('tasks/:id')
   @ApiOperation({ summary: 'Update a task' })
   @Role(RoleEnum.THERAPIST)
   async updateTask(
@@ -69,7 +89,7 @@ export class TaskController {
     return this.taskService.updateTask(id, updateTaskDto);
   }
 
-  @Delete(':id')
+  @Delete('tasks/:id')
   @ApiOperation({ summary: 'Delete a task' })
   @Role(RoleEnum.THERAPIST)
   async deleteTask(@Req() req, @Param('id', ParseIntPipe) id: number) {
