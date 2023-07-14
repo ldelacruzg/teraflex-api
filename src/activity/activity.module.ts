@@ -11,10 +11,20 @@ import { TaskService } from './services/task/task.service';
 import { TaskController } from './controllers/task/task.controller';
 import { AssignmentService } from './services/assignment/assignment.service';
 import { AssignmentController } from './controllers/assignment/assignment.controller';
+import { Link } from 'src/entities/link.entity';
+import { TaskMultimedia } from 'src/entities/task-multimedia.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Task, Category, Assignment, TaskCategory, User]),
+    TypeOrmModule.forFeature([
+      Task,
+      Category,
+      Assignment,
+      TaskCategory,
+      User,
+      Link,
+      TaskMultimedia,
+    ]),
   ],
   providers: [CategoryService, TaskService, AssignmentService],
   controllers: [CategoryController, TaskController, AssignmentController],
