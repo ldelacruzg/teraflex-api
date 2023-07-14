@@ -20,25 +20,30 @@ import { CreateManyAssignmentsDto } from './dto/create-many-assignments.dto';
 import { InfoUserInterface } from 'src/security/jwt-strategy/info-user.interface';
 import { RemoveManyAssignmentDto } from './dto/remove-many-assigments.dto';
 
-@Controller('assignments')
+@Controller()
 @ApiTags('Assignments')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class AssignmentController {
   constructor(private assignmentService: AssignmentService) {}
 
-  @Get(':userId/tasks')
-  @ApiOperation({ summary: 'List all the tasks assigned to a pacient' })
+  @Get('patients/:patientId/tasks')
+  @ApiOperation({
+    summary: 'Se obtiene la lista de tareas asignadas a un paciente',
+  })
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
-  async listTasksByUser(@Param('userId', ParseIntPipe) userId: number) {
-    return this.assignmentService.listTasksByUser(userId);
+  async listTasksByPatient(
+    @Param('patientId', ParseIntPipe) patientId: number,
+  ) {
+    return this.assignmentService.listTasksByUser(patientId);
   }
 
-  @Post()
-  @ApiOperation({ summary: 'Assign one or more tasks to a patient' })
+  @Post('patients/:patientId/tasks')
+  @ApiOperation({ summary: 'Asigna una o más tareas a un paciente' })
   @Role(RoleEnum.THERAPIST)
   async assignTasksToUser(
     @Req() req,
+    @Param('patientId', ParseIntPipe) patientId: number,
     @Body() createManyAssignmentDto: CreateManyAssignmentsDto,
   ) {
     // Assign the creation user
@@ -46,21 +51,25 @@ export class AssignmentController {
     createManyAssignmentDto.createdById = userLogged.id;
 
     // Return the created assignments
-    return this.assignmentService.assignTasksToUser(createManyAssignmentDto);
+    return this.assignmentService.assignTasksToUser(
+      patientId,
+      createManyAssignmentDto,
+    );
   }
 
-  @Delete()
-  @ApiOperation({ summary: 'Delete one or more tasks from a patient' })
+  @Delete('assigments')
+  @ApiOperation({
+    summary: 'Elimina una o más tareas asiganadas a un paciente',
+  })
   @Role(RoleEnum.THERAPIST)
   async deleteTasksFromUser(
-    @Req() req,
     @Body() removeManyAssignmentDto: RemoveManyAssignmentDto,
   ) {
     return this.assignmentService.removeTasksFromUser(removeManyAssignmentDto);
   }
 
-  @Patch(':assignmentId/completed')
-  @ApiOperation({ summary: 'Change the progress status of a patient task' })
+  @Patch('assigments/:assignmentId/completed')
+  @ApiOperation({ summary: 'Cambia el estado de la tarea asignada true/false' })
   @Role(RoleEnum.PATIENT)
   async changeIsCompletedAssignment(
     @Req() req,

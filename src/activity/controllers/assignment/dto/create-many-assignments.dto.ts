@@ -10,11 +10,6 @@ import { AssignTaskDto } from './assign-task.dto';
 
 export class CreateManyAssignmentsDto {
   @ApiProperty()
-  @IsPositive()
-  @IsNotEmpty()
-  userId: number;
-
-  @ApiProperty()
   @ValidateNested()
   @Type(() => AssignTaskDto)
   @ArrayNotEmpty()

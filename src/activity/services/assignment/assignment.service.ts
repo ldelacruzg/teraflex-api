@@ -48,6 +48,7 @@ export class AssignmentService {
       task: {
         id: task.id,
         title: task.title,
+        description: task.description,
       },
       estimatedTime,
       createdAt,
@@ -56,8 +57,11 @@ export class AssignmentService {
   }
 
   // assign one or more tasks to a user
-  async assignTasksToUser(createManyAssignmentDto: CreateManyAssignmentsDto) {
-    const { userId, tasks } = createManyAssignmentDto;
+  async assignTasksToUser(
+    userId: number,
+    createManyAssignmentDto: CreateManyAssignmentsDto,
+  ) {
+    const { tasks } = createManyAssignmentDto;
 
     // verify if the user exists and is a patient
     const user = await this.userRepository.findOneBy({
@@ -88,6 +92,7 @@ export class AssignmentService {
     const dataAssignments: CreateAssignmentDto[] = tasks.map(
       ({ id, estimatedTime }) => ({
         ...createManyAssignmentDto,
+        userId,
         taskId: id,
         estimatedTime,
       }),
