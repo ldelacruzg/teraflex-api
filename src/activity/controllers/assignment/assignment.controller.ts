@@ -9,7 +9,7 @@ import {
   UseGuards,
   ParseIntPipe,
   Patch,
-  ParseBoolPipe,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AssignmentService } from 'src/activity/services/assignment/assignment.service';
@@ -20,6 +20,7 @@ import { RoleGuard } from 'src/security/jwt-strategy/roles.guard';
 import { CreateManyAssignmentsDto } from './dto/create-many-assignments.dto';
 import { InfoUserInterface } from 'src/security/jwt-strategy/info-user.interface';
 import { RemoveManyAssignmentDto } from './dto/remove-many-assigments.dto';
+import { ParseBoolAllowUndefinedPipe } from 'src/shared/pipes/parse-bool-allow-undefined.pipe';
 
 @Controller()
 @ApiTags('Assignments')
@@ -28,15 +29,23 @@ import { RemoveManyAssignmentDto } from './dto/remove-many-assigments.dto';
 export class AssignmentController {
   constructor(private assignmentService: AssignmentService) {}
 
-  @Get('patients/:patientId/tasks/:isCompleted')
+  @Get('patients/:patientId/tasks')
   @ApiOperation({
     summary: 'Se obtiene la lista de tareas asignadas a un paciente',
   })
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   async getAssigmentTasksByUser(
-    @Param('patientId', ParseIntPipe) patientId: number,
-    @Param('isCompleted', ParseBoolPipe) isCompleted: boolean,
+    @Param('patientId', ParseIntPipe)
+    patientId: number,
+    @Query('isCompleted', ParseBoolAllowUndefinedPipe)
+    isCompleted: boolean | undefined,
   ) {
+    if (isCompleted === undefined) {
+      return this.assignmentService.getAssigmentTasksByUser({
+        userId: patientId,
+      });
+    }
+
     return this.assignmentService.getAssigmentTasksByUser({
       userId: patientId,
       isCompleted,
