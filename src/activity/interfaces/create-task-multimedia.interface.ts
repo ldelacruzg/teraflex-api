@@ -1,4 +1,4 @@
-export interface CreateTaskMultimedia {
+export interface ICreateTaskMultimedia {
   taskId: number;
   linkId: number;
   createdById: number;

@@ -6,8 +6,8 @@ import {
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { CreateTaskDto } from 'src/activity/controllers/task/dto/create-task.dto';
 import { UpdateTaskDto } from 'src/activity/controllers/task/dto/update-task.dto';
-import { CreateTaskCategory } from 'src/activity/interfaces/create-task-category.interface';
-import { CreateTaskMultimedia } from 'src/activity/interfaces/create-task-multimedia.interface';
+import { ICreateTaskCategory } from 'src/activity/interfaces/create-task-category.interface';
+import { ICreateTaskMultimedia } from 'src/activity/interfaces/create-task-multimedia.interface';
 import { Category } from 'src/entities/category.entity';
 import { Link } from 'src/entities/link.entity';
 import { TaskCategory } from 'src/entities/task-category.entity';
@@ -24,8 +24,6 @@ export class TaskService {
     @InjectRepository(TaskCategory)
     private taskCategoryRepository: Repository<TaskCategory>,
     @InjectRepository(Link) private linkRepository: Repository<Link>,
-    @InjectRepository(TaskMultimedia)
-    private taskMultimediaRepository: Repository<TaskMultimedia>,
     @InjectEntityManager() private entityManager: EntityManager,
   ) {}
 
@@ -152,7 +150,7 @@ export class TaskService {
       const savedTask = await transaction.save(task);
 
       // Crear los regitros en la tabla relacionada (TaskCategory)
-      const inputTasksCategories: CreateTaskCategory[] = categoryIds.map(
+      const inputTasksCategories: ICreateTaskCategory[] = categoryIds.map(
         (categoryId) => ({
           taskId: savedTask.id,
           categoryId,
@@ -168,7 +166,7 @@ export class TaskService {
 
       // Crear los registros en la tabla relacionada (TaskMultimedia)
       if (anyFiles) {
-        const inputTasksMultimedia: CreateTaskMultimedia[] = fileIds.map(
+        const inputTasksMultimedia: ICreateTaskMultimedia[] = fileIds.map(
           (linkId) => ({
             linkId,
             taskId: savedTask.id,

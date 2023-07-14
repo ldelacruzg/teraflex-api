@@ -9,6 +9,7 @@ import { CreateManyAssignmentsDto } from 'src/activity/controllers/assignment/dt
 import { RemoveManyAssignmentDto } from 'src/activity/controllers/assignment/dto/remove-many-assigments.dto';
 import { IAssignedTaskDetail } from 'src/activity/interfaces/assigned-task-detail.interface';
 import { IAssignedTaskFileDetail } from 'src/activity/interfaces/assigned-task-file-detail.interface';
+import { IChangeIsCompletedAssignment } from 'src/activity/interfaces/change-is-completed-assignment.interface';
 import { Assignment } from 'src/entities/assignment.entity';
 import { Task } from 'src/entities/task.entity';
 import { User } from 'src/entities/user.entity';
@@ -216,7 +217,7 @@ export class AssignmentService {
 
   // change the isCompleted property of an assignment
   async changeIsCompletedAssignment(
-    changeIsCompletedAssignment: ChangeIsCompletedAssignment,
+    changeIsCompletedAssignment: IChangeIsCompletedAssignment,
   ) {
     const { assignmentId, userLoggedId } = changeIsCompletedAssignment;
 
