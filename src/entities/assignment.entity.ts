@@ -30,8 +30,11 @@ export class Assignment {
   @Column({ name: 'is_completed', type: 'boolean', default: false })
   isCompleted: boolean;
 
-  @Column({ name: 'due_date', type: 'timestamp with time zone' })
+  @Column({ name: 'due_date', type: 'date' })
   dueDate: Date;
+
+  @Column({ name: 'description', type: 'text', nullable: true })
+  description: string;
 
   @Column({ name: 'created_by', type: 'bigint' })
   createdById: number;

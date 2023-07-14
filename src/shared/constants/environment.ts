@@ -9,5 +9,6 @@ export const Environment = {
   DATABASE_NAME: process.env.DATABASE_NAME || 'teraflex',
   DATABASE_SSL: process.env.DATABASE_SSL || false,
   JWT_SECRETKEY: process.env.JWT_SECRETKEY,
-  PUBLIC_DIR: process.env.PUBLIC_DIR || './public',
+  PUBLIC_DIR: process.env.PUBLIC_DIR || './src/public',
+  FILE_SIZE: process.env.FILE_SIZE || 20,
 };
