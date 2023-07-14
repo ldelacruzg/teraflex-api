@@ -90,7 +90,12 @@ export class CreateTaskDto {
   @ArrayNotEmpty({
     message: 'Las categorias son requeridas',
   })
-  categories: number[];
+  categoryIds: number[];
+
+  @ApiProperty()
+  @ArrayUnique()
+  @IsNumber({}, { each: true })
+  fileIds: number[];
 
   createdById: number;
 }
