@@ -9,13 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { GroupService } from '../../service/group/group.service';
-import { InjectEntityManager } from '@nestjs/typeorm';
-import { EntityManager } from 'typeorm';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../security/jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '../../../security/jwt-strategy/roles.guard';
 import { Role } from '../../../security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '../../../security/jwt-strategy/role.enum';
+import { ResponseDataInterface } from '../../../shared/interfaces/response-data.interface';
 
 @Controller('group')
 @ApiTags('Grupo')
@@ -29,7 +28,9 @@ export class GroupController {
   @ApiOperation({ summary: 'Asociar paciente a terapista' })
   async addPatient(@Req() req, @Param('id') id: number) {
     try {
-      return await this.service.addPatient(id, req.user);
+      return {
+        message: await this.service.addPatient(id, req.user),
+      } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -39,7 +40,9 @@ export class GroupController {
   @ApiOperation({ summary: 'Desasociar paciente de terapista' })
   async deletePatient(@Req() req, @Param('id') id: number) {
     try {
-      return await this.service.deletePatient(id, req.user);
+      return {
+        message: await this.service.deletePatient(id, req.user),
+      } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
@@ -51,7 +54,9 @@ export class GroupController {
   })
   async getAllByTherapist(@Req() req) {
     try {
-      return await this.service.getAllByTherapist(req.user.id);
+      return {
+        data: await this.service.getAllByTherapist(req.user.id),
+      } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
