@@ -25,7 +25,12 @@ export class AssignmentService {
   ) {}
 
   // list all the tasks assigned to a pacient
-  async listTasksByUser(userId: number) {
+  async getAssigmentTasksByUser(options: {
+    userId: number;
+    isCompleted?: boolean;
+  }) {
+    const { userId, isCompleted } = options;
+
     // verify if the user exists and is a patient
     const user = await this.userRepository.findOneBy({
       id: userId,
@@ -39,10 +44,11 @@ export class AssignmentService {
 
     // get the tasks assigned to the user
     const tasks = await this.assignmentRepository.find({
-      where: { userId },
+      where: { userId, isCompleted },
       relations: ['task'],
     });
 
+    // return the tasks
     return tasks.map(({ task, createdAt, estimatedTime, dueDate, id }) => ({
       id,
       task: {

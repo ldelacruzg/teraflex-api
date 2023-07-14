@@ -9,6 +9,7 @@ import {
   UseGuards,
   ParseIntPipe,
   Patch,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AssignmentService } from 'src/activity/services/assignment/assignment.service';
@@ -27,15 +28,19 @@ import { RemoveManyAssignmentDto } from './dto/remove-many-assigments.dto';
 export class AssignmentController {
   constructor(private assignmentService: AssignmentService) {}
 
-  @Get('patients/:patientId/tasks')
+  @Get('patients/:patientId/tasks/:isCompleted')
   @ApiOperation({
     summary: 'Se obtiene la lista de tareas asignadas a un paciente',
   })
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
-  async listTasksByPatient(
+  async getAssigmentTasksByUser(
     @Param('patientId', ParseIntPipe) patientId: number,
+    @Param('isCompleted', ParseBoolPipe) isCompleted: boolean,
   ) {
-    return this.assignmentService.listTasksByUser(patientId);
+    return this.assignmentService.getAssigmentTasksByUser({
+      userId: patientId,
+      isCompleted,
+    });
   }
 
   @Post('patients/:patientId/tasks')

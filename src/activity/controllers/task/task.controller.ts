@@ -19,13 +19,17 @@ import { RoleGuard } from 'src/security/jwt-strategy/roles.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { InfoUserInterface } from 'src/security/jwt-strategy/info-user.interface';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { AssignmentService } from 'src/activity/services/assignment/assignment.service';
 
 @Controller()
 @ApiTags('Tasks')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class TaskController {
-  constructor(private taskService: TaskService) {}
+  constructor(
+    private taskService: TaskService,
+    private assignmentService: AssignmentService,
+  ) {}
 
   @Get('tasks')
   @ApiOperation({ summary: 'Get all tasks' })
@@ -52,13 +56,21 @@ export class TaskController {
 
   @Get('logged/tasks')
   @ApiOperation({ summary: 'Get tasks created by the logged in user' })
-  @Role(RoleEnum.THERAPIST)
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   async getTasksByLoggedTherapist(@Req() req) {
     // get user logged
-    const userLogged = req.user as InfoUserInterface;
+    const { id, role } = req.user as InfoUserInterface;
+
+    // get tasks by patient id
+    if (role === RoleEnum.PATIENT) {
+      return this.assignmentService.getAssigmentTasksByUser({
+        userId: id,
+        isCompleted: false,
+      });
+    }
 
     // get tasks by therapist id
-    return this.taskService.getAllTasks({ userId: userLogged.id });
+    return this.taskService.getAllTasks({ userId: id });
   }
 
   @Post('tasks')
