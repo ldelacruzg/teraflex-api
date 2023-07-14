@@ -95,7 +95,8 @@ export class MultimediaService {
       id,
     );
 
-    if (!multimedia) throw new NotFoundException('No se encontraron recursos');
+    if (!multimedia)
+      throw new NotFoundException('No se encontraron los recursos');
 
     return multimedia;
   }
