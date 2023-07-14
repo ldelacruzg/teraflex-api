@@ -52,6 +52,19 @@ export class AssignmentController {
     });
   }
 
+  @Get('assignments/:assignmentId/task')
+  @ApiOperation({
+    summary: 'Se obtiene el detalle de una tarea asignada',
+  })
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
+  async getAssignedTaskDetails(
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+  ) {
+    return this.assignmentService.getAssignedTaskDetails({
+      assignmentId,
+    });
+  }
+
   @Post('patients/:patientId/tasks')
   @ApiOperation({ summary: 'Asigna una o más tareas a un paciente' })
   @Role(RoleEnum.THERAPIST)

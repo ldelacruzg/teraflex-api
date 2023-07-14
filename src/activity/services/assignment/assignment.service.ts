@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAssignmentDto } from 'src/activity/controllers/assignment/dto/create-assigment.dto';
 import { CreateManyAssignmentsDto } from 'src/activity/controllers/assignment/dto/create-many-assignments.dto';
 import { RemoveManyAssignmentDto } from 'src/activity/controllers/assignment/dto/remove-many-assigments.dto';
+import { IAssignedTaskDetail } from 'src/activity/interfaces/assigned-task-detail.interface';
+import { IAssignedTaskFileDetail } from 'src/activity/interfaces/assigned-task-file-detail.interface';
 import { Assignment } from 'src/entities/assignment.entity';
 import { Task } from 'src/entities/task.entity';
 import { User } from 'src/entities/user.entity';
@@ -60,6 +62,68 @@ export class AssignmentService {
       createdAt,
       dueDate,
     }));
+  }
+
+  // get the task assignments of a user (detail)
+  async getAssignedTaskDetails(options: {
+    assignmentId: number;
+  }): Promise<IAssignedTaskDetail> {
+    const { assignmentId } = options;
+
+    // verify if the assignment exists
+    const assignment = await this.assignmentRepository.findOneBy({
+      id: assignmentId,
+    });
+
+    if (!assignment) {
+      throw new NotFoundException(
+        `La asignación con Id "${assignmentId}" no existe`,
+      );
+    }
+
+    // get the task assigned to the user
+    const task = await this.taskRepository.findOne({
+      where: { id: assignment.taskId },
+      select: {
+        id: true,
+        title: true,
+        tasksMultimedia: {
+          id: true,
+          link: {
+            id: true,
+            url: true,
+            type: true,
+          },
+        },
+      },
+      relations: {
+        tasksMultimedia: {
+          link: true,
+        },
+      },
+    });
+
+    // get the files of the task
+    const files: IAssignedTaskFileDetail[] = task.tasksMultimedia.map(
+      ({ link }) => ({
+        id: link.id,
+        url: link.url,
+        type: link.type,
+      }),
+    );
+
+    // return the assignment
+    return {
+      assignmentId: assignment.id,
+      taskId: task.id,
+      title: task.title,
+      description: assignment.description,
+      estimatedTime: assignment.estimatedTime,
+      isCompleted: assignment.isCompleted,
+      createdAt: assignment.createdAt,
+      dueDate: assignment.dueDate,
+      files,
+    };
   }
 
   // assign one or more tasks to a user
