@@ -27,7 +27,7 @@ export class TaskService {
     @InjectEntityManager() private entityManager: EntityManager,
   ) {}
 
-  async getAllTasks(options?: { userId?: number; status?: boolean }) {
+  async getAllTasks(options: { userId?: number; status?: boolean }) {
     const { userId, status } = options;
 
     // create query builder and select fields

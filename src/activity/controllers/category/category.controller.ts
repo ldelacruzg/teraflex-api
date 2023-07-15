@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Put,
   Delete,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CategoryService } from 'src/activity/services/category/category.service';
@@ -19,8 +20,11 @@ import { Role } from 'src/security/jwt-strategy/roles.decorator';
 import { RoleGuard } from 'src/security/jwt-strategy/roles.guard';
 import { InfoUserInterface } from 'src/security/jwt-strategy/info-user.interface';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ResponseHttpInterceptor } from 'src/shared/interceptors/response-http.interceptor';
+import { ResponseDataInterface } from 'src/shared/interfaces/response-data.interface';
 
 @Controller('categories')
+@UseInterceptors(ResponseHttpInterceptor)
 @ApiTags('Categories')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -30,15 +34,23 @@ export class CategoryController {
   @Get()
   @ApiOperation({ summary: 'Get all categories' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async getAllCategories() {
-    return this.categoryService.getAllCategories();
+  async getAllCategories(): Promise<ResponseDataInterface> {
+    return {
+      message: 'Categorias obtenidas correctamente',
+      data: await this.categoryService.getAllCategories(),
+    };
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a category' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async getCategory(@Param('id', ParseIntPipe) id: number) {
-    return this.categoryService.getCatgeoryById(id);
+  async getCategory(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ResponseDataInterface> {
+    return {
+      message: 'Categoria obtenida correctamente',
+      data: await this.categoryService.getCatgeoryById(id),
+    };
   }
 
   @Post()
@@ -47,13 +59,16 @@ export class CategoryController {
   async createCategory(
     @Req() req,
     @Body() createCategoryDto: CreateCategoryDto,
-  ) {
+  ): Promise<ResponseDataInterface> {
     // Asignar el usuario de creación
     const userLogged = req.user as InfoUserInterface;
     createCategoryDto.createdById = userLogged.id;
 
     // Retornar la categoria creada
-    return this.categoryService.createCategory(createCategoryDto);
+    return {
+      message: 'Categoria creada correctamente',
+      data: await this.categoryService.createCategory(createCategoryDto),
+    };
   }
 
   @Put(':id')
@@ -63,7 +78,7 @@ export class CategoryController {
     @Req() req,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
+  ): Promise<ResponseDataInterface> {
     // Asigna el usuario de modificación
     const userLogged = req.user as InfoUserInterface;
     updateCategoryDto.updatedById = userLogged.id;
@@ -75,16 +90,28 @@ export class CategoryController {
     );
 
     // Retorna la categoria modificada
-    return changedCategory;
+    return {
+      message: 'Categoria modificada correctamente',
+      data: changedCategory,
+    };
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Detele a category' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async deleteCategory(@Req() req, @Param('id', ParseIntPipe) id: number) {
-    return this.categoryService.deleteCategory({
+  async deleteCategory(
+    @Req() req,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ResponseDataInterface> {
+    // delete category
+    const deletedCategory = await this.categoryService.deleteCategory({
       id,
       updatedById: req.user.id,
     });
+
+    return {
+      message: 'Categoria eliminada correctamente',
+      data: deletedCategory,
+    };
   }
 }
