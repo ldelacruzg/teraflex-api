@@ -92,7 +92,7 @@ export class CreateTaskDto {
   })
   categoryIds: number[];
 
-  @ApiProperty({ type: [Number] })
+  @ApiProperty({ type: [Number], required: false })
   @ArrayUnique()
   @IsNumber({}, { each: true })
   fileIds: number[];
