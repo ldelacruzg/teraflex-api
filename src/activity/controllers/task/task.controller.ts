@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -20,6 +21,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { InfoUserInterface } from 'src/security/jwt-strategy/info-user.interface';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { AssignmentService } from 'src/activity/services/assignment/assignment.service';
+import { ParseBoolAllowUndefinedPipe } from 'src/shared/pipes/parse-bool-allow-undefined.pipe';
 
 @Controller()
 @ApiTags('Tasks')
@@ -50,27 +52,31 @@ export class TaskController {
   @Role(RoleEnum.THERAPIST)
   async getTasksByTherapistId(
     @Param('therapistId', ParseIntPipe) therapistId: number,
+    @Query('status', ParseBoolAllowUndefinedPipe) status: boolean | undefined,
   ) {
-    return this.taskService.getAllTasks({ userId: therapistId });
+    return this.taskService.getAllTasks({ userId: therapistId, status });
   }
 
   @Get('logged/tasks')
   @ApiOperation({ summary: 'Get tasks created by the logged in user' })
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
-  async getTasksByLoggedTherapist(@Req() req) {
+  async getTasksByLoggedTherapist(
+    @Req() req,
+    @Query('status', ParseBoolAllowUndefinedPipe) status: boolean | undefined,
+  ) {
     // get user logged
-    const { id, role } = req.user as InfoUserInterface;
+    const { id: userId, role } = req.user as InfoUserInterface;
 
     // get tasks by patient id
     if (role === RoleEnum.PATIENT) {
       return this.assignmentService.getAssigmentTasksByUser({
-        userId: id,
+        userId,
         isCompleted: false,
       });
     }
 
     // get tasks by therapist id
-    return this.taskService.getAllTasks({ userId: id });
+    return this.taskService.getAllTasks({ userId, status });
   }
 
   @Post('tasks')

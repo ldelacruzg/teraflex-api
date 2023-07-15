@@ -27,8 +27,8 @@ export class TaskService {
     @InjectEntityManager() private entityManager: EntityManager,
   ) {}
 
-  async getAllTasks(options?: { userId: number }) {
-    const { userId } = options;
+  async getAllTasks(options?: { userId?: number; status?: boolean }) {
+    const { userId, status } = options;
 
     // create query builder and select fields
     const query = await this.taksRepository
@@ -38,6 +38,7 @@ export class TaskService {
         'task.title',
         'task.description',
         'task.estimatedTime',
+        'task.status',
         'task.isPublic',
         'task.createdAt',
         'task.updatedAt',
@@ -46,6 +47,11 @@ export class TaskService {
     // if userId exists, add where clause
     if (userId) {
       query.where('task.createdById = :userId', { userId });
+    }
+
+    // if status exists, add where clause
+    if (status !== undefined) {
+      query.andWhere('task.status = :status', { status });
     }
 
     // return tasks
