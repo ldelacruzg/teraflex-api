@@ -4,12 +4,12 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateAssignmentDto } from 'src/activity/controllers/assignment/dto/create-assigment.dto';
 import { CreateManyAssignmentsDto } from 'src/activity/controllers/assignment/dto/create-many-assignments.dto';
 import { RemoveManyAssignmentDto } from 'src/activity/controllers/assignment/dto/remove-many-assigments.dto';
 import { IAssignedTaskDetail } from 'src/activity/interfaces/assigned-task-detail.interface';
 import { IAssignedTaskFileDetail } from 'src/activity/interfaces/assigned-task-file-detail.interface';
 import { IChangeIsCompletedAssignment } from 'src/activity/interfaces/change-is-completed-assignment.interface';
+import { ICreateAssignment } from 'src/activity/interfaces/create-assignment.interface';
 import { Assignment } from 'src/entities/assignment.entity';
 import { Task } from 'src/entities/task.entity';
 import { User } from 'src/entities/user.entity';
@@ -160,7 +160,7 @@ export class AssignmentService {
     }
 
     // create the data to insert
-    const dataAssignments: CreateAssignmentDto[] = tasks.map(
+    const dataAssignments: ICreateAssignment[] = tasks.map(
       ({ id, estimatedTime }) => ({
         ...createManyAssignmentDto,
         userId,

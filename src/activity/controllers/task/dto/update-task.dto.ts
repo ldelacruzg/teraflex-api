@@ -67,7 +67,7 @@ export class UpdateTaskDto {
   })
   isPublic: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ type: [Number] })
   @IsOptional()
   @ArrayUnique({
     message: 'Las categorias debe ser únicas',
