@@ -52,17 +52,19 @@ export class AssignmentService {
     });
 
     // return the tasks
-    return tasks.map(({ task, createdAt, estimatedTime, dueDate, id }) => ({
-      id,
-      task: {
-        id: task.id,
-        title: task.title,
-        description: task.description,
-      },
-      estimatedTime,
-      createdAt,
-      dueDate,
-    }));
+    return tasks.map(
+      ({ task, createdAt, estimatedTime, dueDate, id, description }) => ({
+        id,
+        task: {
+          id: task.id,
+          title: task.title,
+          description,
+          estimatedTime,
+        },
+        createdAt,
+        dueDate,
+      }),
+    );
   }
 
   // get the task assignments of a user (detail)
@@ -132,7 +134,7 @@ export class AssignmentService {
     userId: number,
     createManyAssignmentDto: CreateManyAssignmentsDto,
   ) {
-    const { tasks } = createManyAssignmentDto;
+    const { tasks, dueDate, createdById } = createManyAssignmentDto;
 
     // verify if the user exists and is a patient
     const user = await this.userRepository.findOneBy({
@@ -161,11 +163,13 @@ export class AssignmentService {
 
     // create the data to insert
     const dataAssignments: ICreateAssignment[] = tasks.map(
-      ({ id, estimatedTime }) => ({
-        ...createManyAssignmentDto,
+      ({ id: taskId, estimatedTime, description }) => ({
         userId,
-        taskId: id,
+        taskId,
         estimatedTime,
+        description,
+        dueDate,
+        createdById,
       }),
     );
 
