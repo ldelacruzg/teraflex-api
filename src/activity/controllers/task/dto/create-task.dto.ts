@@ -77,7 +77,7 @@ export class CreateTaskDto {
   })
   isPublic: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ type: [Number] })
   @ArrayUnique({
     message: 'Las categorias debe ser únicas',
   })
@@ -90,7 +90,12 @@ export class CreateTaskDto {
   @ArrayNotEmpty({
     message: 'Las categorias son requeridas',
   })
-  categories: number[];
+  categoryIds: number[];
+
+  @ApiProperty({ type: [Number], required: false })
+  @ArrayUnique()
+  @IsNumber({}, { each: true })
+  fileIds: number[];
 
   createdById: number;
 }

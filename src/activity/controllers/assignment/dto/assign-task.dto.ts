@@ -1,15 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsPositive, Max } from 'class-validator';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { IsNotEmpty, IsPositive } from 'class-validator';
+import { CreateTaskDto } from '../../task/dto/create-task.dto';
 
-export class AssignTaskDto {
+export class AssignTaskDto extends PickType(CreateTaskDto, [
+  'estimatedTime',
+  'description',
+]) {
   @ApiProperty()
   @IsPositive()
   @IsNotEmpty()
   id: number;
-
-  @ApiProperty()
-  @Max(59)
-  @IsPositive()
-  @IsNotEmpty()
-  estimatedTime: number;
 }

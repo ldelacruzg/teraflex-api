@@ -4,11 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { CreateTaskCategoryDto } from 'src/activity/controllers/task/dto/create-task-category.dto';
 import { CreateTaskDto } from 'src/activity/controllers/task/dto/create-task.dto';
 import { UpdateTaskDto } from 'src/activity/controllers/task/dto/update-task.dto';
+import { ICreateTaskCategory } from 'src/activity/interfaces/create-task-category.interface';
+import { ICreateTaskMultimedia } from 'src/activity/interfaces/create-task-multimedia.interface';
 import { Category } from 'src/entities/category.entity';
+import { Link } from 'src/entities/link.entity';
 import { TaskCategory } from 'src/entities/task-category.entity';
+import { TaskMultimedia } from 'src/entities/task-multimedia.entity';
 import { Task } from 'src/entities/task.entity';
 import { EntityManager, Repository } from 'typeorm';
 
@@ -20,11 +23,12 @@ export class TaskService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(TaskCategory)
     private taskCategoryRepository: Repository<TaskCategory>,
+    @InjectRepository(Link) private linkRepository: Repository<Link>,
     @InjectEntityManager() private entityManager: EntityManager,
   ) {}
 
-  async getAllTasks(options?: { userId: number }) {
-    const { userId } = options;
+  async getAllTasks(options: { userId?: number; status?: boolean }) {
+    const { userId, status } = options;
 
     // create query builder and select fields
     const query = await this.taksRepository
@@ -34,6 +38,7 @@ export class TaskService {
         'task.title',
         'task.description',
         'task.estimatedTime',
+        'task.status',
         'task.isPublic',
         'task.createdAt',
         'task.updatedAt',
@@ -42,6 +47,11 @@ export class TaskService {
     // if userId exists, add where clause
     if (userId) {
       query.where('task.createdById = :userId', { userId });
+    }
+
+    // if status exists, add where clause
+    if (status !== undefined) {
+      query.andWhere('task.status = :status', { status });
     }
 
     // return tasks
@@ -61,7 +71,16 @@ export class TaskService {
         tasksCategories: {
           id: true,
           category: {
+            id: true,
             name: true,
+          },
+        },
+        tasksMultimedia: {
+          id: true,
+          link: {
+            id: true,
+            url: true,
+            type: true,
           },
         },
         createdAt: true,
@@ -70,6 +89,9 @@ export class TaskService {
       relations: {
         tasksCategories: {
           category: true,
+        },
+        tasksMultimedia: {
+          link: true,
         },
       },
     });
@@ -80,42 +102,61 @@ export class TaskService {
     }
 
     // Se obtiene las categorias de la tarea
-    const categories = task.tasksCategories.map(({ category }) => ({
-      name: category.name,
-    }));
+    const categories = task.tasksCategories.map(({ category }) => category);
+
+    // Se obtiene los archivos de la tarea
+    const files = task.tasksMultimedia.map(({ link }) => link);
 
     // Devolver la tarea encontrada
     delete task.tasksCategories;
+    delete task.tasksMultimedia;
     return {
       ...task,
       categories,
+      files,
     };
   }
 
   async createTask(createTaskDto: CreateTaskDto) {
-    const { categories, createdById } = createTaskDto;
+    const { categoryIds, fileIds, createdById } = createTaskDto;
 
     // Consulta las categorias
     const categoriesCount = await this.categoryRepository
       .createQueryBuilder()
-      .where('id IN (:...ids)', { ids: categories })
+      .where('id IN (:...ids)', { ids: categoryIds })
       .getCount();
 
     // Verifica si existen las categorias
-    if (categories.length !== categoriesCount) {
+    if (categoryIds.length !== categoriesCount) {
       throw new BadRequestException(
-        `Una o todas de las categorias ["${categories}"] no existe`,
+        `Una o todas de las categorias ["${categoryIds}"] no existe`,
       );
+    }
+
+    // Consulta los archivos
+    const anyFiles = fileIds.length > 0;
+    if (anyFiles) {
+      const filesCount = await this.linkRepository
+        .createQueryBuilder()
+        .where('id IN (:...ids)', { ids: fileIds })
+        .getCount();
+
+      // Verifica si existen los archivos
+      if (fileIds.length !== filesCount) {
+        throw new BadRequestException(
+          `Uno o todos de los archivos ["${fileIds}"] no existe`,
+        );
+      }
     }
 
     // Crea y devuelve una nueva tarea
     return this.entityManager.transaction(async (transaction) => {
       // Crear la tarea
-      const task = this.taksRepository.create(createTaskDto);
+      const task = transaction.create(Task, createTaskDto);
       const savedTask = await transaction.save(task);
 
       // Crear los regitros en la tabla relacionada (TaskCategory)
-      const inputTasksCategories: CreateTaskCategoryDto[] = categories.map(
+      const inputTasksCategories: ICreateTaskCategory[] = categoryIds.map(
         (categoryId) => ({
           taskId: savedTask.id,
           categoryId,
@@ -123,9 +164,28 @@ export class TaskService {
         }),
       );
 
-      const tasksCategories =
-        this.taskCategoryRepository.create(inputTasksCategories);
+      const tasksCategories = transaction.create(
+        TaskCategory,
+        inputTasksCategories,
+      );
       await transaction.save(tasksCategories);
+
+      // Crear los registros en la tabla relacionada (TaskMultimedia)
+      if (anyFiles) {
+        const inputTasksMultimedia: ICreateTaskMultimedia[] = fileIds.map(
+          (linkId) => ({
+            linkId,
+            taskId: savedTask.id,
+            createdById,
+          }),
+        );
+
+        const tasksMultimedia = transaction.create(
+          TaskMultimedia,
+          inputTasksMultimedia,
+        );
+        await transaction.save(tasksMultimedia);
+      }
 
       // Devuelve la tarea creada
       return savedTask;

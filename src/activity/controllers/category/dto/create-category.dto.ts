@@ -20,7 +20,7 @@ export class CreateCategoryDto {
   })
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @Length(3, 255, {
     message: 'La descripción debe tener entre 3 y 255 caracteres',
@@ -30,7 +30,7 @@ export class CreateCategoryDto {
   })
   description: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean({
     message: 'El estado debe ser de tipo booleano (true/false)',

@@ -13,7 +13,7 @@ import {
 } from 'class-validator';
 
 export class UpdateTaskDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @Length(3, 100, {
     message: 'El título debe contener entre 3 y 100 caracteres',
@@ -23,7 +23,7 @@ export class UpdateTaskDto {
   })
   title: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @Length(3, 255, {
     message: 'La descripción debe contener entre 3 y 255 caracteres',
@@ -33,14 +33,14 @@ export class UpdateTaskDto {
   })
   description: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean({
     message: 'El estado debe ser de tipo booleano (true/false)',
   })
   status: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @Max(59, {
     message: 'El tiempo estimado debe ser menor o igual que 59 min',
@@ -60,14 +60,14 @@ export class UpdateTaskDto {
   )
   estimatedTime: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean({
     message: 'Es público debe ser de tipo boolean (true/false)',
   })
   isPublic: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ type: [Number], required: false })
   @IsOptional()
   @ArrayUnique({
     message: 'Las categorias debe ser únicas',

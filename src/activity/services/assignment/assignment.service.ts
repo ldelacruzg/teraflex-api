@@ -4,9 +4,12 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateAssignmentDto } from 'src/activity/controllers/assignment/dto/create-assigment.dto';
 import { CreateManyAssignmentsDto } from 'src/activity/controllers/assignment/dto/create-many-assignments.dto';
 import { RemoveManyAssignmentDto } from 'src/activity/controllers/assignment/dto/remove-many-assigments.dto';
+import { IAssignedTaskDetail } from 'src/activity/interfaces/assigned-task-detail.interface';
+import { IAssignedTaskFileDetail } from 'src/activity/interfaces/assigned-task-file-detail.interface';
+import { IChangeIsCompletedAssignment } from 'src/activity/interfaces/change-is-completed-assignment.interface';
+import { ICreateAssignment } from 'src/activity/interfaces/create-assignment.interface';
 import { Assignment } from 'src/entities/assignment.entity';
 import { Task } from 'src/entities/task.entity';
 import { User } from 'src/entities/user.entity';
@@ -25,7 +28,12 @@ export class AssignmentService {
   ) {}
 
   // list all the tasks assigned to a pacient
-  async listTasksByUser(userId: number) {
+  async getAssigmentTasksByUser(options: {
+    userId: number;
+    isCompleted?: boolean;
+  }) {
+    const { userId, isCompleted } = options;
+
     // verify if the user exists and is a patient
     const user = await this.userRepository.findOneBy({
       id: userId,
@@ -39,21 +47,86 @@ export class AssignmentService {
 
     // get the tasks assigned to the user
     const tasks = await this.assignmentRepository.find({
-      where: { userId },
+      where: { userId, isCompleted },
       relations: ['task'],
     });
 
-    return tasks.map(({ task, createdAt, estimatedTime, dueDate, id }) => ({
-      id,
-      task: {
-        id: task.id,
-        title: task.title,
-        description: task.description,
+    // return the tasks
+    return tasks.map(
+      ({ task, createdAt, estimatedTime, dueDate, id, description }) => ({
+        id,
+        task: {
+          id: task.id,
+          title: task.title,
+          description,
+          estimatedTime,
+        },
+        createdAt,
+        dueDate,
+      }),
+    );
+  }
+
+  // get the task assignments of a user (detail)
+  async getAssignedTaskDetails(options: {
+    assignmentId: number;
+  }): Promise<IAssignedTaskDetail> {
+    const { assignmentId } = options;
+
+    // verify if the assignment exists
+    const assignment = await this.assignmentRepository.findOneBy({
+      id: assignmentId,
+    });
+
+    if (!assignment) {
+      throw new NotFoundException(
+        `La asignación con Id "${assignmentId}" no existe`,
+      );
+    }
+
+    // get the task assigned to the user
+    const task = await this.taskRepository.findOne({
+      where: { id: assignment.taskId },
+      select: {
+        id: true,
+        title: true,
+        tasksMultimedia: {
+          id: true,
+          link: {
+            id: true,
+            url: true,
+            type: true,
+          },
+        },
       },
-      estimatedTime,
-      createdAt,
-      dueDate,
-    }));
+      relations: {
+        tasksMultimedia: {
+          link: true,
+        },
+      },
+    });
+
+    // get the files of the task
+    const files: IAssignedTaskFileDetail[] = task.tasksMultimedia.map(
+      ({ link }) => ({
+        id: link.id,
+        url: link.url,
+        type: link.type,
+      }),
+    );
+
+    // return the assignment
+    return {
+      assignmentId: assignment.id,
+      taskId: task.id,
+      title: task.title,
+      description: assignment.description,
+      estimatedTime: assignment.estimatedTime,
+      isCompleted: assignment.isCompleted,
+      createdAt: assignment.createdAt,
+      dueDate: assignment.dueDate,
+      files,
+    };
   }
 
   // assign one or more tasks to a user
@@ -61,7 +134,7 @@ export class AssignmentService {
     userId: number,
     createManyAssignmentDto: CreateManyAssignmentsDto,
   ) {
-    const { tasks } = createManyAssignmentDto;
+    const { tasks, dueDate, createdById } = createManyAssignmentDto;
 
     // verify if the user exists and is a patient
     const user = await this.userRepository.findOneBy({
@@ -89,12 +162,14 @@ export class AssignmentService {
     }
 
     // create the data to insert
-    const dataAssignments: CreateAssignmentDto[] = tasks.map(
-      ({ id, estimatedTime }) => ({
-        ...createManyAssignmentDto,
+    const dataAssignments: ICreateAssignment[] = tasks.map(
+      ({ id: taskId, estimatedTime, description }) => ({
         userId,
-        taskId: id,
+        taskId,
         estimatedTime,
+        description,
+        dueDate,
+        createdById,
       }),
     );
 
@@ -146,7 +221,7 @@ export class AssignmentService {
 
   // change the isCompleted property of an assignment
   async changeIsCompletedAssignment(
-    changeIsCompletedAssignment: ChangeIsCompletedAssignment,
+    changeIsCompletedAssignment: IChangeIsCompletedAssignment,
   ) {
     const { assignmentId, userLoggedId } = changeIsCompletedAssignment;
 

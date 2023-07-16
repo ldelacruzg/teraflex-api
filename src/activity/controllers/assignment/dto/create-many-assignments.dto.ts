@@ -1,15 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ArrayNotEmpty,
-  IsNotEmpty,
-  IsPositive,
-  ValidateNested,
-} from 'class-validator';
+import { ArrayNotEmpty, IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AssignTaskDto } from './assign-task.dto';
 
 export class CreateManyAssignmentsDto {
-  @ApiProperty()
+  @ApiProperty({ type: [AssignTaskDto] })
   @ValidateNested()
   @Type(() => AssignTaskDto)
   @ArrayNotEmpty()
