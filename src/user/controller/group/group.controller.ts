@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   Param,
+  ParseIntPipe,
   Post,
   Req,
   UseGuards,
@@ -26,7 +27,7 @@ export class GroupController {
 
   @Post('add/:id')
   @ApiOperation({ summary: 'Asociar paciente a terapista' })
-  async addPatient(@Req() req, @Param('id') id: number) {
+  async addPatient(@Req() req, @Param('id', ParseIntPipe) id: number) {
     try {
       return {
         message: await this.service.addPatient(id, req.user),
@@ -38,7 +39,7 @@ export class GroupController {
 
   @Delete('delete/:id')
   @ApiOperation({ summary: 'Desasociar paciente de terapista' })
-  async deletePatient(@Req() req, @Param('id') id: number) {
+  async deletePatient(@Req() req, @Param('id', ParseIntPipe) id: number) {
     try {
       return {
         message: await this.service.deletePatient(id, req.user),
