@@ -3,7 +3,12 @@ import {
   Controller,
   Get,
   Param,
+  ParseBoolPipe,
+  ParseIntPipe,
+  Patch,
   Post,
+  Put,
+  Query,
   Req,
   Res,
   UploadedFiles,
@@ -16,6 +21,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -25,6 +31,7 @@ import { CreateLinkDto, uploadMultimediaDto } from './dtos/create-link.dto';
 import { ResponseDataInterface } from '../../shared/interfaces/response-data.interface';
 import { Role } from '../../security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '../../security/jwt-strategy/role.enum';
+import { UpdateLinkDto } from './dtos/update-link.dto';
 
 @Controller('multimedia')
 @ApiTags('multimedia')
@@ -44,7 +51,7 @@ export class MultimediaController {
   @ApiOperation({ summary: 'Cargar uno o varios videos y/o imágenes' })
   async uploadFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
-    @Req() req: any,
+    @Req() req,
     @Body() body: uploadMultimediaDto,
   ) {
     return {
@@ -59,7 +66,7 @@ export class MultimediaController {
     type: [CreateLinkDto],
     description: 'Cargar uno o varios recursos online',
   })
-  async uploadOnline(@Body() body: CreateLinkDto[], @Req() req: any) {
+  async uploadOnline(@Body() body: CreateLinkDto[], @Req() req) {
     for (const element of body) {
       element.createdById = req.user.id;
     }
@@ -72,7 +79,7 @@ export class MultimediaController {
   @Get('download/:id')
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Descargar un recurso' })
-  async download(@Param('id') id: number, @Res() res: any) {
+  async download(@Param('id', ParseIntPipe) id: number, @Res() res: any) {
     const file = await this.service.getMultimedia(id);
 
     res.set({
@@ -88,9 +95,31 @@ export class MultimediaController {
   @ApiOperation({
     summary: 'Obtener todos los recursos públic y creados por el usuario',
   })
-  async getAll(@Req() req: any) {
+  @ApiQuery({ name: 'status', required: false, type: Boolean })
+  async getAll(@Req() req: any, @Query('status') status: boolean) {
     return {
-      data: await this.service.getByUserAndPublic(req.user.id),
+      data: await this.service.getByUserAndPublic(req.user.id, status),
     } as ResponseDataInterface;
+  }
+
+  @Put('update/:id')
+  @Role(RoleEnum.THERAPIST)
+  @ApiOperation({ summary: 'Actualizar un recurso' })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateLinkDto,
+  ) {
+    return {
+      message: await this.service.update(id, body),
+    };
+  }
+
+  @Patch('update/:id/status')
+  @Role(RoleEnum.THERAPIST)
+  @ApiOperation({ summary: 'Actualizar el estado de un recurso' })
+  async updateStatus(@Param('id', ParseIntPipe) id: number) {
+    return {
+      message: await this.service.updateStatus(id),
+    };
   }
 }
