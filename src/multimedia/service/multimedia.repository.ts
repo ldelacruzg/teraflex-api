@@ -1,4 +1,4 @@
-import { EntityManager } from 'typeorm';
+import { Brackets, EntityManager } from 'typeorm';
 import { Link } from '../../entities/link.entity';
 import { Injectable } from '@nestjs/common';
 
@@ -13,7 +13,7 @@ export class MultimediaRepository {
     return await cnx.findOneBy(Link, { id });
   }
 
-  async getByUserAndPublic(cnx: EntityManager, id: number) {
+  async getByUserAndPublic(cnx: EntityManager, id: number, status?: boolean) {
     return await cnx
       .createQueryBuilder()
       .select([
@@ -26,8 +26,19 @@ export class MultimediaRepository {
         'link.updatedAt as "updatedAt"',
       ])
       .from(Link, 'link')
-      .where('link.createdById = :id', { id })
-      .orWhere('link.isPublic = :isPublic', { isPublic: true })
+      .where(
+        new Brackets((qb) => {
+          qb.where('link.createdById = :id', { id }).andWhere(
+            'link.isPublic = :isPublic',
+            { isPublic: true },
+          );
+        }),
+      )
+      .andWhere('link.status = :status', { status: status ?? true })
       .getRawMany();
+  }
+
+  async update(cnx: EntityManager, id: number, payload: Link) {
+    return await cnx.update(Link, { id }, payload);
   }
 }

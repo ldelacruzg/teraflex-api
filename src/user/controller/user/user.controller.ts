@@ -5,13 +5,12 @@ import {
   Get,
   HttpException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { InjectEntityManager } from '@nestjs/typeorm';
-import { EntityManager } from 'typeorm';
 import { UserService } from '../../service/user/user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { RoleEnum } from '../../../security/jwt-strategy/role.enum';
@@ -61,7 +60,7 @@ export class UserController {
   @Get('by-id/:id')
   @ApiOperation({ summary: 'Buscar por id' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async findById(@Param('id') id: number) {
+  async findById(@Param('id', ParseIntPipe) id: number) {
     try {
       return {
         data: await this.service.findById(id),
@@ -91,7 +90,7 @@ export class UserController {
   @Delete(':id')
   @ApiOperation({ summary: 'Desactivar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async delete(@Param('id') id: number, @Req() req) {
+  async delete(@Param('id', ParseIntPipe) id: number, @Req() req) {
     try {
       return {
         message: await this.service.delete(id, req.user),
@@ -105,7 +104,7 @@ export class UserController {
   @ApiOperation({ summary: 'Actualizar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async update(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Req() req,
     @Body() body: UpdateUserDto,
   ) {
