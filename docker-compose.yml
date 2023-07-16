@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  api:
+    container_name: teraflex_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - teraflex_storage:/home/teraflex_storage
+    restart: always
+    environment:
+      - PUBLIC_DIR=/home/teraflex_storage
+    env_file:
+      - .env
+    command: yarn run start:prod
+volumes:
+  teraflex_storage:
