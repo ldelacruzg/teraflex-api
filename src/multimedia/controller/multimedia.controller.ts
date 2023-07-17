@@ -32,6 +32,7 @@ import { ResponseDataInterface } from '../../shared/interfaces/response-data.int
 import { Role } from '../../security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '../../security/jwt-strategy/role.enum';
 import { UpdateLinkDto } from './dtos/update-link.dto';
+import { insertSucessful } from '../../shared/constants/messages';
 
 @Controller('multimedia')
 @ApiTags('multimedia')
@@ -55,7 +56,8 @@ export class MultimediaController {
     @Body() body: uploadMultimediaDto,
   ) {
     return {
-      message: await this.service.saveMultimedia(files, body, req.user.id),
+      data: await this.service.saveMultimedia(files, body, req.user.id),
+      message: insertSucessful('Recurso/s'),
     };
   }
 
@@ -72,7 +74,8 @@ export class MultimediaController {
     }
 
     return {
-      message: await this.service.saveMultimediaOnline(body),
+      data: await this.service.saveMultimediaOnline(body),
+      message: insertSucessful('Recurso/s'),
     };
   }
 

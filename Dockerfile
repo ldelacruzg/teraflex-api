@@ -2,12 +2,12 @@ FROM node:18-alpine
  
 WORKDIR /user/src/app
 
-COPY package*.json ./
+COPY package.json yarn.lock ./
 COPY . .
 
-RUN npm install
-RUN npm run build
+RUN yarn install
+RUN yarn run build
 
 USER node
  
-CMD ["npm", "run", "start:prod"]
+CMD ["yarn", "run", "start:prod"]

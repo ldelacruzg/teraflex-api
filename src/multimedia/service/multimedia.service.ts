@@ -37,6 +37,7 @@ export class MultimediaService {
   ) {
     return await this.entityManager.transaction(async (manager) => {
       try {
+        const ids = [];
         for (const file of files) {
           const payload = {
             url: file.filename,
@@ -49,9 +50,11 @@ export class MultimediaService {
           const created = await this.repo.create(manager, payload);
 
           if (!created) throw new Error('Error al guardar recurso');
+
+          ids.push({ id: created.id, url: created.url });
         }
 
-        return insertSucessful('Recursos');
+        return ids;
       } catch (e) {
         throw new BadRequestException(e.message);
       }
@@ -61,6 +64,7 @@ export class MultimediaService {
   async saveMultimediaOnline(data: CreateLinkDto[]) {
     return await this.entityManager.transaction(async (manager) => {
       try {
+        const ids = [];
         for (const element of data) {
           const payload = {
             ...element,
@@ -70,9 +74,11 @@ export class MultimediaService {
           const created = await this.repo.create(manager, payload);
 
           if (!created) throw new Error('Error al guardar recurso');
+
+          ids.push({ id: created.id, url: created.url });
         }
 
-        return insertSucessful('Recursos');
+        return ids;
       } catch (e) {
         throw new BadRequestException(e.message);
       }
