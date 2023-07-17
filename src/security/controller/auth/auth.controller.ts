@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Req,
   UseGuards,
@@ -81,7 +82,7 @@ export class AuthController {
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   @Get('forgot-password/:id')
   @ApiOperation({ summary: 'Generar nueva contraseña' })
-  async forgotPassword(@Param('id') id: number, @Req() req) {
+  async forgotPassword(@Param('id', ParseIntPipe) id: number, @Req() req) {
     return await this.authService.newPassword(id, req.user.id);
   }
 }

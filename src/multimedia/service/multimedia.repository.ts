@@ -28,7 +28,7 @@ export class MultimediaRepository {
       .from(Link, 'link')
       .where(
         new Brackets((qb) => {
-          qb.where('link.createdById = :id', { id }).andWhere(
+          qb.where('link.createdById = :id', { id }).orWhere(
             'link.isPublic = :isPublic',
             { isPublic: true },
           );

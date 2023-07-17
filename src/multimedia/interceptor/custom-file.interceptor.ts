@@ -14,11 +14,9 @@ export class CustomFileInterceptor implements MulterOptionsFactory {
       storage: diskStorage({
         destination: Environment.PUBLIC_DIR,
         filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
+          file.originalname = file.originalname.replace(/\s/g, '_');
+          const newName = `${file.originalname.split('.')[0]}_${Date.now()}`;
+          cb(null, `${newName}${extname(file.originalname)}`);
         },
       }),
       fileFilter: (req, file, cb) => {
