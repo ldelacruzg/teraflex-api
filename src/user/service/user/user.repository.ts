@@ -3,9 +3,11 @@ import { User } from '@entities/user.entity';
 import { EntityManager } from 'typeorm';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Category } from '@entities/category.entity';
+import { GroupRepository } from '@user/service/group/group.repository';
 
 @Injectable()
 export class UserRepository {
+  constructor(private groupRepo: GroupRepository) {}
   async findById(cnx: EntityManager, id: number) {
     return await cnx
       .createQueryBuilder()
@@ -95,5 +97,39 @@ export class UserRepository {
       )
       .where('id = :id', { id })
       .execute();
+  }
+
+  async getAll(cnx: EntityManager, status?: boolean, therapistId?: number) {
+    const query = cnx
+      .createQueryBuilder()
+      .select([
+        'user.id as id',
+        'user.first_name as "firstName"',
+        'user.last_name as "lastName"',
+        'user.doc_number as "docNumber"',
+        'user.phone as phone',
+        'user.description as description',
+        'user.birth_date as "birthDate"',
+        'user.created_at as "createdAt"',
+        'user.updated_at as "updatedAt"',
+      ])
+      .from(User, 'user')
+      .where('user.status = :status', { status: status ?? true });
+
+    if (therapistId !== undefined) {
+      const patientsInGroup = await this.groupRepo.getAllByTherapist(
+        cnx,
+        therapistId,
+      );
+
+      const ids = patientsInGroup.map((group) => group.patient.id);
+      if (ids.length > 0) query.andWhere('user.id NOT IN (:...ids)', { ids });
+
+      query.andWhere('user.role = :role', { role: RoleEnum.PATIENT });
+    } else {
+      query.andWhere('user.role = :role', { role: RoleEnum.THERAPIST });
+    }
+
+    return await query.getRawMany();
   }
 }

@@ -125,4 +125,22 @@ export class AuthService {
 
     return result;
   }
+
+  async changePassword(currentUserId: number, password: string) {
+    try {
+      await this.userService.findById(currentUserId);
+
+      const updated = await this.userService.update(currentUserId, {
+        password: hashSync(password, 10),
+        updatedBy: currentUserId,
+      } as UpdateUserDto);
+
+      if (updated.affected === 0)
+        throw new Error('Error al cambiar la contraseña');
+
+      return 'Contraseña cambiada correctamente';
+    } catch (e) {
+      throw e;
+    }
+  }
 }

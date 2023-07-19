@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -16,7 +17,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '@security/jwt-strategy/roles.guard';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Role } from '@security/jwt-strategy/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
@@ -121,6 +127,17 @@ export class UserController {
   async getMyProfile(@Req() req) {
     return {
       data: await this.service.findById((req.user as InfoUserInterface).id),
+      message: null,
+    } as ResponseDataInterface;
+  }
+
+  @Get('all')
+  @ApiOperation({ summary: 'Obtener todos los usuarios' })
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  @ApiQuery({ name: 'status', required: false })
+  async getAll(@Req() req, @Query('status') status: boolean) {
+    return {
+      data: await this.service.getAll(req.user, status),
       message: null,
     } as ResponseDataInterface;
   }

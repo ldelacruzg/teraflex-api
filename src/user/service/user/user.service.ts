@@ -168,4 +168,20 @@ export class UserService {
 
     return updated.raw;
   }
+
+  async getAll(CurrentUser: InfoUserInterface, status?: boolean) {
+    try {
+      const users = await this.repo.getAll(
+        this.cnx,
+        status,
+        CurrentUser.role === RoleEnum.THERAPIST ? CurrentUser.id : undefined,
+      );
+
+      if (!users) throw new Error('No existen usuarios');
+
+      return users;
+    } catch (e) {
+      throw e;
+    }
+  }
 }
