@@ -31,7 +31,7 @@ async function bootstrap() {
 
   app.use(
     compression({
-      level: 6,
+      level: 9,
     }),
   );
 
