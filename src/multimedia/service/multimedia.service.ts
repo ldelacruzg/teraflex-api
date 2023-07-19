@@ -5,18 +5,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import * as fs from 'fs';
+import fs from 'fs';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
 import { MultimediaRepository } from './multimedia.repository';
-import { Link } from '../../entities/link.entity';
+import { Link } from '@entities/link.entity';
 import { extname } from 'path';
-import { Environment } from '../../shared/constants/environment';
-import {
-  insertSucessful,
-  updateFailed,
-  updateSucessful,
-} from '../../shared/constants/messages';
+import { Environment } from '@shared/constants/environment';
+import { updateFailed, updateSucessful } from '@shared/constants/messages';
 import {
   CreateLinkDto,
   uploadMultimediaDto,
@@ -45,13 +41,14 @@ export class MultimediaService {
             createdById: currentUserId,
             isPublic: data.isPublic,
             description: data.description,
+            title: data.title,
           } as Link;
 
           const created = await this.repo.create(manager, payload);
 
           if (!created) throw new Error('Error al guardar recurso');
 
-          ids.push({ id: created.id, url: created.url });
+          ids.push({ id: created.id, title: created.title, url: created.url });
         }
 
         return ids;
@@ -75,7 +72,7 @@ export class MultimediaService {
 
           if (!created) throw new Error('Error al guardar recurso');
 
-          ids.push({ id: created.id, url: created.url });
+          ids.push({ id: created.id, title: created.title, url: created.url });
         }
 
         return ids;
@@ -90,6 +87,9 @@ export class MultimediaService {
       const multimedia = await this.repo.getById(this.entityManager, id);
 
       if (!multimedia) throw new Error('Recurso no encontrado');
+
+      if (multimedia.type === 'online')
+        throw new Error('Recurso no descargable');
 
       return {
         buffer: await fs.readFileSync(

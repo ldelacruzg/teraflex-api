@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Link } from './link.entity';
@@ -40,17 +41,17 @@ export class TaskMultimedia {
 
   @ManyToOne(() => Link, (link) => link.tasksMultimedia)
   @JoinColumn({ name: 'link_id' })
-  link: Link;
+  link: Relation<Link>;
 
   @ManyToOne(() => Task, (task) => task.tasksMultimedia)
   @JoinColumn({ name: 'task_id' })
-  task: Task;
+  task: Relation<Task>;
 
   @ManyToOne(() => User, (user) => user.tasksMultimediaCreated)
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ManyToOne(() => User, (user) => user.tasksMultimediaUpdated)
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
 }

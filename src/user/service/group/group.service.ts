@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { GroupRepository } from './group.repository';
-import { Group } from '../../../entities/group.entity';
+import { Group } from '@entities/group.entity';
 import { EntityManager } from 'typeorm';
-import { InfoUserInterface } from '../../../security/jwt-strategy/info-user.interface';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { UserService } from '../user/user.service';
-import { RoleEnum } from '../../../security/jwt-strategy/role.enum';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { InjectEntityManager } from '@nestjs/typeorm';
 
 @Injectable()

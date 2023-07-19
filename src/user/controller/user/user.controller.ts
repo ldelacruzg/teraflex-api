@@ -13,14 +13,14 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../../service/user/user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { RoleEnum } from '../../../security/jwt-strategy/role.enum';
-import { JwtAuthGuard } from '../../../security/jwt-strategy/jwt-auth.guard';
-import { RoleGuard } from '../../../security/jwt-strategy/roles.guard';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
+import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
+import { RoleGuard } from '@security/jwt-strategy/roles.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Role } from '../../../security/jwt-strategy/roles.decorator';
+import { Role } from '@security/jwt-strategy/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InfoUserInterface } from '../../../security/jwt-strategy/info-user.interface';
-import { ResponseDataInterface } from 'src/shared/interfaces/response-data.interface';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
+import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 
 @Controller('user')
 @ApiTags('user')

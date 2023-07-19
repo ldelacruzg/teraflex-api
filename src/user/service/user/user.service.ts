@@ -1,17 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { EntityManager } from 'typeorm';
-import { RoleEnum } from 'src/security/jwt-strategy/role.enum';
-import { User } from 'src/entities/user.entity';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
+import { User } from '@entities/user.entity';
 import { CreateUserDto } from '../../controller/user/dto/create-user.dto';
 import { hashSync } from 'bcrypt';
-import { InfoUserInterface } from '../../../security/jwt-strategy/info-user.interface';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { GroupRepository } from '../group/group.repository';
-import { Group } from '../../../entities/group.entity';
+import { Group } from '@entities/group.entity';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { UpdateUserDto } from '../../controller/user/dto/update-user.dto';
-import { ResponseDataInterface } from 'src/shared/interfaces/response-data.interface';
-import { insertSucessful } from 'src/shared/constants/messages';
+import { insertSucessful } from '@shared/constants/messages';
 
 @Injectable()
 export class UserService {

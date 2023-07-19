@@ -4,10 +4,10 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { Category } from 'src/entities/category.entity';
+import { Category } from '@entities/category.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { CreateCategoryDto } from '../../controllers/category/dto/create-category.dto';
-import { UpdateCategoryDto } from 'src/activity/controllers/category/dto/update-category.dto';
+import { UpdateCategoryDto } from '@activity/controllers/category/dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {

@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Assignment } from './assignment.entity';
@@ -50,19 +51,19 @@ export class Task {
   updatedAt: Date;
 
   @OneToMany(() => Assignment, (assignment) => assignment.task)
-  assignments: Assignment[];
+  assignments: Relation<Assignment[]>;
 
   @ManyToOne(() => User, (user) => user.tasksCreated)
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ManyToOne(() => User, (user) => user.tasksUpdated)
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
 
   @OneToMany(() => TaskCategory, (taskCategory) => taskCategory.task)
-  tasksCategories: TaskCategory[];
+  tasksCategories: Relation<TaskCategory[]>;
 
   @OneToMany(() => TaskMultimedia, (taskMultimedia) => taskMultimedia.task)
-  tasksMultimedia: TaskMultimedia[];
+  tasksMultimedia: Relation<TaskMultimedia[]>;
 }

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/entities/user.entity';
+import { User } from '@entities/user.entity';
 import { EntityManager } from 'typeorm';
-import { RoleEnum } from '../../../security/jwt-strategy/role.enum';
-import { Category } from '../../../entities/category.entity';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
+import { Category } from '@entities/category.entity';
 
 @Injectable()
 export class UserRepository {
