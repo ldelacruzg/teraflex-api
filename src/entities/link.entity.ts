@@ -19,6 +19,9 @@ export class Link {
   @Column({ type: 'character varying' })
   url: string;
 
+  @Column({ type: 'character varying', length: 100 })
+  title: string;
+
   @Column({ type: 'character varying', nullable: true })
   description: string;
 
