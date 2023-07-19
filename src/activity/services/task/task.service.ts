@@ -4,15 +4,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { CreateTaskDto } from 'src/activity/controllers/task/dto/create-task.dto';
-import { UpdateTaskDto } from 'src/activity/controllers/task/dto/update-task.dto';
-import { ICreateTaskCategory } from 'src/activity/interfaces/create-task-category.interface';
-import { ICreateTaskMultimedia } from 'src/activity/interfaces/create-task-multimedia.interface';
-import { Category } from 'src/entities/category.entity';
-import { Link } from 'src/entities/link.entity';
-import { TaskCategory } from 'src/entities/task-category.entity';
-import { TaskMultimedia } from 'src/entities/task-multimedia.entity';
-import { Task } from 'src/entities/task.entity';
+import { CreateTaskDto } from '@activity/controllers/task/dto/create-task.dto';
+import { UpdateTaskDto } from '@activity/controllers/task/dto/update-task.dto';
+import { ICreateTaskCategory } from '@activity/interfaces/create-task-category.interface';
+import { ICreateTaskMultimedia } from '@activity/interfaces/create-task-multimedia.interface';
+import { Category } from '@entities/category.entity';
+import { Link } from '@entities/link.entity';
+import { TaskCategory } from '@entities/task-category.entity';
+import { TaskMultimedia } from '@entities/task-multimedia.entity';
+import { Task } from '@entities/task.entity';
 import { EntityManager, Repository } from 'typeorm';
 
 @Injectable()

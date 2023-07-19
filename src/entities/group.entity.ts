@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
@@ -35,9 +36,9 @@ export class Group {
 
   @ManyToOne(() => User, (user) => user.groupTherapist)
   @JoinColumn({ name: 'therapist_id' })
-  therapist: User;
+  therapist: Relation<User>;
 
   @ManyToOne(() => User, (user) => user.groupPatient)
   @JoinColumn({ name: 'patient_id' })
-  patient: User;
+  patient: Relation<User>;
 }

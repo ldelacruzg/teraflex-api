@@ -4,10 +4,10 @@ import { LoginDto } from '../../controller/auth/dto/login.dto';
 import { compare, hashSync } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RoleEnum } from '../../jwt-strategy/role.enum';
-import { UserValidation } from '../../../entities/user-validation.entity';
-import { UserService } from '../../../user/service/user/user.service';
+import { UserValidation } from '@entities/user-validation.entity';
+import { UserService } from '@user/service/user/user.service';
 import { InjectEntityManager } from '@nestjs/typeorm';
-import { UpdateUserDto } from 'src/user/controller/user/dto/update-user.dto';
+import { UpdateUserDto } from 'user/controller/user/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +54,7 @@ export class AuthService {
 
       const validationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-      const userValidation = await cnx.insert(UserValidation, {
+      await cnx.insert(UserValidation, {
         user,
         validationCode,
       });

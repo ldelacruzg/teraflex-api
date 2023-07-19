@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { TaskMultimedia } from './task-multimedia.entity';
@@ -18,6 +19,9 @@ export class Link {
 
   @Column({ type: 'character varying' })
   url: string;
+
+  @Column({ type: 'character varying', length: 100 })
+  title: string;
 
   @Column({ type: 'character varying', nullable: true })
   description: string;
@@ -48,13 +52,13 @@ export class Link {
   type: string;
 
   @OneToMany(() => TaskMultimedia, (taskMultimedia) => taskMultimedia.link)
-  tasksMultimedia: TaskMultimedia[];
+  tasksMultimedia: Relation<TaskMultimedia[]>;
 
   @ManyToOne(() => User, (user) => user.linksCreated)
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ManyToOne(() => User, (user) => user.linksUpdated)
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
 }

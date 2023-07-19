@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -25,14 +24,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from '../../security/jwt-strategy/jwt-auth.guard';
-import { RoleGuard } from '../../security/jwt-strategy/roles.guard';
+import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
+import { RoleGuard } from '@security/jwt-strategy/roles.guard';
 import { CreateLinkDto, uploadMultimediaDto } from './dtos/create-link.dto';
-import { ResponseDataInterface } from '../../shared/interfaces/response-data.interface';
-import { Role } from '../../security/jwt-strategy/roles.decorator';
-import { RoleEnum } from '../../security/jwt-strategy/role.enum';
+import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { Role } from '@security/jwt-strategy/roles.decorator';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { UpdateLinkDto } from './dtos/update-link.dto';
-import { insertSucessful } from '../../shared/constants/messages';
+import { insertSucessful } from '@shared/constants/messages';
 
 @Controller('multimedia')
 @ApiTags('multimedia')

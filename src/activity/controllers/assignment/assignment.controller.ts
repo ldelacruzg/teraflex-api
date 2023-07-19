@@ -13,17 +13,17 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AssignmentService } from 'src/activity/services/assignment/assignment.service';
-import { JwtAuthGuard } from 'src/security/jwt-strategy/jwt-auth.guard';
-import { RoleEnum } from 'src/security/jwt-strategy/role.enum';
-import { Role } from 'src/security/jwt-strategy/roles.decorator';
-import { RoleGuard } from 'src/security/jwt-strategy/roles.guard';
+import { AssignmentService } from '@activity/services/assignment/assignment.service';
+import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
+import { Role } from '@security/jwt-strategy/roles.decorator';
+import { RoleGuard } from '@security/jwt-strategy/roles.guard';
 import { CreateManyAssignmentsDto } from './dto/create-many-assignments.dto';
-import { InfoUserInterface } from 'src/security/jwt-strategy/info-user.interface';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { RemoveManyAssignmentDto } from './dto/remove-many-assigments.dto';
-import { ParseBoolAllowUndefinedPipe } from 'src/shared/pipes/parse-bool-allow-undefined.pipe';
-import { ResponseHttpInterceptor } from 'src/shared/interceptors/response-http.interceptor';
-import { ResponseDataInterface } from 'src/shared/interfaces/response-data.interface';
+import { ParseBoolAllowUndefinedPipe } from '@shared/pipes/parse-bool-allow-undefined.pipe';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
+import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 
 @Controller()
 @UseInterceptors(ResponseHttpInterceptor)

@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
@@ -54,17 +55,17 @@ export class Assignment {
 
   @ManyToOne(() => User, (user) => user.assignments, { eager: true })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
   @ManyToOne(() => Task, (task) => task.assignments, { eager: true })
   @JoinColumn({ name: 'task_id' })
-  task: Task;
+  task: Relation<Task>;
 
   @ManyToOne(() => User, (user) => user.assignmentsCreated, { eager: true })
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ManyToOne(() => User, (user) => user.assignmentsUpdated, { eager: true })
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
 }

@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
@@ -38,5 +39,5 @@ export class UserValidation {
 
   @ManyToOne(() => User, (user) => user.userValidations)
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 }

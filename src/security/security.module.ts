@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { SharedModule } from '../shared/shared.module';
-import { Environment } from '../shared/constants/environment';
+import { SharedModule } from '@shared/shared.module';
+import { Environment } from '@shared/constants/environment';
 import { JwtStrategy } from './jwt-strategy/jwt.strategy';
 import { AuthController } from './controller/auth/auth.controller';
 import { AuthService } from './service/auth/auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserValidation } from '../entities/user-validation.entity';
-import { User } from '../entities/user.entity';
+import { UserValidation } from '@entities/user-validation.entity';
+import { User } from '@entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
-import { UserModule } from '../user/user.module';
+import { UserModule } from '@user/user.module';
 
 @Module({
   imports: [

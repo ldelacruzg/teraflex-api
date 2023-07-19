@@ -6,9 +6,9 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
 import { UserValidation } from './user-validation.entity';
 import { Assignment } from './assignment.entity';
 import { Task } from './task.entity';
@@ -16,7 +16,7 @@ import { Category } from './category.entity';
 import { Link } from './link.entity';
 import { TaskCategory } from './task-category.entity';
 import { TaskMultimedia } from './task-multimedia.entity';
-import { RoleEnum } from 'src/security/jwt-strategy/role.enum';
+import { RoleEnum } from '../security/jwt-strategy/role.enum';
 import { Group } from './group.entity';
 
 @Entity('user')
@@ -77,53 +77,53 @@ export class User {
 
   @ManyToOne(() => Category, (category) => category.therapists)
   @JoinColumn({ name: 'category_id' })
-  category: Category;
+  category: Relation<Category>;
 
   @OneToMany(() => UserValidation, (userValidation) => userValidation.user)
-  userValidations: UserValidation[];
+  userValidations: Relation<UserValidation[]>;
 
   @OneToMany(() => Assignment, (assignment) => assignment.user)
-  assignments: Assignment[];
+  assignments: Relation<Assignment[]>;
 
   @OneToMany(() => Assignment, (assignment) => assignment.createdBy)
-  assignmentsCreated: Assignment[];
+  assignmentsCreated: Relation<Assignment[]>;
 
   @OneToMany(() => Assignment, (assignment) => assignment.updatedBy)
-  assignmentsUpdated: Assignment[];
+  assignmentsUpdated: Relation<Assignment[]>;
 
   @OneToMany(() => Task, (task) => task.createdBy)
-  tasksCreated: Task[];
+  tasksCreated: Relation<Task[]>;
 
   @OneToMany(() => Task, (task) => task.updatedBy)
-  tasksUpdated: Task[];
+  tasksUpdated: Relation<Task[]>;
 
   @OneToMany(() => Category, (category) => category.createdBy)
-  categoriesCreated: Category[];
+  categoriesCreated: Relation<Category[]>;
 
   @OneToMany(() => Category, (category) => category.updatedBy)
-  categoriesUpdated: Category[];
+  categoriesUpdated: Relation<Category[]>;
 
   @OneToMany(() => Link, (link) => link.createdBy)
-  linksCreated: Link[];
+  linksCreated: Relation<Link[]>;
 
   @OneToMany(() => Link, (link) => link.updatedBy)
-  linksUpdated: Link[];
+  linksUpdated: Relation<Link[]>;
 
   @OneToMany(() => TaskCategory, (taskCategory) => taskCategory.createdBy)
-  tasksCategoriesCreated: TaskCategory[];
+  tasksCategoriesCreated: Relation<TaskCategory[]>;
 
   @OneToMany(() => TaskCategory, (taskCategory) => taskCategory.updatedBy)
-  tasksCategoriesUpdated: TaskCategory[];
+  tasksCategoriesUpdated: Relation<TaskCategory[]>;
 
   @OneToMany(() => TaskMultimedia, (taskMultimedia) => taskMultimedia.createdBy)
-  tasksMultimediaCreated: TaskMultimedia[];
+  tasksMultimediaCreated: Relation<TaskMultimedia[]>;
 
   @OneToMany(() => TaskMultimedia, (taskMultimedia) => taskMultimedia.updatedBy)
-  tasksMultimediaUpdated: TaskMultimedia[];
+  tasksMultimediaUpdated: Relation<TaskMultimedia[]>;
 
   @OneToMany(() => Group, (group) => group.therapist)
-  groupTherapist: Group[];
+  groupTherapist: Relation<Group[]>;
 
   @OneToMany(() => Group, (group) => group.patient)
-  groupPatient: Group[];
+  groupPatient: Relation<Group[]>;
 }

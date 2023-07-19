@@ -12,16 +12,16 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CategoryService } from 'src/activity/services/category/category.service';
-import { CreateCategoryDto } from 'src/activity/controllers/category/dto/create-category.dto';
-import { JwtAuthGuard } from 'src/security/jwt-strategy/jwt-auth.guard';
-import { RoleEnum } from 'src/security/jwt-strategy/role.enum';
-import { Role } from 'src/security/jwt-strategy/roles.decorator';
-import { RoleGuard } from 'src/security/jwt-strategy/roles.guard';
-import { InfoUserInterface } from 'src/security/jwt-strategy/info-user.interface';
+import { CategoryService } from '@activity/services/category/category.service';
+import { CreateCategoryDto } from '@activity/controllers/category/dto/create-category.dto';
+import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
+import { Role } from '@security/jwt-strategy/roles.decorator';
+import { RoleGuard } from '@security/jwt-strategy/roles.guard';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ResponseHttpInterceptor } from 'src/shared/interceptors/response-http.interceptor';
-import { ResponseDataInterface } from 'src/shared/interfaces/response-data.interface';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
+import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 
 @Controller('categories')
 @UseInterceptors(ResponseHttpInterceptor)

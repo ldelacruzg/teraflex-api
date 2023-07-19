@@ -1,5 +1,5 @@
 import { Brackets, EntityManager } from 'typeorm';
-import { Link } from '../../entities/link.entity';
+import { Link } from '@entities/link.entity';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -19,6 +19,7 @@ export class MultimediaRepository {
       .select([
         'link.id as id',
         'link.url as url',
+        'link.title as title',
         'link.type as type',
         'link.isPublic as "isPublic"',
         'link.description as description',

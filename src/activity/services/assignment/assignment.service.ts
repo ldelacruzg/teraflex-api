@@ -4,16 +4,16 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateManyAssignmentsDto } from 'src/activity/controllers/assignment/dto/create-many-assignments.dto';
-import { RemoveManyAssignmentDto } from 'src/activity/controllers/assignment/dto/remove-many-assigments.dto';
-import { IAssignedTaskDetail } from 'src/activity/interfaces/assigned-task-detail.interface';
-import { IAssignedTaskFileDetail } from 'src/activity/interfaces/assigned-task-file-detail.interface';
-import { IChangeIsCompletedAssignment } from 'src/activity/interfaces/change-is-completed-assignment.interface';
-import { ICreateAssignment } from 'src/activity/interfaces/create-assignment.interface';
-import { Assignment } from 'src/entities/assignment.entity';
-import { Task } from 'src/entities/task.entity';
-import { User } from 'src/entities/user.entity';
-import { RoleEnum } from 'src/security/jwt-strategy/role.enum';
+import { CreateManyAssignmentsDto } from '@activity/controllers/assignment/dto/create-many-assignments.dto';
+import { RemoveManyAssignmentDto } from '@activity/controllers/assignment/dto/remove-many-assigments.dto';
+import { IAssignedTaskDetail } from '@activity/interfaces/assigned-task-detail.interface';
+import { IAssignedTaskFileDetail } from '@activity/interfaces/assigned-task-file-detail.interface';
+import { IChangeIsCompletedAssignment } from '@activity/interfaces/change-is-completed-assignment.interface';
+import { ICreateAssignment } from '@activity/interfaces/create-assignment.interface';
+import { Assignment } from '@entities/assignment.entity';
+import { Task } from '@entities/task.entity';
+import { User } from '@entities/user.entity';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Repository } from 'typeorm';
 
 @Injectable()

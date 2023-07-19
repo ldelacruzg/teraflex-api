@@ -1,16 +1,14 @@
-import { ApiConsumes, ApiProperty, OmitType } from '@nestjs/swagger';
-import {
-  IsBoolean,
-  IsBooleanString,
-  IsOptional,
-  IsString,
-  IsUrl,
-} from 'class-validator';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { IsBooleanString, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateLinkDto {
   @ApiProperty()
   @IsUrl({}, { message: 'El campo url debe ser una url válida' })
   url: string;
+
+  @ApiProperty()
+  @IsString()
+  title: string;
 
   @ApiProperty({ type: 'boolean', required: false })
   @IsBooleanString({ message: 'El campo isPublic debe ser booleano' })
