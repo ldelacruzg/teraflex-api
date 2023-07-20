@@ -9,16 +9,17 @@ export class GroupRepository {
     return await cnx.save(newGroup);
   }
 
-  async deletePatient(
+  async updateStatusPatient(
     cnx: EntityManager,
     therapistId: number,
     patientId: number,
+    status: boolean,
     allGroups?: boolean,
   ) {
     const query = cnx
       .createQueryBuilder()
       .update(Group)
-      .set({ status: false })
+      .set({ status })
       .where('patient_id = :patientId', { patientId });
 
     if (!allGroups) {
@@ -40,9 +41,32 @@ export class GroupRepository {
     cnx: EntityManager,
     patientId: number,
     therapistId: number,
+    status?: boolean,
   ) {
-    return cnx.findOne(Group, {
-      where: { patientId, therapistId, status: true },
-    });
+    const query = cnx
+      .createQueryBuilder()
+      .select([
+        'group.id as id',
+        'group.created_at as "createdAt"',
+        'group.updated_at as "updatedAt"',
+        'group.status as status',
+        'patient.id as "patientId"',
+        'patient.first_name as "firstName"',
+        'patient.last_name as "lastName"',
+        'patient.doc_number as "docNumber"',
+        'patient.phone as phone',
+        'patient.description as description',
+        'patient.birth_date as "birthDate"',
+      ])
+      .from(Group, 'group')
+      .innerJoin('group.patient', 'patient')
+      .where('patient.id = :patientId', { patientId })
+      .andWhere('group.therapist_id = :therapistId', { therapistId });
+
+    if (status !== undefined) {
+      query.andWhere('group.status = :status', { status });
+    }
+
+    return await query.getRawOne();
   }
 }

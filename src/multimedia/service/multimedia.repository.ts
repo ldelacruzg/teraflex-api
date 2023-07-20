@@ -1,6 +1,7 @@
 import { Brackets, EntityManager } from 'typeorm';
 import { Link } from '@entities/link.entity';
 import { Injectable } from '@nestjs/common';
+import { GetByUserAndPublic } from '@multimedia/service/interfaces/multimedia.interface';
 
 @Injectable()
 export class MultimediaRepository {
@@ -36,7 +37,7 @@ export class MultimediaRepository {
         }),
       )
       .andWhere('link.status = :status', { status: status ?? true })
-      .getRawMany();
+      .getRawMany<GetByUserAndPublic>();
   }
 
   async update(cnx: EntityManager, id: number, payload: Link) {

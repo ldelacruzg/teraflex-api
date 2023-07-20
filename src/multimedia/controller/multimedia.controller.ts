@@ -57,7 +57,7 @@ export class MultimediaController {
     return {
       data: await this.service.saveMultimedia(files, body, req.user.id),
       message: insertSucessful('Recurso/s'),
-    };
+    } as ResponseDataInterface;
   }
 
   @Post('upload/online')
@@ -75,7 +75,7 @@ export class MultimediaController {
     return {
       data: await this.service.saveMultimediaOnline(body),
       message: insertSucessful('Recurso/s'),
-    };
+    } as ResponseDataInterface;
   }
 
   @Get('download/:id')
@@ -113,7 +113,7 @@ export class MultimediaController {
   ) {
     return {
       message: await this.service.update(id, body),
-    };
+    } as ResponseDataInterface;
   }
 
   @Patch('update/:id/status')
@@ -122,6 +122,6 @@ export class MultimediaController {
   async updateStatus(@Param('id', ParseIntPipe) id: number) {
     return {
       message: await this.service.updateStatus(id),
-    };
+    } as ResponseDataInterface;
   }
 }

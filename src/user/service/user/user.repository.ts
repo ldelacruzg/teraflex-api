@@ -4,6 +4,10 @@ import { EntityManager } from 'typeorm';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Category } from '@entities/category.entity';
 import { GroupRepository } from '@user/service/group/group.repository';
+import {
+  GetManyUsersI,
+  GetUserI,
+} from '@user/service/user/interfaces/user.interfaces';
 
 @Injectable()
 export class UserRepository {
@@ -24,11 +28,12 @@ export class UserRepository {
         'user.role as role',
         'category.id as "categoryId"',
         'category.name as "categoryName"',
+        'user.status as status',
       ])
       .from(User, 'user')
       .leftJoin(Category, 'category', 'category.id = user.categoryId')
       .where('user.id = :id', { id })
-      .getRawOne();
+      .getRawOne<GetUserI>();
   }
 
   async getPassword(cnx: EntityManager, id: number) {
@@ -53,20 +58,25 @@ export class UserRepository {
         'user.birth_date as "birthDate"',
         'user.created_at as "createdAt"',
         'user.updated_at as "updatedAt"',
+        'user.status as status',
         'category.id as "categoryId"',
         'category.name as "categoryName"',
         'user.role as role',
       ])
       .from(User, 'user')
       .leftJoin(Category, 'category', 'category.id = user.category_id')
-      .where('user.status = :status', { status: true })
-      .andWhere('user.doc_number = :docNumber', { docNumber });
+      .where('user.doc_number = :docNumber', { docNumber });
 
-    if (currentRole !== undefined && currentRole === RoleEnum.THERAPIST) {
-      query.andWhere('user.role = :role', { role: RoleEnum.PATIENT });
+    if (currentRole !== undefined) {
+      query.andWhere('user.role = :role', {
+        role:
+          currentRole === RoleEnum.THERAPIST
+            ? RoleEnum.PATIENT
+            : RoleEnum.THERAPIST,
+      });
     }
 
-    return await query.getRawOne();
+    return await query.getRawOne<GetUserI>();
   }
 
   async create(cnx: EntityManager, user: User) {
@@ -130,6 +140,6 @@ export class UserRepository {
       query.andWhere('user.role = :role', { role: RoleEnum.THERAPIST });
     }
 
-    return await query.getRawMany();
+    return await query.getRawMany<GetManyUsersI>();
   }
 }
