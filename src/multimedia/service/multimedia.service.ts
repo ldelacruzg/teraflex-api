@@ -33,7 +33,12 @@ export class MultimediaService {
   ) {
     return await this.entityManager.transaction(async (manager) => {
       try {
-        const ids = [];
+        const ids: {
+          id: number;
+          title: string;
+          url: string;
+        }[] = [];
+
         for (const file of files) {
           const payload = {
             url: file.filename,
@@ -61,7 +66,12 @@ export class MultimediaService {
   async saveMultimediaOnline(data: CreateLinkDto[]) {
     return await this.entityManager.transaction(async (manager) => {
       try {
-        const ids = [];
+        const ids: {
+          id: number;
+          title: string;
+          url: string;
+        }[] = [];
+
         for (const element of data) {
           const payload = {
             ...element,

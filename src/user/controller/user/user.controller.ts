@@ -1,13 +1,12 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Put,
   Query,
   Req,
   UseGuards,
@@ -93,20 +92,20 @@ export class UserController {
     }
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Desactivar usuario' })
+  @Patch('status/:id')
+  @ApiOperation({ summary: 'Activar/desactivar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async delete(@Param('id', ParseIntPipe) id: number, @Req() req) {
+  async updateStatus(@Param('id', ParseIntPipe) id: number, @Req() req) {
     try {
       return {
-        message: await this.service.delete(id, req.user),
+        message: await this.service.updateStatus(id, req.user),
       } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
     }
   }
 
-  @Put(':id')
+  @Patch(':id')
   @ApiOperation({ summary: 'Actualizar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async update(

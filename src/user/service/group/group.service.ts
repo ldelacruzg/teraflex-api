@@ -3,22 +3,23 @@ import { GroupRepository } from './group.repository';
 import { Group } from '@entities/group.entity';
 import { EntityManager } from 'typeorm';
 import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
-import { UserService } from '../user/user.service';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { InjectEntityManager } from '@nestjs/typeorm';
+import { UserRepository } from '@user/service/user/user.repository';
+import { updateSucessful } from '@shared/constants/messages';
 
 @Injectable()
 export class GroupService {
   constructor(
     private repo: GroupRepository,
-    private userService: UserService,
+    private userRepo: UserRepository,
     @InjectEntityManager() private cnx: EntityManager,
   ) {}
 
   async addPatient(patientId: number, therapist: InfoUserInterface) {
     return await this.cnx.transaction(async (manager) => {
       try {
-        const pacient = await this.userService.findById(patientId);
+        const pacient = await this.userRepo.findById(manager, patientId);
 
         if (!pacient) throw new Error('Paciente no encontrado');
         if (pacient.role !== RoleEnum.PATIENT)
@@ -46,21 +47,30 @@ export class GroupService {
     });
   }
 
-  async deletePatient(patientId: number, therapist: InfoUserInterface) {
+  async updateStatusPatient(patientId: number, therapist: InfoUserInterface) {
     try {
-      const patient = await this.userService.findById(patientId);
+      const patient = await this.userRepo.findById(this.cnx, patientId);
       if (!patient) throw new Error('Paciente no encontrado');
 
-      const deletePatient = await this.repo.deletePatient(
+      const inGroup = await this.repo.findPacientByTherapist(
+        this.cnx,
+        patientId,
+        therapist.id,
+      );
+
+      if (!inGroup) throw new Error('Paciente no está registrado');
+
+      const deletePatient = await this.repo.updateStatusPatient(
         this.cnx,
         therapist.id,
         patientId,
+        !inGroup.status,
       );
 
       if (deletePatient.affected === 0)
-        throw new Error('No se pudo eliminar al paciente');
+        throw new Error('No se pudo actualizar al paciente');
 
-      return 'Eliminado con éxito';
+      return updateSucessful('paciente');
     } catch (e) {
       throw e;
     }

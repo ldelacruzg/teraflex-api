@@ -1,10 +1,10 @@
 import {
   Controller,
-  Delete,
   Get,
   HttpException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -37,12 +37,12 @@ export class GroupController {
     }
   }
 
-  @Delete('delete/:id')
-  @ApiOperation({ summary: 'Desasociar paciente de terapista' })
-  async deletePatient(@Req() req, @Param('id', ParseIntPipe) id: number) {
+  @Patch('status/:id')
+  @ApiOperation({ summary: 'Reasociar/desasociar paciente de terapista' })
+  async updateStatusPatient(@Req() req, @Param('id', ParseIntPipe) id: number) {
     try {
       return {
-        message: await this.service.deletePatient(id, req.user),
+        message: await this.service.updateStatusPatient(id, req.user),
       } as ResponseDataInterface;
     } catch (e) {
       throw new HttpException(e.message, 400);
