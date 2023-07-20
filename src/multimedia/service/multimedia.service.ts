@@ -86,15 +86,18 @@ export class MultimediaService {
     try {
       const multimedia = await this.repo.getById(this.entityManager, id);
 
+      const filePath = `${Environment.PUBLIC_DIR}/${multimedia.url}`;
+
       if (!multimedia) throw new Error('Recurso no encontrado');
 
       if (multimedia.type === 'online')
         throw new Error('Recurso no descargable');
 
+      const exist = fs.existsSync(filePath);
+      if (!exist) throw new Error('Recurso no disponible');
+
       return {
-        buffer: await fs.readFileSync(
-          `${Environment.PUBLIC_DIR}/${multimedia.url}`,
-        ),
+        buffer: await fs.readFileSync(filePath),
         name: multimedia.url,
       };
     } catch (e) {
