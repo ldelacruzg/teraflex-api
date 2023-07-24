@@ -18,5 +18,8 @@
           "@user/*": ["user/*"],
         }
   },
-  "minify": false
+  "minify": false,
+  "env":{
+  "dynamicImport": true,
+  }
 }
