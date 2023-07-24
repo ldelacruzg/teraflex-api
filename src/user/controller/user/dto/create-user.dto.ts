@@ -1,5 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString, Length } from 'class-validator';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
+import {
+  IsDateString,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -18,11 +24,6 @@ export class CreateUserDto {
   lastName: string;
 
   @ApiProperty()
-  @IsDateString()
-  @IsOptional()
-  birthDate: Date;
-
-  @ApiProperty()
   @IsString()
   @Length(10, 10, {
     message: 'El número de teléfono debe tener 10 caracteres',
@@ -35,5 +36,16 @@ export class CreateUserDto {
   @IsOptional()
   description: string;
 
+  @ApiProperty()
+  @IsDateString()
+  @IsOptional()
+  birthDate: Date;
+
+  @ApiProperty()
+  @IsNumber()
+  categoryId: number;
+
   createdBy: number;
 }
+
+export class CreatePatientDto extends OmitType(CreateUserDto, ['categoryId']) {}

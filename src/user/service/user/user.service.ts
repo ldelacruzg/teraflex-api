@@ -3,7 +3,10 @@ import { UserRepository } from './user.repository';
 import { EntityManager } from 'typeorm';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { User } from '@entities/user.entity';
-import { CreateUserDto } from '../../controller/user/dto/create-user.dto';
+import {
+  CreatePatientDto,
+  CreateUserDto,
+} from '../../controller/user/dto/create-user.dto';
 import { hashSync } from 'bcrypt';
 import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { GroupRepository } from '../group/group.repository';
@@ -11,6 +14,7 @@ import { InjectEntityManager } from '@nestjs/typeorm';
 import { UpdateUserDto } from '../../controller/user/dto/update-user.dto';
 import { insertSucessful, updateSucessful } from '@shared/constants/messages';
 import { GroupService } from '../group/group.service';
+import { Group } from '@entities/group.entity';
 
 @Injectable()
 export class UserService {
@@ -22,7 +26,7 @@ export class UserService {
   ) {}
 
   async create(
-    user: CreateUserDto,
+    user: CreateUserDto | CreatePatientDto,
     role: RoleEnum,
     currentUser: InfoUserInterface,
   ) {
@@ -50,10 +54,7 @@ export class UserService {
           await this.updateStatus(userExist.id, currentUser);
 
         if (currentUser.role === RoleEnum.THERAPIST) {
-          await this.groupService.addPatient(
-            userCreated.id ?? userExist.id,
-            currentUser,
-          );
+          await this.addToGroup(manager, userCreated.id, currentUser);
         }
 
         return insertSucessful(
@@ -63,6 +64,27 @@ export class UserService {
         throw error;
       }
     });
+  }
+
+  private async addToGroup(
+    manager: EntityManager,
+    patientId: number,
+    therapist: InfoUserInterface,
+  ) {
+    const group = await this.groupRepository.findPacientByTherapist(
+      manager,
+      patientId,
+      therapist.id,
+    );
+
+    if (group) throw new Error('Paciente ya está registrado');
+
+    const add = await this.groupRepository.addPatient(manager, {
+      patientId,
+      therapistId: therapist.id,
+    } as Group);
+
+    if (!add) throw new Error('No se pudo agregar al paciente');
   }
 
   async findById(id: number) {

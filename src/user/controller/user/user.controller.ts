@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../../service/user/user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreatePatientDto, CreateUserDto } from './dto/create-user.dto';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '@security/jwt-strategy/roles.guard';
@@ -51,7 +51,7 @@ export class UserController {
   @Post('patient')
   @ApiOperation({ summary: 'Crear paciente' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async createPatient(@Req() req, @Body() body: CreateUserDto) {
+  async createPatient(@Req() req, @Body() body: CreatePatientDto) {
     try {
       return {
         data: null,
@@ -105,7 +105,7 @@ export class UserController {
     }
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   @ApiOperation({ summary: 'Actualizar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async update(
