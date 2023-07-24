@@ -79,6 +79,7 @@ export class TaskService {
           id: true,
           link: {
             id: true,
+            title: true,
             url: true,
             type: true,
           },
