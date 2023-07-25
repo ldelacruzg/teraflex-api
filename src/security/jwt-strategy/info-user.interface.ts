@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import { RoleEnum } from './role.enum';
 
 export interface InfoUserInterface {
