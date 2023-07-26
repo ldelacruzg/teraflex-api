@@ -17,6 +17,9 @@ import { UserModule } from '@user/user.module';
 import { Group } from '@entities/group.entity';
 import { ActivityModule } from '@activity/activity.module';
 import { MultimediaModule } from '@multimedia/multimedia.module';
+import { NotificationModule } from '@notification/notification.module';
+import { Notification } from '@entities/notification.entity';
+import { NotificationToken } from '@entities/notification-token.entity';
 
 @Module({
   imports: [
@@ -37,8 +40,10 @@ import { MultimediaModule } from '@multimedia/multimedia.module';
         User,
         UserValidation,
         Group,
+        Notification,
+        NotificationToken,
       ],
-      synchronize: false,
+      synchronize: true,
       ssl: Environment.DATABASE_SSL as boolean,
       logging: ['error', 'warn'],
       retryAttempts: 5,
@@ -52,6 +57,7 @@ import { MultimediaModule } from '@multimedia/multimedia.module';
     UserModule,
     ActivityModule,
     MultimediaModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

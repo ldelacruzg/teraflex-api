@@ -3,15 +3,15 @@ export function insertSucessful(entity: string) {
 }
 
 export function updateSucessful(entity: string) {
-  return `${entity} actualizada correctamente`;
+  return `${entity} actualizado correctamente`;
 }
 
 export function deleteSucessful(entity: string) {
-  return `${entity} eliminada correctamente`;
+  return `${entity} eliminado correctamente`;
 }
 
 export function notFound(entity: string) {
-  return `${entity} no encontrada`;
+  return `${entity} no encontrado`;
 }
 
 export function insertFailed(entity: string) {

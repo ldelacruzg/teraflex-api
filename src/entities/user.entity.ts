@@ -16,8 +16,10 @@ import { Category } from './category.entity';
 import { Link } from './link.entity';
 import { TaskCategory } from './task-category.entity';
 import { TaskMultimedia } from './task-multimedia.entity';
-import { RoleEnum } from '../security/jwt-strategy/role.enum';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Group } from './group.entity';
+import { Notification } from '@entities/notification.entity';
+import { NotificationToken } from '@entities/notification-token.entity';
 
 @Entity('user')
 export class User {
@@ -126,4 +128,13 @@ export class User {
 
   @OneToMany(() => Group, (group) => group.patient)
   groupPatient: Relation<Group[]>;
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Relation<Notification[]>;
+
+  @OneToMany(
+    () => NotificationToken,
+    (notificationToken) => notificationToken.user,
+  )
+  notificationTokens: Relation<NotificationToken[]>;
 }

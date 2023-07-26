@@ -26,6 +26,7 @@
       "@multimedia/*": ["multimedia/*"],
       "@shared/*": ["shared/*"],
       "@user/*": ["user/*"],
+      "@notification/*": ["notification/*"],
     }
   }
 }
