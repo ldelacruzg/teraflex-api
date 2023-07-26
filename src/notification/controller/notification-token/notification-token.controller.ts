@@ -13,10 +13,13 @@ import { RoleGuard } from '@security/jwt-strategy/roles.guard';
 import { NotificationTokenService } from '@notification/service/notification-token/notification-token.service';
 import { CreateNotificationTokenDto } from '@notification/controller/notification-token/dtos/create-notification-token.dto';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { Role } from '@security/jwt-strategy/roles.decorator';
+import { RoleEnum } from '@security/jwt-strategy/role.enum';
 
 @Controller('notification-token')
 @ApiTags('Notification Token')
 @UseGuards(JwtAuthGuard, RoleGuard)
+@Role(RoleEnum.PATIENT)
 @ApiBearerAuth()
 export class NotificationTokenController {
   constructor(private service: NotificationTokenService) {}

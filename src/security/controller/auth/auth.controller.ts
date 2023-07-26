@@ -28,7 +28,7 @@ import { EntityManager } from 'typeorm';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 
 @Controller('auth')
-@ApiTags('auth')
+@ApiTags('Auth')
 @ApiBearerAuth()
 export class AuthController {
   constructor(

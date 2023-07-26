@@ -43,7 +43,7 @@ import { NotificationToken } from '@entities/notification-token.entity';
         Notification,
         NotificationToken,
       ],
-      synchronize: true,
+      synchronize: false,
       ssl: Environment.DATABASE_SSL as boolean,
       logging: ['error', 'warn'],
       retryAttempts: 5,

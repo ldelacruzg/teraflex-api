@@ -25,10 +25,10 @@ export class Notification {
   userId: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
-  updated_at: Date;
+  updatedAt: Date;
 
   @Column({ name: 'status', type: 'boolean', default: true })
   status: boolean;

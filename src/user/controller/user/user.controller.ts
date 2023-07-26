@@ -28,7 +28,7 @@ import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 
 @Controller('user')
-@ApiTags('user')
+@ApiTags('User')
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class UserController {

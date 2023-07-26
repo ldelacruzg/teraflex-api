@@ -29,16 +29,40 @@ export class NotificationTokenService {
     return await this.cnx.transaction(async (manager) => {
       data.device = await this.encryptService.encrypt(data.device);
 
-      const created = await this.notificationTokenRepository.create(
+      const exist = await this.notificationTokenRepository.getByDevice(
         manager,
-        data as NotificationToken,
+        data.device,
       );
 
-      if (!created) {
-        throw new BadRequestException(insertFailed('notification token'));
-      }
+      if (!exist) {
+        const created = await this.notificationTokenRepository.create(
+          manager,
+          data as NotificationToken,
+        );
 
-      return insertSucessful('notification token');
+        if (!created)
+          throw new BadRequestException(insertFailed('notification token'));
+
+        return insertSucessful('notification token');
+      } else {
+        if (!exist.status) {
+          const updated = await this.notificationTokenRepository.update(
+            manager,
+            exist.id,
+            {
+              status: true,
+            } as NotificationToken,
+          );
+
+          if (updated.affected === 0)
+            throw new BadRequestException(updateFailed('notification token'));
+
+          return updateSucessful('notification token');
+        } else
+          throw new BadRequestException(
+            'El dispositivo ya se encuentra registrado',
+          );
+      }
     });
   }
 
@@ -56,10 +80,11 @@ export class NotificationTokenService {
     return notificationToken;
   }
 
-  async getByUser(userId: number) {
+  async getByUser(userId: number, status?: boolean) {
     const notificationTokens = await this.notificationTokenRepository.getByUser(
       this.cnx,
       userId,
+      status,
     );
 
     if (!notificationTokens) {

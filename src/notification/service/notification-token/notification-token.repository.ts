@@ -14,8 +14,10 @@ export class NotificationTokenRepository {
     return await cxn.findOne(NotificationToken, { where: { device } });
   }
 
-  async getByUser(cxn: EntityManager, userId: number) {
-    return await cxn.find(NotificationToken, { where: { userId } });
+  async getByUser(cxn: EntityManager, userId: number, status?: boolean) {
+    return await cxn.find(NotificationToken, {
+      where: { userId, status: status == undefined ? true : status },
+    });
   }
 
   async update(cnx: EntityManager, id: number, data: NotificationToken) {

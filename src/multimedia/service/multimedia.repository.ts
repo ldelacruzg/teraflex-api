@@ -37,6 +37,7 @@ export class MultimediaRepository {
         }),
       )
       .andWhere('link.status = :status', { status: status ?? true })
+      .orderBy('link.createdAt', 'DESC')
       .getRawMany<GetByUserAndPublic>();
   }
 

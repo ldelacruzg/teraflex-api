@@ -8,6 +8,7 @@ import { Notification } from '@entities/notification.entity';
 import { NotificationToken } from '@entities/notification-token.entity';
 import { NotificationTokenRepository } from '@notification/service/notification-token/notification-token.repository';
 import { SharedModule } from '@shared/shared.module';
+import { NotificationRepository } from '@notification/service/notification/notification.repository';
 
 @Module({
   controllers: [NotificationController, NotificationTokenController],
@@ -15,6 +16,7 @@ import { SharedModule } from '@shared/shared.module';
     NotificationTokenService,
     NotificationService,
     NotificationTokenRepository,
+    NotificationRepository,
   ],
   imports: [
     TypeOrmModule.forFeature([Notification, NotificationToken]),
