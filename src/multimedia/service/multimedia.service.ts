@@ -104,7 +104,10 @@ export class MultimediaService {
         throw new Error('Recurso no descargable');
 
       const exist = fs.existsSync(filePath);
-      if (!exist) throw new Error('Recurso no disponible');
+      if (!exist) {
+        await this.updateStatus(id);
+        throw new Error('Recurso no disponible');
+      }
 
       return {
         buffer: await fs.readFileSync(filePath),

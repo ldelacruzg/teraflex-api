@@ -131,7 +131,9 @@ export class UserController {
   }
 
   @Get('all')
-  @ApiOperation({ summary: 'Obtener todos los usuarios' })
+  @ApiOperation({
+    summary: 'Obtener todos los usuarios excepto los que están en el grupo',
+  })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   @ApiQuery({ name: 'status', required: false })
   async getAll(@Req() req, @Query('status') status: boolean) {
