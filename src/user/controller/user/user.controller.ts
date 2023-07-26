@@ -28,7 +28,7 @@ import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 
 @Controller('user')
-@ApiTags('user')
+@ApiTags('User')
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class UserController {
@@ -131,7 +131,9 @@ export class UserController {
   }
 
   @Get('all')
-  @ApiOperation({ summary: 'Obtener todos los usuarios' })
+  @ApiOperation({
+    summary: 'Obtener todos los usuarios excepto los que están en el grupo',
+  })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   @ApiQuery({ name: 'status', required: false })
   async getAll(@Req() req, @Query('status') status: boolean) {

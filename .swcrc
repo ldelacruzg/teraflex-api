@@ -16,6 +16,7 @@
           "@multimedia/*": ["multimedia/*"],
           "@shared/*": ["shared/*"],
           "@user/*": ["user/*"],
+          "@notification/*": ["notification/*"],
         }
   },
   "minify": false

@@ -18,7 +18,7 @@ import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 
 @Controller('group')
-@ApiTags('Grupo')
+@ApiTags('Group')
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 @Role(RoleEnum.THERAPIST)
