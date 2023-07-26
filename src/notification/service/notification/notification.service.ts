@@ -13,6 +13,8 @@ import {
 } from '@shared/constants/messages';
 import { NotificationRepository } from '@notification/service/notification/notification.repository';
 import { Notification } from '@entities/notification.entity';
+import firebase from 'firebase-admin';
+import * as path from 'path';
 
 @Injectable()
 export class NotificationService {
@@ -20,7 +22,13 @@ export class NotificationService {
     private readonly notificationTokenService: NotificationTokenService,
     @InjectEntityManager() private readonly cnx: EntityManager,
     private readonly notificationRepository: NotificationRepository,
-  ) {}
+  ) {
+    firebase.initializeApp({
+      credential: firebase.credential.cert(
+        path.join(__dirname, '../../../../firebase.json'),
+      ),
+    });
+  }
 
   async sendNotification(
     userId: number,
@@ -30,7 +38,16 @@ export class NotificationService {
       const devices = await this.notificationTokenService.getByUser(userId);
 
       for (const device of devices) {
-        console.log(device, payload);
+        await firebase
+          .messaging()
+          .send({
+            notification: { ...payload },
+            token: device.token,
+            android: { priority: 'high' },
+          })
+          .catch((error: any) => {
+            console.error(error);
+          });
       }
 
       return await this.saveNotification({
