@@ -54,6 +54,9 @@ export class TaskService {
       query.andWhere('task.status = :status', { status });
     }
 
+    // order by the date of creation
+    query.orderBy('task.createdAt', 'DESC');
+
     // return tasks
     return query.getMany();
   }
@@ -130,7 +133,7 @@ export class TaskService {
     // Verifica si existen las categorias
     if (categoryIds.length !== categoriesCount) {
       throw new BadRequestException(
-        `Una o todas de las categorias ["${categoryIds}"] no existe`,
+        `Una o todas las categorias con ["${categoryIds}"] no existe`,
       );
     }
 
@@ -145,7 +148,7 @@ export class TaskService {
       // Verifica si existen los archivos
       if (fileIds.length !== filesCount) {
         throw new BadRequestException(
-          `Uno o todos de los archivos ["${fileIds}"] no existe`,
+          `Uno o todos los archivos con ["${fileIds}"] no existe`,
         );
       }
     }

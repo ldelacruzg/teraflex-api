@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateManyAssignmentsDto } from '@activity/controllers/assignment/dto/create-many-assignments.dto';
@@ -95,6 +96,7 @@ export class AssignmentService {
           link: {
             id: true,
             url: true,
+            title: true,
             type: true,
           },
         },
@@ -111,6 +113,7 @@ export class AssignmentService {
       ({ link }) => ({
         id: link.id,
         url: link.url,
+        title: link.title,
         type: link.type,
       }),
     );
@@ -243,10 +246,15 @@ export class AssignmentService {
       );
     }
 
+    // verify if the assignment task already is completed
+    if (assignmentFound.isCompleted) {
+      throw new BadRequestException('La tarea ya se encuentra completada');
+    }
+
     // change the isCompleted property
     return this.assignmentRepository.update(
       { id: assignmentId },
-      { isCompleted: !assignmentFound.isCompleted, updatedById: userLoggedId },
+      { isCompleted: true, updatedById: userLoggedId },
     );
   }
 }
