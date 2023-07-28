@@ -22,5 +22,6 @@ import { NotificationRepository } from '@notification/service/notification/notif
     TypeOrmModule.forFeature([Notification, NotificationToken]),
     SharedModule,
   ],
+  exports: [NotificationService],
 })
 export class NotificationModule {}

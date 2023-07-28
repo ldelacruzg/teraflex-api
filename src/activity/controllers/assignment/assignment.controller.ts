@@ -11,6 +11,7 @@ import {
   Patch,
   Query,
   UseInterceptors,
+  Inject,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AssignmentService } from '@activity/services/assignment/assignment.service';
@@ -24,6 +25,7 @@ import { RemoveManyAssignmentDto } from './dto/remove-many-assigments.dto';
 import { ParseBoolAllowUndefinedPipe } from '@shared/pipes/parse-bool-allow-undefined.pipe';
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { NotificationService } from '@/notification/service/notification/notification.service';
 
 @Controller()
 @UseInterceptors(ResponseHttpInterceptor)
@@ -31,7 +33,10 @@ import { ResponseDataInterface } from '@shared/interfaces/response-data.interfac
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class AssignmentController {
-  constructor(private assignmentService: AssignmentService) {}
+  constructor(
+    private assignmentService: AssignmentService,
+    private notificationService: NotificationService,
+  ) {}
 
   @Get('patients/:patientId/tasks')
   @ApiOperation({
@@ -83,6 +88,8 @@ export class AssignmentController {
     @Param('patientId', ParseIntPipe) patientId: number,
     @Body() createManyAssignmentDto: CreateManyAssignmentsDto,
   ): Promise<ResponseDataInterface> {
+    const { tasks } = createManyAssignmentDto;
+
     // Assign the creation user
     const userLogged = req.user as InfoUserInterface;
     createManyAssignmentDto.createdById = userLogged.id;
@@ -92,6 +99,15 @@ export class AssignmentController {
       patientId,
       createManyAssignmentDto,
     );
+
+    // notify the patient
+    await this.notificationService.sendNotification(patientId, {
+      title: 'TeraFlex',
+      body:
+        tasks.length > 1
+          ? 'Se te han asignado nuevas tareas'
+          : 'Se te ha asignado una nueva tarea',
+    });
 
     // Return the created assignments
     return {
