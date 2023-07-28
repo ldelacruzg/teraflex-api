@@ -15,6 +15,8 @@ import { NotificationRepository } from '@notification/service/notification/notif
 import { Notification } from '@entities/notification.entity';
 import firebase from 'firebase-admin';
 import * as path from 'path';
+import { NotificationTokenRepository } from '@notification/service/notification-token/notification-token.repository';
+import { NotificationToken } from '@entities/notification-token.entity';
 
 @Injectable()
 export class NotificationService {
@@ -22,6 +24,7 @@ export class NotificationService {
     private readonly notificationTokenService: NotificationTokenService,
     @InjectEntityManager() private readonly cnx: EntityManager,
     private readonly notificationRepository: NotificationRepository,
+    private readonly notificationTokenRepository: NotificationTokenRepository,
   ) {
     firebase.initializeApp({
       credential: firebase.credential.cert(
@@ -34,29 +37,28 @@ export class NotificationService {
     userId: number,
     payload: { title: string; body: string },
   ) {
-    try {
-      const devices = await this.notificationTokenService.getByUser(userId);
+    const devices = await this.notificationTokenService.getByUser(userId);
 
-      for (const device of devices) {
-        await firebase
-          .messaging()
-          .send({
-            notification: { ...payload },
-            token: device.token,
-            android: { priority: 'high' },
-          })
-          .catch((error: any) => {
-            console.error(error);
-          });
-      }
-
-      return await this.saveNotification({
-        ...payload,
-        userId,
-      });
-    } catch (e) {
-      throw new BadRequestException(e.message);
+    for (const device of devices) {
+      await firebase
+        .messaging()
+        .send({
+          notification: { ...payload },
+          token: device.token,
+          android: { priority: 'high' },
+        })
+        .catch(async (error: any) => {
+          console.error(error);
+          await this.notificationTokenRepository.update(this.cnx, device.id, {
+            status: false,
+          } as NotificationToken);
+        });
     }
+
+    return await this.saveNotification({
+      ...payload,
+      userId,
+    });
   }
 
   private async saveNotification(payload: {

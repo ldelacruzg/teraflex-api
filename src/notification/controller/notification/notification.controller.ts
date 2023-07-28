@@ -3,6 +3,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Req,
   UseGuards,
@@ -31,18 +32,9 @@ export class NotificationController {
     } as ResponseDataInterface;
   }
 
-  @Post('push')
-  @ApiOperation({ summary: 'Enviar notificación' })
-  async pushNotification(@Req() req) {
-    return await this.notificationService.sendNotification(req.user.id, {
-      title: 'Notificación de prueba',
-      body: 'Esta es una notificación de prueba',
-    });
-  }
-
   @Delete('delete/:id')
   @ApiOperation({ summary: 'Desactivar la notificación' })
-  async updateStatus(@Param('id') id: number) {
+  async updateStatus(@Param('id', ParseIntPipe) id: number) {
     return {
       message: await this.notificationService.deleteNotification(id),
     } as ResponseDataInterface;
