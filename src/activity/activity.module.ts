@@ -13,6 +13,7 @@ import { AssignmentService } from './services/assignment/assignment.service';
 import { AssignmentController } from './controllers/assignment/assignment.controller';
 import { Link } from '@entities/link.entity';
 import { TaskMultimedia } from '@entities/task-multimedia.entity';
+import { NotificationModule } from '@/notification/notification.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TaskMultimedia } from '@entities/task-multimedia.entity';
       Link,
       TaskMultimedia,
     ]),
+    NotificationModule,
   ],
   providers: [CategoryService, TaskService, AssignmentService],
   controllers: [CategoryController, TaskController, AssignmentController],
