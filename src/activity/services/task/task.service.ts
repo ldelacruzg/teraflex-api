@@ -42,7 +42,8 @@ export class TaskService {
         'task.isPublic',
         'task.createdAt',
         'task.updatedAt',
-      ]);
+      ])
+      .innerJoinAndSelect('task.tasksCategories', 'tasksCategories');
 
     // if userId exists, add where clause
     if (userId) {
@@ -57,8 +58,21 @@ export class TaskService {
     // order by the date of creation
     query.orderBy('task.createdAt', 'DESC');
 
+    // get tasks
+    const tasks = await query.getMany();
+
     // return tasks
-    return query.getMany();
+    return tasks.map((task) => {
+      const categoryIds = task.tasksCategories.map(
+        ({ categoryId }) => categoryId,
+      );
+
+      delete task.tasksCategories;
+      return {
+        ...task,
+        categoryIds,
+      };
+    });
   }
 
   async getTask(id: number) {
