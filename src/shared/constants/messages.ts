@@ -1,13 +1,13 @@
 export function insertSucessful(entity: string) {
-  return `${entity} creado correctamente`;
+  return `${entity} creado con éxito`;
 }
 
 export function updateSucessful(entity: string) {
-  return `${entity} actualizado correctamente`;
+  return `${entity} actualizado con éxito`;
 }
 
 export function deleteSucessful(entity: string) {
-  return `${entity} eliminado correctamente`;
+  return `${entity} eliminado con éxito`;
 }
 
 export function notFound(entity: string) {

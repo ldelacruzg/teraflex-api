@@ -28,25 +28,17 @@ export class GroupController {
   @Post('add/:id')
   @ApiOperation({ summary: 'Asociar paciente a terapista' })
   async addPatient(@Req() req, @Param('id', ParseIntPipe) id: number) {
-    try {
       return {
         message: await this.service.addPatient(id, req.user),
       } as ResponseDataInterface;
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
   }
 
   @Patch('status/:id')
   @ApiOperation({ summary: 'Reasociar/desasociar paciente de terapista' })
   async updateStatusPatient(@Req() req, @Param('id', ParseIntPipe) id: number) {
-    try {
       return {
         message: await this.service.updateStatusPatient(id, req.user),
       } as ResponseDataInterface;
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
   }
 
   @Get('all')
@@ -54,12 +46,8 @@ export class GroupController {
     summary: 'Obtener todos los pacientes asociados al terapista',
   })
   async getAllByTherapist(@Req() req) {
-    try {
       return {
         data: await this.service.getAllByTherapist(req.user.id),
       } as ResponseDataInterface;
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
   }
 }

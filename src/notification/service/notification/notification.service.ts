@@ -37,23 +37,27 @@ export class NotificationService {
     userId: number,
     payload: { title: string; body: string },
   ) {
-    const devices = await this.notificationTokenService.getByUser(userId);
+    const devices = await this.notificationTokenService.getByUser(userId, true);
 
-    for (const device of devices) {
-      await firebase
-        .messaging()
-        .send({
-          notification: { ...payload },
-          token: device.token,
-          android: { priority: 'high' },
-        })
-        .catch(async (error: any) => {
-          console.error(error);
-          await this.notificationTokenRepository.update(this.cnx, device.id, {
-            status: false,
-          } as NotificationToken);
+    const tokens = devices.map((device) => device.token);
+
+    await firebase
+      .messaging()
+      .sendEachForMulticast({
+        notification: { ...payload },
+        tokens,
+      }).then(async (response) => {
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            this.notificationTokenRepository.update(this.cnx, devices[idx].id, {
+              status: false,
+            } as NotificationToken);
+          }
         });
-    }
+      })
+      .catch(async (error: any) => {
+        console.error(error);
+      })
 
     return await this.saveNotification({
       ...payload,
@@ -85,7 +89,7 @@ export class NotificationService {
     );
 
     if (!notifications) {
-      throw new NotFoundException('No notifications found');
+      throw new NotFoundException('No se encontraron notificaciones');
     }
 
     return notifications;
@@ -98,7 +102,7 @@ export class NotificationService {
     );
 
     if (!notification) {
-      throw new NotFoundException('Notification not found');
+      throw new NotFoundException('No se encontró la notificación');
     }
 
     const deleted = await this.notificationRepository.updateStatus(
