@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { GroupRepository } from './group.repository';
 import { Group } from '@entities/group.entity';
 import { EntityManager } from 'typeorm';
@@ -6,7 +6,7 @@ import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { UserRepository } from '@user/service/user/user.repository';
-import { updateSucessful } from '@shared/constants/messages';
+import { insertSucessful, notFound, updateFailed, updateSucessful } from '@shared/constants/messages';
 
 @Injectable()
 export class GroupService {
@@ -21,9 +21,10 @@ export class GroupService {
       try {
         const pacient = await this.userRepo.findById(manager, patientId);
 
-        if (!pacient) throw new Error('Paciente no encontrado');
+        if (!pacient) throw new NotFoundException(notFound('paciente'));
+       
         if (pacient.role !== RoleEnum.PATIENT)
-          throw new Error('El usuario no es paciente');
+          throw new BadRequestException('El usuario no es paciente');
 
         const group = await this.repo.findPacientByTherapist(
           manager,
@@ -31,7 +32,7 @@ export class GroupService {
           therapist.id,
         );
 
-        if (group) throw new Error('Paciente ya está registrado');
+        if (group) throw new BadRequestException('Paciente ya está registrado');
 
         const add = await this.repo.addPatient(manager, {
           patientId,
@@ -40,7 +41,8 @@ export class GroupService {
 
         if (!add) throw new Error('No se pudo agregar al paciente');
 
-        return 'Agregado con éxito';
+
+        return insertSucessful('paciente');
       } catch (e) {
         throw e;
       }
@@ -50,7 +52,7 @@ export class GroupService {
   async updateStatusPatient(patientId: number, therapist: InfoUserInterface) {
     try {
       const patient = await this.userRepo.findById(this.cnx, patientId);
-      if (!patient) throw new Error('Paciente no encontrado');
+      if (!patient) throw new NotFoundException(notFound('paciente'));
 
       const inGroup = await this.repo.findPacientByTherapist(
         this.cnx,
@@ -58,7 +60,7 @@ export class GroupService {
         therapist.id,
       );
 
-      if (!inGroup) throw new Error('Paciente no está registrado');
+      if (!inGroup) throw new BadRequestException('Paciente no está registrado');
 
       const deletePatient = await this.repo.updateStatusPatient(
         this.cnx,
@@ -68,7 +70,7 @@ export class GroupService {
       );
 
       if (deletePatient.affected === 0)
-        throw new Error('No se pudo actualizar al paciente');
+        throw new BadRequestException(updateFailed('paciente'));
 
       return updateSucessful('paciente');
     } catch (e) {

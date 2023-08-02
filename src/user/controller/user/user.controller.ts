@@ -32,48 +32,36 @@ import { ResponseDataInterface } from '@shared/interfaces/response-data.interfac
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class UserController {
-  constructor(private service: UserService) {}
+  constructor(private service: UserService) { }
 
   @Post('therapist')
   @ApiOperation({ summary: 'Crear terapeuta' })
   @Role(RoleEnum.ADMIN)
   async createTherapist(@Req() req, @Body() body: CreateUserDto) {
-    try {
       return {
         data: null,
         message: await this.service.create(body, RoleEnum.THERAPIST, req.user),
       } as ResponseDataInterface;
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
   }
 
   @Post('patient')
   @ApiOperation({ summary: 'Crear paciente' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async createPatient(@Req() req, @Body() body: CreatePatientDto) {
-    try {
-      return {
-        data: null,
-        message: await this.service.create(body, RoleEnum.PATIENT, req.user),
-      } as ResponseDataInterface;
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
+    return {
+      data: null,
+      message: await this.service.create(body, RoleEnum.PATIENT, req.user),
+    } as ResponseDataInterface;
   }
 
   @Get('by-id/:id')
   @ApiOperation({ summary: 'Buscar por id' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async findById(@Param('id', ParseIntPipe) id: number) {
-    try {
-      return {
-        data: await this.service.findById(id),
-        message: null,
-      } as ResponseDataInterface;
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
+    return {
+      data: await this.service.findById(id),
+      message: null,
+    } as ResponseDataInterface;
   }
 
   @Get('by-identification/:identification')
@@ -83,26 +71,18 @@ export class UserController {
     @Param('identification') identification: string,
     @Req() req,
   ) {
-    try {
-      return {
-        data: await this.service.findByDocNumber(identification, req.user.role),
-      } as ResponseDataInterface;
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
+    return {
+      data: await this.service.findByDocNumber(identification, req.user.role),
+    } as ResponseDataInterface;
   }
 
   @Patch('status/:id')
   @ApiOperation({ summary: 'Activar/desactivar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async updateStatus(@Param('id', ParseIntPipe) id: number, @Req() req) {
-    try {
-      return {
-        message: await this.service.updateStatus(id, req.user),
-      } as ResponseDataInterface;
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
+    return {
+      message: await this.service.updateStatus(id, req.user),
+    } as ResponseDataInterface;
   }
 
   @Patch('update/:id')
