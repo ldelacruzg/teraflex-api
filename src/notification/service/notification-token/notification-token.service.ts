@@ -66,11 +66,12 @@ export class NotificationTokenService {
     });
   }
 
-  async getByDevice(device: string) {
+  async getByDevice(device: string, status?: boolean) {
     const notificationToken =
       await this.notificationTokenRepository.getByDevice(
         this.cnx,
         await this.encryptService.encrypt(device),
+        status,
       );
 
     if (!notificationToken) {
@@ -94,7 +95,7 @@ export class NotificationTokenService {
     return notificationTokens;
   }
 
-  async updateStatus(device: string, currentUserId: number) {
+  async updateStatus(device: string, currentUserId: number, status?: boolean) {
     const notificationToken = await this.getByDevice(device);
 
     if (notificationToken.userId !== currentUserId)
@@ -105,7 +106,7 @@ export class NotificationTokenService {
     const updated = await this.notificationTokenRepository.update(
       this.cnx,
       notificationToken.id,
-      { status: !notificationToken.status } as NotificationToken,
+      { status: status ?? !notificationToken.status } as NotificationToken,
     );
 
     if (updated.affected === 0) {
