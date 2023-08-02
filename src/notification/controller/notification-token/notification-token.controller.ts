@@ -1,9 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
-  Patch,
   Post,
   UseGuards,
   UseInterceptors,
@@ -42,15 +42,15 @@ export class NotificationTokenController {
     } as ResponseDataInterface;
   }
 
-  @Patch('update-device/status/:device')
+  @Delete('delete-device/:device')
   @Role(RoleEnum.PATIENT)
-  @ApiOperation({ summary: 'Actualizar estado de dispositivo' })
-  async updateDeviceStatus(
+  @ApiOperation({ summary: 'Eliminar dispositivo' })
+  async deleteDevice(
     @Param('device') device: string,
     @CurrentUser() { id }: InfoUserInterface,
   ) {
     return {
-      message: await this.service.updateStatus(device, id),
+      message: await this.service.updateStatus(device, id, false),
     } as ResponseDataInterface;
   }
 
@@ -58,7 +58,8 @@ export class NotificationTokenController {
   @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Verificar dispositivo' })
   async verifyDevice(@Param('device') device: string) {
-    await this.service.getByDevice(device);
+    await this.service.getByDevice(device, true);
+
     return {
       message: 'Dispositivo verificado',
     } as ResponseDataInterface;

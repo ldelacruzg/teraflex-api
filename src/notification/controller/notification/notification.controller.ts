@@ -39,7 +39,7 @@ export class NotificationController {
   @Delete('delete/:id')
   @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Desactivar la notificación' })
-  async updateStatus(@Param('id', ParseIntPipe) id: number) {
+  async deleteNotification(@Param('id', ParseIntPipe) id: number) {
     return {
       message: await this.notificationService.deleteNotification(id),
     } as ResponseDataInterface;
