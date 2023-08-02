@@ -16,6 +16,7 @@ import { Task } from '@entities/task.entity';
 import { User } from '@entities/user.entity';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Repository } from 'typeorm';
+import moment from 'moment';
 
 @Injectable()
 export class AssignmentService {
@@ -32,8 +33,9 @@ export class AssignmentService {
   async getAssigmentTasksByUser(options: {
     userId: number;
     isCompleted?: boolean;
+    last?: boolean;
   }) {
-    const { userId, isCompleted } = options;
+    const { userId, isCompleted, last } = options;
 
     // verify if the user exists and is a patient
     const user = await this.userRepository.findOneBy({
@@ -46,26 +48,84 @@ export class AssignmentService {
       throw new NotFoundException(`El paciente con Id "${userId}" no existe`);
     }
 
-    // get the tasks assigned to the user
-    const tasks = await this.assignmentRepository.find({
-      where: { userId, isCompleted },
-      relations: ['task'],
-    });
+    // si "last" es undefined, se obtiene todas las tareas asignadas al paciente
+    if (last === undefined || !last) {
+      const tasks = await this.assignmentRepository.find({
+        where: { userId, isCompleted },
+        relations: ['task'],
+      });
 
-    // return the tasks
-    return tasks.map(
-      ({ task, createdAt, estimatedTime, dueDate, id, description }) => ({
-        id,
+      return tasks.map((assignTask) => ({
+        id: assignTask.id,
+        createdAt: assignTask.createdAt,
+        dueDate: assignTask.dueDate,
+        isCompleted: assignTask.isCompleted,
         task: {
-          id: task.id,
-          title: task.title,
-          description,
-          estimatedTime,
+          id: assignTask.task.id,
+          title: assignTask.task.title,
+          description: assignTask.description,
+          estimatedTime: assignTask.estimatedTime,
         },
-        createdAt,
-        dueDate,
-      }),
-    );
+      }));
+    }
+
+    // query the last assignments of the user
+    const queryLastDate = await this.assignmentRepository
+      .createQueryBuilder('assignment')
+      .select('max(date(assignment.createdAt))', 'createdAt')
+      .where('assignment.userId = :userId', { userId })
+      .getRawOne<{ createdAt: Date }>();
+
+    if (queryLastDate.createdAt === null) {
+      return [];
+    }
+
+    // get the last and current date
+    const lastDate = moment(queryLastDate.createdAt).format('YYYY-MM-DD');
+    const currentDate = moment().tz('America/Guayaquil').format('YYYY-MM-DD');
+
+    // query the assign tasks by userId
+    const queryTasks = this.assignmentRepository
+      .createQueryBuilder('assignment')
+      .select([
+        'assignment.id',
+        'assignment.createdAt',
+        'assignment.dueDate',
+        'assignment.isCompleted',
+        'assignment.estimatedTime',
+        'assignment.description',
+      ])
+      .where('assignment.userId = :userId', { userId });
+
+    if (isCompleted !== undefined) {
+      queryTasks.andWhere('assignment.isCompleted = :isCompleted', {
+        isCompleted,
+      });
+    }
+
+    // add the last date and current date to the query
+    queryTasks
+      .andWhere('date(assignment.createdAt) = :lastDate', { lastDate })
+      .andWhere('date(assignment.dueDate) >= :currentDate', { currentDate })
+      .innerJoin('assignment.task', 'task')
+      .addSelect(['task.id', 'task.title'])
+      .getMany();
+
+    // execute the query
+    const assignTasks = await queryTasks.getMany();
+
+    return assignTasks.map((assignTask) => ({
+      id: assignTask.id,
+      createdAt: assignTask.createdAt,
+      dueDate: assignTask.dueDate,
+      isCompleted: assignTask.isCompleted,
+      task: {
+        id: assignTask.task.id,
+        title: assignTask.task.title,
+        estimatedTime: assignTask.estimatedTime,
+        description: assignTask.description,
+      },
+    }));
   }
 
   // get the task assignments of a user (detail)

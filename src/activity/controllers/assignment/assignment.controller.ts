@@ -11,7 +11,6 @@ import {
   Patch,
   Query,
   UseInterceptors,
-  Inject,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AssignmentService } from '@activity/services/assignment/assignment.service';
@@ -48,11 +47,14 @@ export class AssignmentController {
     patientId: number,
     @Query('isCompleted', ParseBoolAllowUndefinedPipe)
     isCompleted: boolean | undefined,
+    @Query('last', ParseBoolAllowUndefinedPipe)
+    last: boolean | undefined,
   ): Promise<ResponseDataInterface> {
     // get the tasks assigned to the user
     const assigedTasks = await this.assignmentService.getAssigmentTasksByUser({
       userId: patientId,
       isCompleted,
+      last,
     });
 
     return {
