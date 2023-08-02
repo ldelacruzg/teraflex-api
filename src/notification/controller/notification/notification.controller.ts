@@ -30,7 +30,6 @@ export class NotificationController {
   @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Obtener todas las notifications' })
   async getAll(@CurrentUser() { id }: InfoUserInterface) {
-    console.log(id);
     return {
       data: await this.notificationService.getNotifications(id),
     } as ResponseDataInterface;

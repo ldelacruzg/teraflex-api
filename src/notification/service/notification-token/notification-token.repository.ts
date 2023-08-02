@@ -18,7 +18,7 @@ export class NotificationTokenRepository {
         'notificationToken.token as token',
         'notificationToken.device as device',
         'notificationToken.status as status',
-        'notificationToken.user_id as userId',
+        'notificationToken.user_id as "userId"',
       ])
       .from(NotificationToken, 'notificationToken')
       .where('notificationToken.device = :device', { device });
