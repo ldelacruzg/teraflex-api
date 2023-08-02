@@ -4,9 +4,9 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Post,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { NotificationService } from '@notification/service/notification/notification.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -15,11 +15,13 @@ import { RoleGuard } from '@security/jwt-strategy/roles.guard';
 import { Role } from '@security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 
 @Controller('notification')
 @ApiTags('Notification')
 @UseGuards(JwtAuthGuard, RoleGuard)
 @Role(RoleEnum.PATIENT)
+@UseInterceptors(ResponseHttpInterceptor)
 @ApiBearerAuth()
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}

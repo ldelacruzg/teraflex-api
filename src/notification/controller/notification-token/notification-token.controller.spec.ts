@@ -9,7 +9,9 @@ describe('NotificationTokenController', () => {
       controllers: [NotificationTokenController],
     }).compile();
 
-    controller = module.get<NotificationTokenController>(NotificationTokenController);
+    controller = module.get<NotificationTokenController>(
+      NotificationTokenController,
+    );
   });
 
   it('should be defined', () => {

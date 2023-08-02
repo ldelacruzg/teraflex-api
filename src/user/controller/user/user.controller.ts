@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
   Param,
   ParseIntPipe,
   Patch,
@@ -10,6 +9,7 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from '../../service/user/user.service';
 import { CreatePatientDto, CreateUserDto } from './dto/create-user.dto';
@@ -26,22 +26,24 @@ import { Role } from '@security/jwt-strategy/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 
 @Controller('user')
 @ApiTags('User')
+@UseInterceptors(ResponseHttpInterceptor)
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class UserController {
-  constructor(private service: UserService) { }
+  constructor(private service: UserService) {}
 
   @Post('therapist')
   @ApiOperation({ summary: 'Crear terapeuta' })
   @Role(RoleEnum.ADMIN)
   async createTherapist(@Req() req, @Body() body: CreateUserDto) {
-      return {
-        data: null,
-        message: await this.service.create(body, RoleEnum.THERAPIST, req.user),
-      } as ResponseDataInterface;
+    return {
+      data: null,
+      message: await this.service.create(body, RoleEnum.THERAPIST, req.user),
+    } as ResponseDataInterface;
   }
 
   @Post('patient')

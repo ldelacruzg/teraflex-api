@@ -32,9 +32,11 @@ import { Role } from '@security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { UpdateLinkDto } from './dtos/update-link.dto';
 import { insertSucessful } from '@shared/constants/messages';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 
 @Controller('multimedia')
 @ApiTags('multimedia')
+@UseInterceptors(ResponseHttpInterceptor)
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class MultimediaController {

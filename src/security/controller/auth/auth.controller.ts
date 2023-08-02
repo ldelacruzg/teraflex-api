@@ -26,6 +26,7 @@ import { RoleEnum } from '../../jwt-strategy/role.enum';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { Request } from 'express';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -44,7 +45,7 @@ export class AuthController {
     required: true,
   })
   @ApiHeader({ name: 'password', description: 'Contraseña', required: true })
-  async login(@Headers() payload: LoginDto) {
+  async login(@Headers() payload: LoginDto, @Req() req: Request) {
     try {
       return await this.authService.login(this.cnx, payload);
     } catch (e) {

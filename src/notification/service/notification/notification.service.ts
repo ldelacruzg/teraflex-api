@@ -39,6 +39,9 @@ export class NotificationService {
   ) {
     const devices = await this.notificationTokenService.getByUser(userId, true);
 
+    if (devices.length === 0)
+      throw new NotFoundException('No se encontraron dispositivos registrados');
+
     const tokens = devices.map((device) => device.token);
 
     await firebase
@@ -46,7 +49,8 @@ export class NotificationService {
       .sendEachForMulticast({
         notification: { ...payload },
         tokens,
-      }).then(async (response) => {
+      })
+      .then(async (response) => {
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             this.notificationTokenRepository.update(this.cnx, devices[idx].id, {
@@ -57,7 +61,7 @@ export class NotificationService {
       })
       .catch(async (error: any) => {
         console.error(error);
-      })
+      });
 
     return await this.saveNotification({
       ...payload,

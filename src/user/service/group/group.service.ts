@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { GroupRepository } from './group.repository';
 import { Group } from '@entities/group.entity';
 import { EntityManager } from 'typeorm';
@@ -6,7 +10,12 @@ import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { UserRepository } from '@user/service/user/user.repository';
-import { insertSucessful, notFound, updateFailed, updateSucessful } from '@shared/constants/messages';
+import {
+  insertSucessful,
+  notFound,
+  updateFailed,
+  updateSucessful,
+} from '@shared/constants/messages';
 
 @Injectable()
 export class GroupService {
@@ -22,7 +31,7 @@ export class GroupService {
         const pacient = await this.userRepo.findById(manager, patientId);
 
         if (!pacient) throw new NotFoundException(notFound('paciente'));
-       
+
         if (pacient.role !== RoleEnum.PATIENT)
           throw new BadRequestException('El usuario no es paciente');
 
@@ -40,7 +49,6 @@ export class GroupService {
         } as Group);
 
         if (!add) throw new Error('No se pudo agregar al paciente');
-
 
         return insertSucessful('paciente');
       } catch (e) {
@@ -60,7 +68,8 @@ export class GroupService {
         therapist.id,
       );
 
-      if (!inGroup) throw new BadRequestException('Paciente no está registrado');
+      if (!inGroup)
+        throw new BadRequestException('Paciente no está registrado');
 
       const deletePatient = await this.repo.updateStatusPatient(
         this.cnx,
