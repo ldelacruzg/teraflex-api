@@ -25,6 +25,8 @@ import { ParseBoolAllowUndefinedPipe } from '@shared/pipes/parse-bool-allow-unde
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 import { NotificationService } from '@/notification/service/notification/notification.service';
+import moment from 'moment';
+import { UserService } from '@/user/service/user/user.service';
 
 @Controller()
 @UseInterceptors(ResponseHttpInterceptor)
@@ -35,6 +37,7 @@ export class AssignmentController {
   constructor(
     private assignmentService: AssignmentService,
     private notificationService: NotificationService,
+    private userService: UserService,
   ) {}
 
   @Get('patients/:patientId/tasks')
@@ -103,12 +106,19 @@ export class AssignmentController {
     );
 
     // notify the patient
+    const fromDate = moment(createManyAssignmentDto.dueDate)
+      .locale('es')
+      .format('dddd D [de] MMMM [del] YYYY');
+
+    const therapist = await this.userService.findById(userLogged.id);
+    const bodyNotification = `El terapeuta ${therapist.lastName} te ha asignado`;
+
     await this.notificationService.sendNotification(patientId, {
       title: 'TeraFlex',
       body:
         tasks.length > 1
-          ? 'Se te han asignado nuevas tareas'
-          : 'Se te ha asignado una nueva tarea',
+          ? `${bodyNotification} ${tasks.length} tareas hasta el ${fromDate}`
+          : `${bodyNotification} una nueva tarea hasta el ${fromDate}`,
     });
 
     // Return the created assignments
