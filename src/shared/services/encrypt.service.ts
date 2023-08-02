@@ -9,7 +9,7 @@ export class EncryptService {
   constructor() {
     this.generateKey();
   }
-  
+
   private async generateKey() {
     this.iv = randomBytes(16);
 

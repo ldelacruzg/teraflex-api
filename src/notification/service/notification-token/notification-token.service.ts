@@ -74,7 +74,7 @@ export class NotificationTokenService {
       );
 
     if (!notificationToken) {
-      throw new NotFoundException(notFound('notification token'));
+      throw new NotFoundException(notFound('Dispositivo'));
     }
 
     return notificationToken;

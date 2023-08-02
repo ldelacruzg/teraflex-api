@@ -26,6 +26,8 @@ import { RoleEnum } from '../../jwt-strategy/role.enum';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -84,9 +86,12 @@ export class AuthController {
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   @Get('forgot-password/:id')
   @ApiOperation({ summary: 'Generar nueva contraseña' })
-  async forgotPassword(@Param('id', ParseIntPipe) id: number, @Req() req) {
+  async forgotPassword(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: InfoUserInterface,
+  ) {
     return {
-      data: await this.authService.newPassword(id, req.user.id),
+      data: await this.authService.newPassword(id, user.id),
     } as ResponseDataInterface;
   }
 

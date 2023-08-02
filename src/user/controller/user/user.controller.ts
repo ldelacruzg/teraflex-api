@@ -2,14 +2,13 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
   Param,
   ParseIntPipe,
   Patch,
   Post,
   Query,
-  Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from '../../service/user/user.service';
 import { CreatePatientDto, CreateUserDto } from './dto/create-user.dto';
@@ -26,31 +25,40 @@ import { Role } from '@security/jwt-strategy/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
+import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
 
 @Controller('user')
 @ApiTags('User')
+@UseInterceptors(ResponseHttpInterceptor)
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class UserController {
-  constructor(private service: UserService) { }
+  constructor(private service: UserService) {}
 
   @Post('therapist')
   @ApiOperation({ summary: 'Crear terapeuta' })
   @Role(RoleEnum.ADMIN)
-  async createTherapist(@Req() req, @Body() body: CreateUserDto) {
-      return {
-        data: null,
-        message: await this.service.create(body, RoleEnum.THERAPIST, req.user),
-      } as ResponseDataInterface;
+  async createTherapist(
+    @CurrentUser() user: InfoUserInterface,
+    @Body() body: CreateUserDto,
+  ) {
+    return {
+      data: null,
+      message: await this.service.create(body, RoleEnum.THERAPIST, user),
+    } as ResponseDataInterface;
   }
 
   @Post('patient')
   @ApiOperation({ summary: 'Crear paciente' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async createPatient(@Req() req, @Body() body: CreatePatientDto) {
+  async createPatient(
+    @CurrentUser() user: InfoUserInterface,
+    @Body() body: CreatePatientDto,
+  ) {
     return {
       data: null,
-      message: await this.service.create(body, RoleEnum.PATIENT, req.user),
+      message: await this.service.create(body, RoleEnum.PATIENT, user),
     } as ResponseDataInterface;
   }
 
@@ -69,19 +77,22 @@ export class UserController {
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async findByDocNumber(
     @Param('identification') identification: string,
-    @Req() req,
+    @CurrentUser() user: InfoUserInterface,
   ) {
     return {
-      data: await this.service.findByDocNumber(identification, req.user.role),
+      data: await this.service.findByDocNumber(identification, user.role),
     } as ResponseDataInterface;
   }
 
   @Patch('status/:id')
   @ApiOperation({ summary: 'Activar/desactivar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async updateStatus(@Param('id', ParseIntPipe) id: number, @Req() req) {
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: InfoUserInterface,
+  ) {
     return {
-      message: await this.service.updateStatus(id, req.user),
+      message: await this.service.updateStatus(id, user),
     } as ResponseDataInterface;
   }
 
@@ -90,10 +101,10 @@ export class UserController {
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req,
+    @CurrentUser() user: InfoUserInterface,
     @Body() body: UpdateUserDto,
   ) {
-    body.updatedBy = (req.user as InfoUserInterface).id;
+    body.updatedBy = user.id;
     return {
       data: await this.service.update(id, body),
       message: null,
@@ -103,9 +114,9 @@ export class UserController {
   @Get('my-profile')
   @ApiOperation({ summary: 'Obtener datos de mi perfil' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST, RoleEnum.PATIENT)
-  async getMyProfile(@Req() req) {
+  async getMyProfile(@CurrentUser() { id }: InfoUserInterface) {
     return {
-      data: await this.service.findById((req.user as InfoUserInterface).id),
+      data: await this.service.findById(id),
       message: null,
     } as ResponseDataInterface;
   }
@@ -116,9 +127,12 @@ export class UserController {
   })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   @ApiQuery({ name: 'status', required: false })
-  async getAll(@Req() req, @Query('status') status: boolean) {
+  async getAll(
+    @CurrentUser() user: InfoUserInterface,
+    @Query('status') status: boolean,
+  ) {
     return {
-      data: await this.service.getAll(req.user, status),
+      data: await this.service.getAll(user, status),
       message: null,
     } as ResponseDataInterface;
   }
