@@ -5,7 +5,6 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,24 +17,25 @@ import { ResponseDataInterface } from '@shared/interfaces/response-data.interfac
 import { Role } from '@security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
-import { Request } from 'express';
+import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 
 @Controller('notification-token')
 @ApiTags('Notification Token')
 @UseGuards(JwtAuthGuard, RoleGuard)
-@Role(RoleEnum.PATIENT)
 @UseInterceptors(ResponseHttpInterceptor)
 @ApiBearerAuth()
 export class NotificationTokenController {
   constructor(private service: NotificationTokenService) {}
 
   @Post('register-device')
+  @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Registrar dispositivo' })
   async registerDevice(
     @Body() data: CreateNotificationTokenDto,
-    @Req() req: any,
+    @CurrentUser() { id }: InfoUserInterface,
   ) {
-    data.userId = req.user.id;
+    data.userId = id;
 
     return {
       message: await this.service.registerDevice(data),
@@ -43,14 +43,19 @@ export class NotificationTokenController {
   }
 
   @Patch('update-device/status/:device')
+  @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Actualizar estado de dispositivo' })
-  async updateDeviceStatus(@Param('device') device: string, @Req() req) {
+  async updateDeviceStatus(
+    @Param('device') device: string,
+    @CurrentUser() { id }: InfoUserInterface,
+  ) {
     return {
-      message: await this.service.updateStatus(device, req.user.id),
+      message: await this.service.updateStatus(device, id),
     } as ResponseDataInterface;
   }
 
   @Get('verify-device/:device')
+  @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Verificar dispositivo' })
   async verifyDevice(@Param('device') device: string) {
     await this.service.getByDevice(device);
