@@ -14,6 +14,7 @@ import { AssignmentController } from './controllers/assignment/assignment.contro
 import { Link } from '@entities/link.entity';
 import { TaskMultimedia } from '@entities/task-multimedia.entity';
 import { NotificationModule } from '@/notification/notification.module';
+import { UserModule } from '@/user/user.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { NotificationModule } from '@/notification/notification.module';
       TaskMultimedia,
     ]),
     NotificationModule,
+    UserModule,
   ],
   providers: [CategoryService, TaskService, AssignmentService],
   controllers: [CategoryController, TaskController, AssignmentController],
