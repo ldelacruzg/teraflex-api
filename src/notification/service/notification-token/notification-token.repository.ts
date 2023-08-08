@@ -10,8 +10,29 @@ export class NotificationTokenRepository {
     return await cnx.save(object);
   }
 
-  async getByDevice(cxn: EntityManager, device: string) {
-    return await cxn.findOne(NotificationToken, { where: { device } });
+  async getByDevice(cnx: EntityManager, device: string, status?: boolean) {
+    const query = cnx
+      .createQueryBuilder()
+      .select([
+        'notificationToken.id as id',
+        'notificationToken.token as token',
+        'notificationToken.device as device',
+        'notificationToken.status as status',
+        'notificationToken.user_id as "userId"',
+      ])
+      .from(NotificationToken, 'notificationToken')
+      .where('notificationToken.device = :device', { device });
+
+    if (status != undefined)
+      query.andWhere('notificationToken.status = :status', { status });
+
+    return await query.getRawOne<{
+      id: number;
+      token: string;
+      device: string;
+      status: boolean;
+      userId: number;
+    }>();
   }
 
   async getByUser(cxn: EntityManager, userId: number, status?: boolean) {

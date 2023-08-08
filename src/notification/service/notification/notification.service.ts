@@ -15,6 +15,8 @@ import { NotificationRepository } from '@notification/service/notification/notif
 import { Notification } from '@entities/notification.entity';
 import firebase from 'firebase-admin';
 import * as path from 'path';
+import { NotificationTokenRepository } from '@notification/service/notification-token/notification-token.repository';
+import { NotificationToken } from '@entities/notification-token.entity';
 
 @Injectable()
 export class NotificationService {
@@ -22,6 +24,7 @@ export class NotificationService {
     private readonly notificationTokenService: NotificationTokenService,
     @InjectEntityManager() private readonly cnx: EntityManager,
     private readonly notificationRepository: NotificationRepository,
+    private readonly notificationTokenRepository: NotificationTokenRepository,
   ) {
     firebase.initializeApp({
       credential: firebase.credential.cert(
@@ -34,29 +37,36 @@ export class NotificationService {
     userId: number,
     payload: { title: string; body: string },
   ) {
-    try {
-      const devices = await this.notificationTokenService.getByUser(userId);
+    const devices = await this.notificationTokenService.getByUser(userId, true);
 
-      for (const device of devices) {
-        await firebase
-          .messaging()
-          .send({
-            notification: { ...payload },
-            token: device.token,
-            android: { priority: 'high' },
-          })
-          .catch((error: any) => {
-            console.error(error);
-          });
-      }
+    if (devices.length === 0)
+      throw new NotFoundException('No se encontraron dispositivos registrados');
 
-      return await this.saveNotification({
-        ...payload,
-        userId,
+    const tokens = devices.map((device) => device.token);
+
+    await firebase
+      .messaging()
+      .sendEachForMulticast({
+        notification: { ...payload },
+        tokens,
+      })
+      .then(async (response) => {
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            this.notificationTokenRepository.update(this.cnx, devices[idx].id, {
+              status: false,
+            } as NotificationToken);
+          }
+        });
+      })
+      .catch(async (error: any) => {
+        console.error(error);
       });
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+
+    return await this.saveNotification({
+      ...payload,
+      userId,
+    });
   }
 
   private async saveNotification(payload: {
@@ -83,7 +93,7 @@ export class NotificationService {
     );
 
     if (!notifications) {
-      throw new NotFoundException('No notifications found');
+      throw new NotFoundException('No se encontraron notificaciones');
     }
 
     return notifications;
@@ -96,7 +106,7 @@ export class NotificationService {
     );
 
     if (!notification) {
-      throw new NotFoundException('Notification not found');
+      throw new NotFoundException('No se encontró la notificación');
     }
 
     const deleted = await this.notificationRepository.updateStatus(

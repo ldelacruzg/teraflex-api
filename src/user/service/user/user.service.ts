@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { EntityManager } from 'typeorm';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
@@ -12,7 +16,13 @@ import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { GroupRepository } from '../group/group.repository';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { UpdateUserDto } from '../../controller/user/dto/update-user.dto';
-import { insertSucessful, updateSucessful } from '@shared/constants/messages';
+import {
+  deleteFailed,
+  insertFailed,
+  insertSucessful,
+  notFound,
+  updateSucessful,
+} from '@shared/constants/messages';
 import { GroupService } from '../group/group.service';
 import { Group } from '@entities/group.entity';
 
@@ -31,38 +41,38 @@ export class UserService {
     currentUser: InfoUserInterface,
   ) {
     return await this.cnx.transaction(async (manager) => {
-      try {
-        const userExist = await this.repo.findByDocNumber(
+      const userExist = await this.repo.findByDocNumber(
+        manager,
+        user.docNumber,
+        currentUser.role,
+      );
+
+      let userCreated: User;
+      if (!userExist) {
+        const data = {
+          ...user,
+          role,
+          password: hashSync(user.docNumber, 10),
+          createdBy: currentUser.id,
+        } as User;
+
+        userCreated = await this.repo.create(manager, data);
+
+        if (!userCreated) throw new Error(insertFailed('usuario'));
+      } else if (!userExist.status)
+        await this.updateStatus(userExist.id, currentUser);
+
+      if (currentUser.role === RoleEnum.THERAPIST) {
+        await this.addToGroup(
           manager,
-          user.docNumber,
-          currentUser.role,
+          userCreated?.id ?? userExist.id,
+          currentUser,
         );
-
-        let userCreated: User;
-        if (!userExist) {
-          const data = {
-            ...user,
-            role,
-            password: hashSync(user.docNumber, 10),
-            createdBy: currentUser.id,
-          } as User;
-
-          userCreated = await this.repo.create(manager, data);
-
-          if (!userCreated) throw new Error('Error al crear el usuario');
-        } else if (!userExist.status)
-          await this.updateStatus(userExist.id, currentUser);
-
-        if (currentUser.role === RoleEnum.THERAPIST) {
-          await this.addToGroup(manager, userCreated.id, currentUser);
-        }
-
-        return insertSucessful(
-          role == RoleEnum.PATIENT ? 'paciente' : 'terapeuta',
-        );
-      } catch (error) {
-        throw error;
       }
+
+      return insertSucessful(
+        role == RoleEnum.PATIENT ? 'paciente' : 'terapeuta',
+      );
     });
   }
 
@@ -71,13 +81,13 @@ export class UserService {
     patientId: number,
     therapist: InfoUserInterface,
   ) {
-    const group = await this.groupRepository.findPacientByTherapist(
+    const inGroup = await this.groupRepository.findPacientByTherapist(
       manager,
       patientId,
       therapist.id,
     );
 
-    if (group) throw new Error('Paciente ya está registrado');
+    if (inGroup) throw new Error('Paciente ya está asociado al terapeuta');
 
     const add = await this.groupRepository.addPatient(manager, {
       patientId,
@@ -88,15 +98,11 @@ export class UserService {
   }
 
   async findById(id: number) {
-    try {
-      const data = await this.repo.findById(this.cnx, id);
+    const data = await this.repo.findById(this.cnx, id);
 
-      if (!data) throw new Error('No existe el usuario');
+    if (!data) throw new NotFoundException(notFound('usuario'));
 
-      return data;
-    } catch (e) {
-      throw e;
-    }
+    return data;
   }
 
   async getPassword(cnx: EntityManager, id: number) {
@@ -129,33 +135,29 @@ export class UserService {
 
   async updateStatus(id: number, currentUser: InfoUserInterface) {
     return await this.cnx.transaction(async (manager) => {
-      try {
-        const user = await this.repo.findById(manager, id);
+      const user = await this.repo.findById(manager, id);
 
-        if (!user) throw new Error('No existe el usuario');
+      if (!user) throw new NotFoundException(notFound('usuario'));
 
-        const deleted = await this.repo.updateStatus(manager, id, !user.status);
+      const deleted = await this.repo.updateStatus(manager, id, !user.status);
 
-        if (deleted.affected == 0)
-          throw new Error('Error al eliminar el usuario');
+      if (deleted.affected == 0)
+        throw new BadRequestException(deleteFailed('usuario'));
 
-        if (user.role === RoleEnum.PATIENT) {
-          const deleteOfGroup = await this.groupRepository.updateStatusPatient(
-            manager,
-            currentUser.id,
-            id,
-            !user.status,
-            true,
-          );
+      if (user.role === RoleEnum.PATIENT) {
+        const deleteOfGroup = await this.groupRepository.updateStatusPatient(
+          manager,
+          currentUser.id,
+          id,
+          !user.status,
+          true,
+        );
 
-          if (deleteOfGroup.affected == 0)
-            throw new Error('Error al eliminar el usuario de los grupos');
-        }
-
-        return updateSucessful('usuario');
-      } catch (e) {
-        throw e;
+        if (deleteOfGroup.affected == 0)
+          throw new Error('Error al eliminar el usuario de los grupos');
       }
+
+      return updateSucessful('usuario');
     });
   }
 

@@ -3,9 +3,9 @@ import {
   Delete,
   Get,
   Param,
-  Post,
-  Req,
+  ParseIntPipe,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { NotificationService } from '@notification/service/notification/notification.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -14,35 +14,31 @@ import { RoleGuard } from '@security/jwt-strategy/roles.guard';
 import { Role } from '@security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
+import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 
 @Controller('notification')
 @ApiTags('Notification')
 @UseGuards(JwtAuthGuard, RoleGuard)
-@Role(RoleEnum.PATIENT)
+@UseInterceptors(ResponseHttpInterceptor)
 @ApiBearerAuth()
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   @Get('all')
+  @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Obtener todas las notifications' })
-  async getAll(@Req() req) {
+  async getAll(@CurrentUser() { id }: InfoUserInterface) {
     return {
-      data: await this.notificationService.getNotifications(req.user.id),
+      data: await this.notificationService.getNotifications(id),
     } as ResponseDataInterface;
   }
 
-  @Post('push')
-  @ApiOperation({ summary: 'Enviar notificación' })
-  async pushNotification(@Req() req) {
-    return await this.notificationService.sendNotification(req.user.id, {
-      title: 'Notificación de prueba',
-      body: 'Esta es una notificación de prueba',
-    });
-  }
-
   @Delete('delete/:id')
+  @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Desactivar la notificación' })
-  async updateStatus(@Param('id') id: number) {
+  async deleteNotification(@Param('id', ParseIntPipe) id: number) {
     return {
       message: await this.notificationService.deleteNotification(id),
     } as ResponseDataInterface;

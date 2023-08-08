@@ -8,7 +8,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
   Res,
   UploadedFiles,
   UseGuards,
@@ -32,9 +31,14 @@ import { Role } from '@security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { UpdateLinkDto } from './dtos/update-link.dto';
 import { insertSucessful } from '@shared/constants/messages';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
+import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
+import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
+import { Response } from 'express';
 
 @Controller('multimedia')
-@ApiTags('multimedia')
+@ApiTags('Multimedia')
+@UseInterceptors(ResponseHttpInterceptor)
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class MultimediaController {
@@ -51,11 +55,11 @@ export class MultimediaController {
   @ApiOperation({ summary: 'Cargar uno o varios videos y/o imágenes' })
   async uploadFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
-    @Req() req,
+    @CurrentUser() user: InfoUserInterface,
     @Body() body: uploadMultimediaDto,
   ) {
     return {
-      data: await this.service.saveMultimedia(files, body, req.user.id),
+      data: await this.service.saveMultimedia(files, body, user.id),
       message: insertSucessful('Recurso/s'),
     } as ResponseDataInterface;
   }
@@ -67,9 +71,12 @@ export class MultimediaController {
     type: [CreateLinkDto],
     description: 'Cargar uno o varios recursos online',
   })
-  async uploadOnline(@Body() body: CreateLinkDto[], @Req() req) {
+  async uploadOnline(
+    @Body() body: CreateLinkDto[],
+    @CurrentUser() user: InfoUserInterface,
+  ) {
     for (const element of body) {
-      element.createdById = req.user.id;
+      element.createdById = user.id;
     }
 
     return {
@@ -81,7 +88,7 @@ export class MultimediaController {
   @Get('download/:id')
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Descargar un recurso' })
-  async download(@Param('id', ParseIntPipe) id: number, @Res() res: any) {
+  async download(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
     const file = await this.service.getMultimedia(id);
 
     res.set({
@@ -98,9 +105,12 @@ export class MultimediaController {
     summary: 'Obtener todos los recursos públic y creados por el usuario',
   })
   @ApiQuery({ name: 'status', required: false, type: Boolean })
-  async getAll(@Req() req: any, @Query('status') status: boolean) {
+  async getAll(
+    @CurrentUser() user: InfoUserInterface,
+    @Query('status') status: boolean,
+  ) {
     return {
-      data: await this.service.getByUserAndPublic(req.user.id, status),
+      data: await this.service.getByUserAndPublic(user.id, status),
     } as ResponseDataInterface;
   }
 
