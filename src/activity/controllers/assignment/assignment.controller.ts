@@ -11,6 +11,7 @@ import {
   Patch,
   Query,
   UseInterceptors,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AssignmentService } from '@activity/services/assignment/assignment.service';
@@ -130,19 +131,22 @@ export class AssignmentController {
 
   @Delete('assignments')
   @ApiOperation({
-    summary: 'Elimina una o más tareas asiganadas a un paciente',
+    summary: 'Elimina una o más tareas asignadas a un paciente',
   })
   @Role(RoleEnum.THERAPIST)
   async deleteTasksFromUser(
-    @Body() removeManyAssignmentDto: RemoveManyAssignmentDto,
+    @Query('id', new ParseArrayPipe({ items: Number })) assignmentIds: number[],
   ): Promise<ResponseDataInterface> {
     // remove tasks from user
-    const removedTasks = await this.assignmentService.removeTasksFromUser(
-      removeManyAssignmentDto,
-    );
+    const removedTasks = await this.assignmentService.removeTasksFromUser({
+      assignmentIds,
+    });
 
     return {
-      message: 'Tareas asignadas eliminadas correctamente',
+      message:
+        assignmentIds.length > 1
+          ? 'Tareas asignadas eliminadas correctamente'
+          : 'La tarea asignada fue eliminada correctamente',
       data: removedTasks,
     };
   }

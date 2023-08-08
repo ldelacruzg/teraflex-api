@@ -257,20 +257,24 @@ export class AssignmentService {
 
     if (assignmentsFound.length !== assignmentIds.length) {
       throw new NotFoundException(
-        `Una o todas de las asignaciones ["${assignmentIds}"] no existe`,
+        assignmentIds.length > 1
+          ? `Las asignaciones con Ids ["${assignmentIds}"] no existe`
+          : `La asignación con Id ["${assignmentIds}"] no existe`,
       );
     }
 
     // verify if the assignments belong to the same user
-    const userId = assignmentsFound[0].userId;
-    const assignmentsBelongToSameUser = assignmentsFound.every(
-      (assignment) => assignment.userId === userId,
-    );
-
-    if (!assignmentsBelongToSameUser) {
-      throw new NotFoundException(
-        `Una o todas de las asignaciones ["${assignmentIds}"] no pertenecen al mismo paciente`,
+    if (assignmentIds.length > 1) {
+      const userId = assignmentsFound[0].userId;
+      const assignmentsBelongToSameUser = assignmentsFound.every(
+        (assignment) => assignment.userId === userId,
       );
+
+      if (!assignmentsBelongToSameUser) {
+        throw new NotFoundException(
+          `Las asignaciones con Ids ["${assignmentIds}"] no pertenecen al mismo paciente`,
+        );
+      }
     }
 
     // remove the assignments
