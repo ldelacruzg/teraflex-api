@@ -176,9 +176,9 @@ export class UserService {
     return updated.raw;
   }
 
-  async getAll(CurrentUser: InfoUserInterface, status?: boolean) {
+  async getAllPatients(CurrentUser: InfoUserInterface, status?: boolean) {
     try {
-      const users = await this.repo.getAll(
+      const users = await this.repo.getAllPatients(
         this.cnx,
         status,
         CurrentUser.role === RoleEnum.THERAPIST ? CurrentUser.id : undefined,
@@ -187,6 +187,18 @@ export class UserService {
       if (!users) throw new Error('No existen usuarios');
 
       return users;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getAllTherapists(status?: boolean) {
+    try {
+      const therapists = await this.repo.getAllTherapists(this.cnx, status);
+
+      if (!therapists) throw new Error('No existen usuarios');
+
+      return therapists;
     } catch (e) {
       throw e;
     }

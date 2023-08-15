@@ -28,7 +28,7 @@ import { ResponseDataInterface } from '@shared/interfaces/response-data.interfac
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
 
-@Controller('user')
+@Controller()
 @ApiTags('User')
 @UseInterceptors(ResponseHttpInterceptor)
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -36,7 +36,7 @@ import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
 export class UserController {
   constructor(private service: UserService) {}
 
-  @Post('therapist')
+  @Post('user/therapist')
   @ApiOperation({ summary: 'Crear terapeuta' })
   @Role(RoleEnum.ADMIN)
   async createTherapist(
@@ -49,7 +49,7 @@ export class UserController {
     } as ResponseDataInterface;
   }
 
-  @Post('patient')
+  @Post('user/patient')
   @ApiOperation({ summary: 'Crear paciente' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async createPatient(
@@ -62,7 +62,7 @@ export class UserController {
     } as ResponseDataInterface;
   }
 
-  @Get('by-id/:id')
+  @Get('user/by-id/:id')
   @ApiOperation({ summary: 'Buscar por id' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async findById(@Param('id', ParseIntPipe) id: number) {
@@ -72,7 +72,7 @@ export class UserController {
     } as ResponseDataInterface;
   }
 
-  @Get('by-identification/:identification')
+  @Get('user/by-identification/:identification')
   @ApiOperation({ summary: 'Buscar por número de cédula' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async findByDocNumber(
@@ -84,7 +84,7 @@ export class UserController {
     } as ResponseDataInterface;
   }
 
-  @Patch('status/:id')
+  @Patch('user/status/:id')
   @ApiOperation({ summary: 'Activar/desactivar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async updateStatus(
@@ -96,7 +96,7 @@ export class UserController {
     } as ResponseDataInterface;
   }
 
-  @Patch('update/:id')
+  @Patch('user/update/:id')
   @ApiOperation({ summary: 'Actualizar usuario' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async update(
@@ -111,7 +111,7 @@ export class UserController {
     } as ResponseDataInterface;
   }
 
-  @Get('my-profile')
+  @Get('user/my-profile')
   @ApiOperation({ summary: 'Obtener datos de mi perfil' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST, RoleEnum.PATIENT)
   async getMyProfile(@CurrentUser() { id }: InfoUserInterface) {
@@ -121,7 +121,7 @@ export class UserController {
     } as ResponseDataInterface;
   }
 
-  @Get('all')
+  @Get('user/all')
   @ApiOperation({
     summary: 'Obtener todos los usuarios excepto los que están en el grupo',
   })
@@ -132,7 +132,18 @@ export class UserController {
     @Query('status') status: boolean,
   ) {
     return {
-      data: await this.service.getAll(user, status),
+      data: await this.service.getAllPatients(user, status),
+      message: null,
+    } as ResponseDataInterface;
+  }
+
+  @Get('admin/terapists')
+  @ApiOperation({ summary: 'Obtener todos los pacientes' })
+  @Role(RoleEnum.ADMIN)
+  @ApiQuery({ name: 'status', required: false })
+  async getAllTherapists(@Query('status') status: boolean) {
+    return {
+      data: await this.service.getAllTherapists(status),
       message: null,
     } as ResponseDataInterface;
   }
