@@ -39,8 +39,7 @@ export class NotificationService {
   ) {
     const devices = await this.notificationTokenService.getByUser(userId, true);
 
-    if (devices.length === 0)
-      throw new NotFoundException('No se encontraron dispositivos registrados');
+    if (devices.length === 0) return null;
 
     const tokens = devices.map((device) => device.token);
 
