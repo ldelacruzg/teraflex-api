@@ -8,6 +8,7 @@ import {
   GetManyUsersI,
   GetUserI,
 } from '@user/service/user/interfaces/user.interfaces';
+import { Group } from '@entities/group.entity';
 
 @Injectable()
 export class UserRepository {
@@ -109,7 +110,11 @@ export class UserRepository {
       .execute();
   }
 
-  async getAll(cnx: EntityManager, status?: boolean, therapistId?: number) {
+  async getAllPatients(
+    cnx: EntityManager,
+    status?: boolean,
+    therapistId?: number,
+  ) {
     const query = cnx
       .createQueryBuilder()
       .select([
@@ -124,7 +129,9 @@ export class UserRepository {
         'user.updated_at as "updatedAt"',
       ])
       .from(User, 'user')
-      .where('user.status = :status', { status: status ?? true });
+      .where('user.status = :status', { status: status ?? true })
+      .andWhere('user.role = :role', { role: RoleEnum.PATIENT })
+      .orderBy('user.first_name', 'ASC');
 
     if (therapistId !== undefined) {
       const patientsInGroup = await this.groupRepo.getAllByTherapist(
@@ -134,12 +141,64 @@ export class UserRepository {
 
       const ids = patientsInGroup.map((group) => group.patient.id);
       if (ids.length > 0) query.andWhere('user.id NOT IN (:...ids)', { ids });
-
-      query.andWhere('user.role = :role', { role: RoleEnum.PATIENT });
-    } else {
-      query.andWhere('user.role = :role', { role: RoleEnum.THERAPIST });
     }
 
-    return await query.getRawMany<GetManyUsersI>();
+    const patients = await query.getRawMany<GetManyUsersI>();
+
+    return therapistId !== undefined
+      ? patients
+      : await this.getTherapistsByPatients(cnx, patients);
+  }
+
+  private async getTherapistsByPatients(
+    cnx: EntityManager,
+    patients: GetManyUsersI[],
+  ) {
+    return await Promise.all(
+      patients.map(async (patient) => {
+        patient.therapists = await cnx
+          .createQueryBuilder()
+          .select([
+            'user.id as id',
+            'user.first_name as "firstName"',
+            'user.last_name as "lastName"',
+            'user.doc_number as "docNumber"',
+            'user.phone as phone',
+          ])
+          .from(User, 'user')
+          .leftJoin(Group, 'group', 'group.therapist_id = user.id')
+          .where('group.patient_id = :patientId', { patientId: patient.id })
+          .getRawMany();
+        return patient;
+      }),
+    );
+  }
+
+  async getAllTherapists(cnx: EntityManager, status?: boolean) {
+    return await cnx.find(User, {
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        docNumber: true,
+        phone: true,
+        description: true,
+        birthDate: true,
+        createdAt: true,
+        updatedAt: true,
+        category: {
+          id: true,
+          name: true,
+        },
+      },
+      where: {
+        status: status ?? true,
+        role: RoleEnum.THERAPIST,
+      },
+      relations: ['category'],
+      order: {
+        firstName: 'ASC',
+      },
+    });
   }
 }

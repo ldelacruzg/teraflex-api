@@ -17,6 +17,7 @@ export interface GetUserI {
 }
 
 export interface GetManyUsersI {
+  therapists?: any[];
   id: number;
   firstName: string;
   lastName: string;
