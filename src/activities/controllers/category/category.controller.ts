@@ -10,6 +10,7 @@ import {
   Put,
   Delete,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CategoryService } from '@activities/services/category/category.service';
@@ -22,6 +23,7 @@ import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { ParseBoolAllowUndefinedPipe } from '@/shared/pipes/parse-bool-allow-undefined.pipe';
 
 @Controller('categories')
 @UseInterceptors(ResponseHttpInterceptor)
@@ -34,10 +36,13 @@ export class CategoryController {
   @Get()
   @ApiOperation({ summary: 'Get all categories' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  async getAllCategories(): Promise<ResponseDataInterface> {
+  async getAllCategories(
+    @Query('isActive', ParseBoolAllowUndefinedPipe)
+    isActive: boolean,
+  ): Promise<ResponseDataInterface> {
     return {
       message: 'Categorias obtenidas correctamente',
-      data: await this.categoryService.getAllCategories(),
+      data: await this.categoryService.getAllCategories({ isActive }),
     };
   }
 

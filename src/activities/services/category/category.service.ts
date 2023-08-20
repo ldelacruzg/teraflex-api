@@ -18,8 +18,13 @@ export class CategoryService {
     private entityManager: EntityManager,
   ) {}
 
-  async getAllCategories() {
-    return this.categoryRepository.find();
+  async getAllCategories(options: { isActive?: boolean }) {
+    // Consulta las categorias
+    return this.categoryRepository.find({
+      where: {
+        status: options.isActive,
+      },
+    });
   }
 
   async getCatgeoryById(id: number) {
