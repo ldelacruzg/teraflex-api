@@ -13,11 +13,11 @@ import { TaskCategory } from '@entities/task-category.entity';
 import { TaskMultimedia } from '@entities/task-multimedia.entity';
 import { UserValidation } from '@entities/user-validation.entity';
 import { SecurityModule } from '@security/security.module';
-import { UserModule } from '@user/user.module';
+import { UserModule } from '@/users/user.module';
 import { Group } from '@entities/group.entity';
-import { ActivityModule } from '@activity/activity.module';
+import { ActivityModule } from '@/activities/activity.module';
 import { MultimediaModule } from '@multimedia/multimedia.module';
-import { NotificationModule } from '@notification/notification.module';
+import { NotificationModule } from '@/notifications/notification.module';
 import { Notification } from '@entities/notification.entity';
 import { NotificationToken } from '@entities/notification-token.entity';
 

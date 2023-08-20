@@ -9,7 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserValidation } from '@entities/user-validation.entity';
 import { User } from '@entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
-import { UserModule } from '@user/user.module';
+import { UserModule } from '@/users/user.module';
 
 @Module({
   imports: [
