@@ -138,7 +138,7 @@ export class UserController {
   }
 
   @Get('admin/terapists')
-  @ApiOperation({ summary: 'Obtener todos los pacientes' })
+  @ApiOperation({ summary: 'Obtener todos los terapeutas' })
   @Role(RoleEnum.ADMIN)
   @ApiQuery({ name: 'status', required: false })
   async getAllTherapists(@Query('status') status: boolean) {

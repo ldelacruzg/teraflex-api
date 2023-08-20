@@ -32,6 +32,11 @@ export class GroupService {
 
         if (!pacient) throw new NotFoundException(notFound('paciente'));
 
+        if (!pacient.status)
+          throw new BadRequestException(
+            'No se puede agregar al paciente porque está inactivo',
+          );
+
         if (pacient.role !== RoleEnum.PATIENT)
           throw new BadRequestException('El usuario no es paciente');
 
@@ -41,16 +46,22 @@ export class GroupService {
           therapist.id,
         );
 
-        if (group) throw new BadRequestException('Paciente ya está registrado');
+        if (group.status)
+          throw new BadRequestException('Paciente ya está registrado');
 
-        const add = await this.repo.addPatient(manager, {
-          patientId,
-          therapistId: therapist.id,
-        } as Group);
+        if (!group) {
+          const add = await this.repo.addPatient(manager, {
+            patientId,
+            therapistId: therapist.id,
+          } as Group);
 
-        if (!add) throw new Error('No se pudo agregar al paciente');
+          if (!add)
+            throw new BadRequestException('No se pudo agregar al paciente');
 
-        return insertSucessful('paciente');
+          return insertSucessful('paciente');
+        } else {
+          return this.updateStatusPatient(patientId, therapist);
+        }
       } catch (e) {
         throw e;
       }
@@ -87,9 +98,13 @@ export class GroupService {
     }
   }
 
-  async getAllByTherapist(therapistId: number) {
+  async getAllByTherapist(therapistId: number, status?: boolean) {
     try {
-      const patients = await this.repo.getAllByTherapist(this.cnx, therapistId);
+      const patients = await this.repo.getAllByTherapist(
+        this.cnx,
+        therapistId,
+        status,
+      );
 
       if (!patients) throw new Error('No se encontraron pacientes');
 

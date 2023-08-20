@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { Group } from '@entities/group.entity';
+import { GetGroupI } from './interfaces/group.interface';
 
 @Injectable()
 export class GroupRepository {
@@ -29,10 +30,28 @@ export class GroupRepository {
     return await query.execute();
   }
 
-  async getAllByTherapist(cnx: EntityManager, therapistId: number) {
+  async getAllByTherapist(
+    cnx: EntityManager,
+    therapistId: number,
+    status?: boolean,
+  ) {
     return await cnx.find(Group, {
-      select: ['id', 'patient', 'createdAt', 'updatedAt'],
-      where: { therapistId, status: true },
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        status: true,
+        patient: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          docNumber: true,
+          phone: true,
+          description: true,
+          birthDate: true,
+        },
+      },
+      where: { therapistId, status: status ?? true },
       relations: { patient: true },
     });
   }
@@ -67,6 +86,6 @@ export class GroupRepository {
       query.andWhere('group.status = :status', { status });
     }
 
-    return await query.getRawOne();
+    return await query.getRawOne<GetGroupI>();
   }
 }

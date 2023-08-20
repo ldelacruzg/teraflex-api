@@ -5,11 +5,17 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { GroupService } from '../../service/group/group.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '@security/jwt-strategy/roles.guard';
 import { Role } from '@security/jwt-strategy/roles.decorator';
@@ -56,9 +62,13 @@ export class GroupController {
   @ApiOperation({
     summary: 'Obtener todos los pacientes asociados al terapista',
   })
-  async getAllByTherapist(@CurrentUser() user: InfoUserInterface) {
+  @ApiQuery({ name: 'status', type: Boolean, required: false })
+  async getAllByTherapist(
+    @CurrentUser() user: InfoUserInterface,
+    @Query('status') status: boolean,
+  ) {
     return {
-      data: await this.service.getAllByTherapist(user.id),
+      data: await this.service.getAllByTherapist(user.id, status),
     } as ResponseDataInterface;
   }
 }
