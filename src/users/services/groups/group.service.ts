@@ -28,16 +28,16 @@ export class GroupService {
   async addPatient(patientId: number, therapist: InfoUserInterface) {
     return await this.cnx.transaction(async (manager) => {
       try {
-        const pacient = await this.userRepo.findById(manager, patientId);
+        const patient = await this.userRepo.findById(manager, patientId);
 
-        if (!pacient) throw new NotFoundException(notFound('paciente'));
+        if (!patient) throw new NotFoundException(notFound('paciente'));
 
-        if (!pacient.status)
+        if (!patient.status)
           throw new BadRequestException(
             'No se puede agregar al paciente porque está inactivo',
           );
 
-        if (pacient.role !== RoleEnum.PATIENT)
+        if (patient.role !== RoleEnum.PATIENT)
           throw new BadRequestException('El usuario no es paciente');
 
         const group = await this.repo.findPacientByTherapist(
@@ -72,6 +72,11 @@ export class GroupService {
     try {
       const patient = await this.userRepo.findById(this.cnx, patientId);
       if (!patient) throw new NotFoundException(notFound('paciente'));
+
+      if (!patient.status)
+        throw new BadRequestException(
+          'No se puede asociar/desasociar el paciente porque está inactivo',
+        );
 
       const inGroup = await this.repo.findPacientByTherapist(
         this.cnx,
