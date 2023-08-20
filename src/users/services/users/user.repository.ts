@@ -3,11 +3,8 @@ import { User } from '@entities/user.entity';
 import { EntityManager } from 'typeorm';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Category } from '@entities/category.entity';
-import { GroupRepository } from '@/users/services/groups/group.repository';
-import {
-  GetManyUsersI,
-  GetUserI,
-} from '@/users/services/users/interfaces/user.interfaces';
+import { GroupRepository } from '@users/services/groups/group.repository';
+import { GetManyUsersI, GetUserI } from '@users/interfaces/user.interfaces';
 import { Group } from '@entities/group.entity';
 
 @Injectable()
