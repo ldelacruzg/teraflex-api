@@ -5,9 +5,9 @@ import { compare, hashSync } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RoleEnum } from '../../jwt-strategy/role.enum';
 import { UserValidation } from '@entities/user-validation.entity';
-import { UserService } from '@user/service/user/user.service';
+import { UserService } from '@users/services/users/user.service';
 import { InjectEntityManager } from '@nestjs/typeorm';
-import { UpdateUserDto } from 'user/controller/user/dto/update-user.dto';
+import { UpdateUserDto } from '@users/controllers/users/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {

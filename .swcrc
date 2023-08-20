@@ -11,12 +11,12 @@
     "paths": {
           "@/*": ["*"],
           "@security/*": ["security/*"],
-          "@activity/*": ["activities/*"],
+          "@activities/*": ["activities/*"],
           "@entities/*": ["entities/*"],
           "@multimedia/*": ["multimedia/*"],
           "@shared/*": ["shared/*"],
-          "@user/*": ["user/*"],
-          "@notification/*": ["notification/*"],
+          "@users/*": ["users/*"],
+          "@notifications/*": ["notifications/*"],
         }
   },
   "minify": false

@@ -21,12 +21,12 @@
     "paths": {
       "@/*": ["*"],
       "@security/*": ["security/*"],
-      "@activity/*": ["activity/*"],
+      "@activities/*": ["activities/*"],
       "@entities/*": ["entities/*"],
       "@multimedia/*": ["multimedia/*"],
       "@shared/*": ["shared/*"],
-      "@user/*": ["user/*"],
-      "@notification/*": ["notification/*"],
+      "@users/*": ["users/*"],
+      "@notifications/*": ["notifications/*"],
     }
   }
 }
