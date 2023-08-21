@@ -12,7 +12,12 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TaskService } from '@activities/services/task/task.service';
 import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
@@ -67,6 +72,7 @@ export class TaskController {
 
   @Get('therapists/:therapistId/tasks')
   @ApiOperation({ summary: 'Get tasks by therapist id' })
+  @ApiQuery({ name: 'status', required: false })
   @Role(RoleEnum.THERAPIST)
   async getTasksByTherapistId(
     @Param('therapistId', ParseIntPipe) therapistId: number,
@@ -86,6 +92,7 @@ export class TaskController {
 
   @Get('logged/tasks')
   @ApiOperation({ summary: 'Get tasks created by the logged in user' })
+  @ApiQuery({ name: 'status', required: false })
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   async getTasksByLoggedTherapist(
     @Req() req,

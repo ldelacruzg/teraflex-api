@@ -17,7 +17,7 @@ export class UpdateUserDto extends PickType(CreateUserDto, [
   @IsOptional()
   lastName: string;
 
-  updatedBy: number;
-
+  updatedBy?: number;
   password?: string;
+  firstTime?: boolean;
 }

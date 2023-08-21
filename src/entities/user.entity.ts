@@ -74,6 +74,9 @@ export class User {
   @Column({ name: 'role', type: 'character varying', length: 25 })
   role: RoleEnum;
 
+  @Column({ name: 'first_time', type: 'boolean', nullable: true })
+  firstTime: boolean;
+
   @Column({ name: 'category_id', type: 'bigint', nullable: true })
   categoryId: number;
 

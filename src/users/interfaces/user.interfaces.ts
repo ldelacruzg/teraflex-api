@@ -1,6 +1,7 @@
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 
 export interface GetUserI extends GetPatientI {
+  firstTime?: boolean;
   role: RoleEnum;
   categoryId: number;
   categoryName: string;

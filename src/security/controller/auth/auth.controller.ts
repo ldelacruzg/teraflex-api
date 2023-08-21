@@ -3,13 +3,11 @@ import {
   Controller,
   Get,
   Headers,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
-  Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from '../../service/auth/auth.service';
@@ -28,8 +26,11 @@ import { EntityManager } from 'typeorm';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
 import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
+import { NewPasswordDto } from './dto/new-password.dto';
+import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 
 @Controller('auth')
+@UseInterceptors(ResponseHttpInterceptor)
 @ApiTags('Auth')
 @ApiBearerAuth()
 export class AuthController {
@@ -47,51 +48,52 @@ export class AuthController {
   })
   @ApiHeader({ name: 'password', description: 'Contraseña', required: true })
   async login(@Headers() payload: LoginDto) {
-    try {
-      return await this.authService.login(this.cnx, payload);
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
+    return {
+      data: await this.authService.login(this.cnx, payload),
+      message: 'Inicio de sesión exitoso',
+    } as ResponseDataInterface;
   }
+
+  // @UseGuards(JwtAuthGuard, RoleGuard)
+  // @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  // @Get('otp/:identification')
+  // @ApiOperation({ summary: 'Obtener OTP' })
+  // async getOTP(@Param('identification') identification: string) {
+  // try {
+  //   return await this.authService.getOTP(docNumber);
+  // } catch (e) {
+  //   throw new HttpException(e.message, 400);
+  // }
+  //   throw new HttpException('No implementado', HttpStatus.NOT_IMPLEMENTED);
+  // }
+
+  // @UseGuards(JwtAuthGuard, RoleGuard)
+  // @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  // @Get('otp/validate/:identification/:otp')
+  // @ApiOperation({ summary: 'Validar OTP' })
+  // async validateOTP(
+  //   @Param('identification') identification: string,
+  //   @Param('otp') otp: string,
+  // ) {
+  //   try {
+  //     return await this.authService.validateOTP(this.cnx, identification, otp);
+  //   } catch (e) {
+  //     throw new HttpException(e.message, 400);
+  //   }
+  // }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  @Get('otp/:identification')
-  @ApiOperation({ summary: 'Obtener OTP' })
-  async getOTP(@Param('identification') identification: string) {
-    // try {
-    //   return await this.authService.getOTP(docNumber);
-    // } catch (e) {
-    //   throw new HttpException(e.message, 400);
-    // }
-    throw new HttpException('No implementado', HttpStatus.NOT_IMPLEMENTED);
-  }
-
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  @Get('otp/validate/:identification/:otp')
-  @ApiOperation({ summary: 'Validar OTP' })
-  async validateOTP(
-    @Param('identification') identification: string,
-    @Param('otp') otp: string,
-  ) {
-    try {
-      return await this.authService.validateOTP(this.cnx, identification, otp);
-    } catch (e) {
-      throw new HttpException(e.message, 400);
-    }
-  }
-
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
-  @Get('forgot-password/:id')
+  @Get('generate-password/:id')
   @ApiOperation({ summary: 'Generar nueva contraseña' })
-  async forgotPassword(
+  async generatePassword(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: InfoUserInterface,
   ) {
     return {
-      data: await this.authService.newPassword(id, user.id),
+      data: {
+        newPassword: await this.authService.newPassword(id, user),
+      },
     } as ResponseDataInterface;
   }
 
@@ -99,12 +101,12 @@ export class AuthController {
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST, RoleEnum.PATIENT)
   @Post('change-password')
   @ApiOperation({ summary: 'Cambiar contraseña' })
-  async changePassword(@Req() req, @Body() payload: { password: string }) {
+  async changePassword(
+    @CurrentUser() { id }: InfoUserInterface,
+    @Body() { password }: NewPasswordDto,
+  ) {
     return {
-      message: await this.authService.changePassword(
-        req.user.id,
-        payload.password,
-      ),
+      message: await this.authService.changePassword(id, password),
     } as ResponseDataInterface;
   }
 }

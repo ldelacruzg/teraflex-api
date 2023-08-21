@@ -13,7 +13,12 @@ import {
   UseInterceptors,
   ParseArrayPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AssignmentService } from '@activities/services/assignment/assignment.service';
 import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
@@ -44,6 +49,8 @@ export class AssignmentController {
   @ApiOperation({
     summary: 'Se obtiene la lista de tareas asignadas a un paciente',
   })
+  @ApiQuery({ name: 'isCompleted', required: false })
+  @ApiQuery({ name: 'last', required: false })
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   async getAssigmentTasksByUser(
     @Param('patientId', ParseIntPipe)
@@ -132,6 +139,7 @@ export class AssignmentController {
   @ApiOperation({
     summary: 'Elimina una o más tareas asignadas a un paciente',
   })
+  @ApiQuery({ name: 'id', required: true })
   @Role(RoleEnum.THERAPIST)
   async deleteTasksFromUser(
     @Query('id', new ParseArrayPipe({ items: Number })) assignmentIds: number[],
