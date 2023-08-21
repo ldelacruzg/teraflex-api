@@ -54,6 +54,7 @@ export class UserService {
           role,
           password: hashSync(user.docNumber, 10),
           createdBy: currentUser.id,
+          firstTime: role === RoleEnum.THERAPIST ? true : null,
         } as User;
 
         userCreated = await this.repo.create(manager, data);

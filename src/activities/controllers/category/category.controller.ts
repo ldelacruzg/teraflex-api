@@ -12,7 +12,12 @@ import {
   UseInterceptors,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CategoryService } from '@activities/services/category/category.service';
 import { CreateCategoryDto } from '@activities/controllers/category/dto/create-category.dto';
 import { JwtAuthGuard } from '@security/jwt-strategy/jwt-auth.guard';
@@ -35,6 +40,7 @@ export class CategoryController {
 
   @Get()
   @ApiOperation({ summary: 'Get all categories' })
+  @ApiQuery({ name: 'isActive', required: false })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async getAllCategories(
     @Query('isActive', ParseBoolAllowUndefinedPipe)
