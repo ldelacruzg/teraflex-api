@@ -25,6 +25,7 @@ import {
 } from '@shared/constants/messages';
 import { GroupService } from '../groups/group.service';
 import { Group } from '@entities/group.entity';
+import { Environment } from '@/shared/constants/environment';
 
 @Injectable()
 export class UserService {
@@ -33,7 +34,23 @@ export class UserService {
     private groupRepository: GroupRepository,
     private groupService: GroupService,
     @InjectEntityManager() private cnx: EntityManager,
-  ) {}
+  ) {
+    cnx
+      .findOneOrFail(User, {
+        where: {
+          docNumber: Environment.ADMIN_USER,
+        },
+      })
+      .catch(async () => {
+        await repo.create(cnx, {
+          docNumber: Environment.ADMIN_USER,
+          firstName: 'Admin',
+          lastName: 'Admin',
+          password: hashSync(Environment.ADMIN_PASSWORD, 10),
+          role: RoleEnum.ADMIN,
+        } as User);
+      });
+  }
 
   async create(
     user: CreateUserDto | CreatePatientDto,

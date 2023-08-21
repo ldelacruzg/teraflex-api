@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import compression from 'compression';
 import helmet from 'helmet';
+import { Environment } from './shared/constants/environment';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,7 +20,8 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.enableCors({
-    origin: '*',
+    origin: Environment.CORS,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   });
 
   app.useGlobalPipes(
@@ -37,7 +39,7 @@ async function bootstrap() {
 
   app.use(helmet());
 
-  await app.listen(3000);
+  await app.listen(Environment.PORT);
 }
 
 bootstrap();
