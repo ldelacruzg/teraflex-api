@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Assignment } from './assignment.entity';
@@ -27,7 +28,7 @@ export class Task {
   @Column({ type: 'boolean', default: true })
   status: boolean;
 
-  @Column({ name: 'estimated_time', type: 'bigint' })
+  @Column({ name: 'estimated_time', type: 'smallint' })
   estimatedTime: number;
 
   @Column({ name: 'is_public', type: 'boolean', default: false })
@@ -39,26 +40,30 @@ export class Task {
   @Column({ name: 'updated_by', type: 'bigint', nullable: true })
   updatedById: number;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   updatedAt: Date;
 
   @OneToMany(() => Assignment, (assignment) => assignment.task)
-  assignments: Assignment[];
+  assignments: Relation<Assignment[]>;
 
-  @ManyToOne(() => User, (user) => user.tasksCreated, { eager: true })
+  @ManyToOne(() => User, (user) => user.tasksCreated)
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
-  @ManyToOne(() => User, (user) => user.tasksUpdated, { eager: true })
+  @ManyToOne(() => User, (user) => user.tasksUpdated)
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
 
   @OneToMany(() => TaskCategory, (taskCategory) => taskCategory.task)
-  tasksCategories: TaskCategory[];
+  tasksCategories: Relation<TaskCategory[]>;
 
   @OneToMany(() => TaskMultimedia, (taskMultimedia) => taskMultimedia.task)
-  tasksMultimedia: TaskMultimedia[];
+  tasksMultimedia: Relation<TaskMultimedia[]>;
 }

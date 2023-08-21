@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Category } from './category.entity';
@@ -25,10 +26,14 @@ export class TaskCategory {
   @Column({ name: 'updated_by', type: 'bigint', nullable: true })
   updatedById: number;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   updatedAt: Date;
 
   @Column({ name: 'task_id', type: 'bigint' })
@@ -37,21 +42,19 @@ export class TaskCategory {
   @Column({ name: 'category_id', type: 'bigint' })
   categoryId: number;
 
-  @ManyToOne(() => Category, (category) => category.tasksCategories, {
-    eager: true,
-  })
+  @ManyToOne(() => Category, (category) => category.tasksCategories)
   @JoinColumn({ name: 'category_id' })
-  category: Category;
+  category: Relation<Category>;
 
-  @ManyToOne(() => Task, (task) => task.tasksCategories, { eager: true })
+  @ManyToOne(() => Task, (task) => task.tasksCategories)
   @JoinColumn({ name: 'task_id' })
-  task: Task;
+  task: Relation<Task>;
 
-  @ManyToOne(() => User, (user) => user.tasksCategoriesCreated, { eager: true })
+  @ManyToOne(() => User, (user) => user.tasksCategoriesCreated)
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
-  @ManyToOne(() => User, (user) => user.tasksCategoriesUpdated, { eager: true })
+  @ManyToOne(() => User, (user) => user.tasksCategoriesUpdated)
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
 }

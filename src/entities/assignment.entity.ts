@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
@@ -24,8 +25,17 @@ export class Assignment {
   @Column({ type: 'boolean', default: true })
   status: boolean;
 
-  @Column({ name: 'estimated_time', type: 'bigint', default: 6000 })
+  @Column({ name: 'estimated_time', type: 'smallint', default: 6000 })
   estimatedTime: number;
+
+  @Column({ name: 'is_completed', type: 'boolean', default: false })
+  isCompleted: boolean;
+
+  @Column({ name: 'due_date', type: 'date' })
+  dueDate: Date;
+
+  @Column({ name: 'description', type: 'text', nullable: true })
+  description: string;
 
   @Column({ name: 'created_by', type: 'bigint' })
   createdById: number;
@@ -33,25 +43,29 @@ export class Assignment {
   @Column({ name: 'updated_by', type: 'bigint', nullable: true })
   updatedById: number;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   updatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.assignments, { eager: true })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
   @ManyToOne(() => Task, (task) => task.assignments, { eager: true })
   @JoinColumn({ name: 'task_id' })
-  task: Task;
+  task: Relation<Task>;
 
   @ManyToOne(() => User, (user) => user.assignmentsCreated, { eager: true })
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ManyToOne(() => User, (user) => user.assignmentsUpdated, { eager: true })
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
 }

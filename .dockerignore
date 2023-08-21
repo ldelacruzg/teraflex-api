@@ -1,0 +1,8 @@
+node_modules
+dist
+client
+test
+.env
+.git
+prisma/migrations
+firebase.json

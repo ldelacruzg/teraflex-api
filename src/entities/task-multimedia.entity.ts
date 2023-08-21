@@ -1,9 +1,11 @@
 import {
   Column,
   CreateDateColumn,
-  Entity, JoinColumn,
+  Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Link } from './link.entity';
@@ -27,25 +29,29 @@ export class TaskMultimedia {
   @Column({ name: 'updated_by', type: 'bigint', nullable: true })
   updatedById: number;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   updatedAt: Date;
 
   @ManyToOne(() => Link, (link) => link.tasksMultimedia)
   @JoinColumn({ name: 'link_id' })
-  link: Link;
+  link: Relation<Link>;
 
   @ManyToOne(() => Task, (task) => task.tasksMultimedia)
   @JoinColumn({ name: 'task_id' })
-  task: Task;
+  task: Relation<Task>;
 
   @ManyToOne(() => User, (user) => user.tasksMultimediaCreated)
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ManyToOne(() => User, (user) => user.tasksMultimediaUpdated)
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
 }

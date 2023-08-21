@@ -1,10 +1,12 @@
 import {
   Column,
   CreateDateColumn,
-  Entity, JoinColumn,
+  Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { TaskCategory } from './task-category.entity';
@@ -30,22 +32,27 @@ export class Category {
   @Column({ name: 'updated_by', type: 'bigint', nullable: true })
   updatedById: number;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
   updatedAt: Date;
 
-  @OneToMany(() => TaskCategory, (taskCategory) => taskCategory.category, {
-    cascade: true,
-  })
-  tasksCategories: TaskCategory[];
+  @OneToMany(() => TaskCategory, (taskCategory) => taskCategory.category)
+  tasksCategories: Relation<TaskCategory[]>;
 
   @ManyToOne(() => User, (user) => user.categoriesCreated)
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy: Relation<User>;
 
   @ManyToOne(() => User, (user) => user.categoriesUpdated)
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User;
+  updatedBy: Relation<User>;
+
+  @OneToMany(() => User, (user) => user.category)
+  therapists: Relation<User[]>;
 }
