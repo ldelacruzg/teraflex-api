@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  teraflex_server:
+    container_name: teraflex_server
+    image: imanzabag/teraflex:latest
+    volumes:
+      - teraflex_storage:/home/teraflex_storage
+      - ./firebase.json:/home/firebase.json
+    restart: always
+    environment:
+      - PUBLIC_DIR=/home/teraflex_storage
+      - FIREBASE_CONFIG=/home/firebase.json
+    env_file:
+      - .env
+    networks:
+      - teraflex_bridge
+    command: yarn run start:prod
+  teraflex_nginx:
+    container_name: teraflex_nginx
+    image: nginx
+    tty: true
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./nginx/config/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/ssl/
+      - ./nginx/html/:/var/www/html
+      - ./nginx/logs:/etc/nginx/logs
+    restart: always
+    depends_on:
+      - teraflex_server
+    networks:
+      - teraflex_bridge
+volumes:
+  teraflex_storage:
+networks:
+  teraflex_bridge:
