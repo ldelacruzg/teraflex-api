@@ -17,6 +17,7 @@ import { User } from '@entities/user.entity';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Repository } from 'typeorm';
 import moment from 'moment';
+import { create } from 'domain';
 
 @Injectable()
 export class AssignmentService {
@@ -224,6 +225,65 @@ export class AssignmentService {
       .orderBy('assignment.created_at', 'DESC')
       .limit(8)
       .getRawMany();
+  }
+
+  // get number of pacients by age
+  async getNumberOfPacientsByAges() {
+    const numberPacientsByAges = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['extract(year from age(user.birth_date)) as "age"', 'count(*)'])
+      .where('user.role = :role', { role: RoleEnum.PATIENT })
+      .andWhere('extract(year from age(user.birth_date)) > 0')
+      .groupBy('age')
+      .getRawMany();
+
+    const rangeOfAges = [
+      { min: 3, max: 9 },
+      { min: 10, max: 17 },
+      { min: 18, max: 25 },
+      { min: 26, max: 35 },
+      { min: 36 },
+    ];
+
+    const numberOfPatients = numberPacientsByAges.reduce(
+      (prevValue, currValue) => {
+        return prevValue + Number(currValue.count);
+      },
+      0,
+    );
+
+    return rangeOfAges.map((rangeOfAge) => {
+      const { min, max } = rangeOfAge;
+
+      const tag = max
+        ? `De ${min} a ${max} años`
+        : `De ${min} años en adelante`;
+
+      const numberAgeByRange = numberPacientsByAges.reduce(
+        (prevValue, currValue) => {
+          const { age, count } = currValue;
+          // if max is undefined, it means that the range is from min to infinity
+          if (max === undefined && Number(age) >= min) {
+            return prevValue + Number(count);
+          }
+
+          // if max is defined, it means that the range is from min to max
+          if (Number(age) >= min && Number(age) <= max) {
+            return prevValue + Number(count);
+          }
+
+          // if the age is not in the range, return the previous value
+          return prevValue;
+        },
+        0,
+      );
+
+      return {
+        tag,
+        quantity: numberAgeByRange,
+        percentage: Number((numberAgeByRange / numberOfPatients).toFixed(2)),
+      };
+    });
   }
 
   // assign one or more tasks to a user

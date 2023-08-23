@@ -87,6 +87,16 @@ export class TaskController {
     };
   }
 
+  @Get('patients/number-of-pacients-by-ages')
+  @ApiOperation({ summary: 'Get number of pacients by ages' })
+  @Role(RoleEnum.THERAPIST)
+  async getNumberOfPacientsByAges(): Promise<ResponseDataInterface> {
+    return {
+      data: await this.assignmentService.getNumberOfPacientsByAges(),
+      message: 'Número de pacientes por edades obtenido correctamente',
+    };
+  }
+
   @Get('therapists/:therapistId/tasks')
   @ApiOperation({ summary: 'Get tasks by therapist id' })
   @Role(RoleEnum.THERAPIST)
