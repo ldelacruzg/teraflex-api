@@ -124,31 +124,23 @@ export class UserService {
   }
 
   async getPassword(cnx: EntityManager, id: number) {
-    try {
-      const pasword = await this.repo.getPassword(cnx, id);
+    const pasword = await this.repo.getPassword(cnx, id);
 
-      if (!pasword) throw new Error('No existe el usuario');
+    if (!pasword) throw new BadRequestException('No existe el usuario');
 
-      return pasword;
-    } catch (e) {
-      throw e;
-    }
+    return pasword;
   }
 
   async findByDocNumber(identification: string, role?: RoleEnum) {
-    try {
-      const data = await this.repo.findByDocNumber(
-        this.cnx,
-        identification,
-        role,
-      );
+    const data = await this.repo.findByDocNumber(
+      this.cnx,
+      identification,
+      role,
+    );
 
-      if (!data) throw new Error('No existe el usuario');
+    if (!data) throw new BadRequestException('No existe el usuario');
 
-      return data;
-    } catch (e) {
-      throw e;
-    }
+    return data;
   }
 
   async updateStatus(id: number, currentUser: InfoUserInterface) {
@@ -195,19 +187,15 @@ export class UserService {
   }
 
   async getAllPatients(CurrentUser: InfoUserInterface, status?: boolean) {
-    try {
-      const users = await this.repo.getAllPatients(
-        this.cnx,
-        status,
-        CurrentUser.role === RoleEnum.THERAPIST ? CurrentUser.id : undefined,
-      );
+    const users = await this.repo.getAllPatients(
+      this.cnx,
+      status,
+      CurrentUser.role === RoleEnum.THERAPIST ? CurrentUser.id : undefined,
+    );
 
-      if (!users) throw new Error('No existen usuarios');
+    if (!users) throw new BadRequestException('No existen usuarios');
 
-      return users;
-    } catch (e) {
-      throw e;
-    }
+    return users;
   }
 
   async getAllTherapists(status?: boolean) {

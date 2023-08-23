@@ -1,7 +1,7 @@
 version: '3.8'
 services:
-  api:
-    container_name: teraflex_api
+  teraflex_server:
+    container_name: teraflex_server
     image: imanzabag/teraflex:latest
     ports:
       - "3000:3000"

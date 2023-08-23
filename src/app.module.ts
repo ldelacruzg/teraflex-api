@@ -51,6 +51,7 @@ import { NotificationToken } from '@entities/notification-token.entity';
         duration: 300000,
         alwaysEnabled: true,
       },
+      migrations: ['dist/migrations/*.js'],
     }),
     SharedModule,
     SecurityModule,
