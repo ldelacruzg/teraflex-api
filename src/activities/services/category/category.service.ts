@@ -8,14 +8,15 @@ import { Category } from '@entities/category.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { CreateCategoryDto } from '../../controllers/category/dto/create-category.dto';
 import { UpdateCategoryDto } from '@activities/controllers/category/dto/update-category.dto';
+import { TaskCategory } from '@/entities/task-category.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-    @InjectEntityManager()
-    private entityManager: EntityManager,
+    @InjectRepository(TaskCategory)
+    private taskCategoryRepository: Repository<TaskCategory>,
   ) {}
 
   async getAllCategories(options: { isActive?: boolean }) {
@@ -40,6 +41,28 @@ export class CategoryService {
 
     // Devuelve la categoria encontrada
     return category;
+  }
+
+  async getTotalTaskForEachCategory() {
+    const query = await this.categoryRepository
+      .createQueryBuilder('category')
+      .select([
+        'category.name as "categoryName"',
+        'coalesce(count(task.id), 0) as "totalTask"',
+      ])
+      .leftJoin(
+        TaskCategory,
+        'task_category',
+        'task_category.categoryId = category.id',
+      )
+      .leftJoin('task_category.task', 'task')
+      .groupBy('category.name')
+      .getRawMany();
+
+    return query.map((item) => ({
+      ...item,
+      totalTask: Number(item.totalTask),
+    }));
   }
 
   async createCategory(createCategoryDto: CreateCategoryDto) {
