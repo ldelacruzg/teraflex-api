@@ -4,14 +4,18 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import compression from 'compression';
 import helmet from 'helmet';
-import { Environment } from './shared/constants/environment';
+import { Environment } from '@shared/constants/environment';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Teraflex API')
+    .setTitle('Teraflex Server')
     .setDescription('Documentación de la API de Teraflex')
+    .setExternalDoc(
+      'Repositorio de github',
+      'https://github.com/IvanM9/teraflex-api',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

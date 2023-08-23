@@ -5,7 +5,7 @@ import {
 } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { Environment } from '../../shared/constants/environment';
+import { Environment } from '@shared/constants/environment';
 
 @Injectable()
 export class CustomFileInterceptor implements MulterOptionsFactory {
@@ -37,7 +37,7 @@ export class CustomFileInterceptor implements MulterOptionsFactory {
         } else cb(null, true);
       },
       limits: {
-        fileSize: Number(Environment.FILE_SIZE) * 1000000, // Tamaño máximo del archivo (en bytes)
+        fileSize: Environment.FILE_SIZE * 1000000, // Tamaño máximo del archivo (en bytes)
         files: 5, // Número máximo de archivos,
       },
     };

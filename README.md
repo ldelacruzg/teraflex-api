@@ -38,6 +38,7 @@ DATABASE_USERNAME
 DATABASE_PASSWORD
 DATABASE_NAME
 DATABASE_SSL
+DATABASE_SYNC
 
 # JWT
 JWT_SECRETKEY
@@ -55,7 +56,7 @@ ADMIN_PASSWORD
 ```
 
 ## Información adicional
-Es necesario el archivo "firebase.json" para la conexión con Firebase Cloud Messaging. Es recomendable que este archivo esté en la raíz del proyecto o debe especificar la ruta con la variablede entorno "FIREBASE_CONFIG".
+Es necesario el archivo "firebase.json" para la conexión con Firebase Cloud Messaging. Es recomendable que éste archivo esté en la raíz del proyecto o debe especificar la ruta con la variable de entorno "FIREBASE_CONFIG".
 
 Para las variables de entorno, se debe crear un archivo ".env" en la raíz del proyecto.
 
