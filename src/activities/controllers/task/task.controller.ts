@@ -65,6 +65,28 @@ export class TaskController {
     };
   }
 
+  // endpoint for get last completed task of pacients by therapist
+  @Get('therapists/:therapistId/patients/last-completed')
+  @ApiOperation({
+    summary: 'Get last task completed of pacients by therapist',
+  })
+  @Role(RoleEnum.THERAPIST)
+  async getLastTaskCompleted(
+    @Param('therapistId', ParseIntPipe) therapistId: number,
+  ): Promise<ResponseDataInterface> {
+    // get last task completed
+    const lastCompletedTask = await this.assignmentService.getLastTaskCompleted(
+      {
+        therapistId,
+      },
+    );
+
+    return {
+      message: 'ültimas tareas completadas obtenidas correctamente',
+      data: lastCompletedTask,
+    };
+  }
+
   @Get('therapists/:therapistId/tasks')
   @ApiOperation({ summary: 'Get tasks by therapist id' })
   @Role(RoleEnum.THERAPIST)

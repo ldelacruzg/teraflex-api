@@ -192,6 +192,40 @@ export class AssignmentService {
     };
   }
 
+  // get the last task completed of pacients by therapist
+  async getLastTaskCompleted(options: { therapistId: number }) {
+    const { therapistId } = options;
+
+    // verify if the user exists and is a therapist
+    const user = await this.userRepository.findOneBy({
+      id: therapistId,
+      role: RoleEnum.THERAPIST,
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `El terapeuta con Id "${therapistId}" no existe`,
+      );
+    }
+
+    return this.assignmentRepository
+      .createQueryBuilder('assignment')
+      .select([
+        'assignment.id as "assignmentId"',
+        'task.title as title',
+        'assignment.is_completed as "isCompleted"',
+        'concat("user".first_name, \' \', "user".last_name) as "patientFullName"',
+        'assignment.updated_at as "updatedAt"',
+      ])
+      .innerJoin('assignment.user', 'user')
+      .innerJoin('assignment.task', 'task')
+      .where('assignment.created_by = :therapistId', { therapistId })
+      .andWhere('assignment.is_completed = :isCompleted', { isCompleted: true })
+      .orderBy('assignment.created_at', 'DESC')
+      .limit(8)
+      .getRawMany();
+  }
+
   // assign one or more tasks to a user
   async assignTasksToUser(
     userId: number,
