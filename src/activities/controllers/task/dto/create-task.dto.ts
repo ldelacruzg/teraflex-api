@@ -28,9 +28,6 @@ export class CreateTaskDto {
   title: string;
 
   @ApiProperty()
-  @Length(3, 255, {
-    message: 'La descripción debe contener entre 3 y 255 caracteres',
-  })
   @IsString({
     message: 'La descripción debe ser de tipo caracteres',
   })
