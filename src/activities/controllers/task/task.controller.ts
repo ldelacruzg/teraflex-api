@@ -70,6 +70,38 @@ export class TaskController {
     };
   }
 
+  // endpoint for get last completed task of pacients by therapist
+  @Get('therapists/:therapistId/patients/last-completed')
+  @ApiOperation({
+    summary: 'Get last task completed of pacients by therapist',
+  })
+  @Role(RoleEnum.THERAPIST)
+  async getLastTaskCompleted(
+    @Param('therapistId', ParseIntPipe) therapistId: number,
+  ): Promise<ResponseDataInterface> {
+    // get last task completed
+    const lastCompletedTask = await this.assignmentService.getLastTaskCompleted(
+      {
+        therapistId,
+      },
+    );
+
+    return {
+      message: 'ültimas tareas completadas obtenidas correctamente',
+      data: lastCompletedTask,
+    };
+  }
+
+  @Get('patients/number-of-pacients-by-ages')
+  @ApiOperation({ summary: 'Get number of pacients by ages' })
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  async getNumberOfPacientsByAges(): Promise<ResponseDataInterface> {
+    return {
+      data: await this.assignmentService.getNumberOfPacientsByAges(),
+      message: 'Número de pacientes por edades obtenido correctamente',
+    };
+  }
+
   @Get('therapists/:therapistId/tasks')
   @ApiOperation({ summary: 'Get tasks by therapist id' })
   @ApiQuery({ name: 'status', required: false })
