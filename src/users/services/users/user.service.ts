@@ -23,7 +23,6 @@ import {
   notFound,
   updateSucessful,
 } from '@shared/constants/messages';
-import { GroupService } from '../groups/group.service';
 import { Group } from '@entities/group.entity';
 import { Environment } from '@/shared/constants/environment';
 
@@ -32,7 +31,6 @@ export class UserService {
   constructor(
     private repo: UserRepository,
     private groupRepository: GroupRepository,
-    private groupService: GroupService,
     @InjectEntityManager() private cnx: EntityManager,
   ) {
     cnx
@@ -199,14 +197,10 @@ export class UserService {
   }
 
   async getAllTherapists(status?: boolean) {
-    try {
-      const therapists = await this.repo.getAllTherapists(this.cnx, status);
+    const therapists = await this.repo.getAllTherapists(this.cnx, status);
 
-      if (!therapists) throw new Error('No existen usuarios');
+    if (!therapists) throw new NotFoundException('No existen usuarios');
 
-      return therapists;
-    } catch (e) {
-      throw e;
-    }
+    return therapists;
   }
 }

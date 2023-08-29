@@ -16,6 +16,7 @@ async function bootstrap() {
       'Repositorio de github',
       'https://github.com/IvanM9/teraflex-api',
     )
+    .setContact('FyC', 'https://fyc.uteq.edu.ec/', 'info@uteq.edu.ec')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

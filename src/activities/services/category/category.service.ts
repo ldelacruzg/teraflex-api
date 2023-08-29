@@ -3,9 +3,9 @@ import {
   NotFoundException,
   Injectable,
 } from '@nestjs/common';
-import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from '@entities/category.entity';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateCategoryDto } from '../../controllers/category/dto/create-category.dto';
 import { UpdateCategoryDto } from '@activities/controllers/category/dto/update-category.dto';
 import { TaskCategory } from '@/entities/task-category.entity';
