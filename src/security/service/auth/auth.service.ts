@@ -11,7 +11,6 @@ import { JwtService } from '@nestjs/jwt';
 import { RoleEnum } from '../../jwt-strategy/role.enum';
 // import { UserValidation } from '@entities/user-validation.entity';
 import { UserService } from '@users/services/users/user.service';
-import { InjectEntityManager } from '@nestjs/typeorm';
 import { UpdateUserDto } from '@users/controllers/users/dto/update-user.dto';
 import { InfoUserInterface } from '@/security/jwt-strategy/info-user.interface';
 
@@ -20,7 +19,6 @@ export class AuthService {
   constructor(
     private jwt: JwtService,
     private userService: UserService,
-    @InjectEntityManager() private cnx: EntityManager,
   ) {}
 
   async login(cnx: EntityManager, payload: LoginDto) {
@@ -125,33 +123,35 @@ export class AuthService {
   }
 
   private generarStringAleatorio(longitud: number): string {
-    const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
+    try {
+      const characters =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
 
-    for (let i = 0; i < longitud; i++) {
-      result += characters[Math.floor(Math.random() * characters.length)];
+      for (let i = 0; i < longitud; i++) {
+        result += characters[Math.floor(Math.random() * characters.length)];
+      }
+
+      return result;
+    } catch (e) {
+      throw new InternalServerErrorException(
+        'Error al generar la nueva contraseña',
+      );
     }
-
-    return result;
   }
 
   async changePassword(currentUserId: number, password: string) {
-    try {
-      await this.userService.findById(currentUserId);
+    await this.userService.findById(currentUserId);
 
-      const updated = await this.userService.update(currentUserId, {
-        password: hashSync(password, 10),
-        updatedBy: currentUserId,
-        firstTime: false,
-      } as UpdateUserDto);
+    const updated = await this.userService.update(currentUserId, {
+      password: hashSync(password, 10),
+      updatedBy: currentUserId,
+      firstTime: false,
+    } as UpdateUserDto);
 
-      if (updated.affected === 0)
-        throw new Error('Error al cambiar la contraseña');
+    if (updated.affected === 0)
+      throw new Error('Error al cambiar la contraseña');
 
-      return 'Contraseña cambiada correctamente';
-    } catch (e) {
-      throw e;
-    }
+    return 'Contraseña cambiada correctamente';
   }
 }

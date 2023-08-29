@@ -17,7 +17,6 @@ import { User } from '@entities/user.entity';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Repository } from 'typeorm';
 import moment from 'moment';
-import { create } from 'domain';
 
 @Injectable()
 export class AssignmentService {
@@ -105,7 +104,7 @@ export class AssignmentService {
     }
 
     // add the last date and current date to the query
-    queryTasks
+    await queryTasks
       .andWhere('date(assignment.createdAt) = :lastDate', { lastDate })
       .andWhere('date(assignment.dueDate) >= :currentDate', { currentDate })
       .innerJoin('assignment.task', 'task')

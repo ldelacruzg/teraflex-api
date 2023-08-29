@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import fs from 'fs';
@@ -32,90 +33,78 @@ export class MultimediaService {
     currentUserId: number,
   ) {
     return await this.entityManager.transaction(async (manager) => {
-      try {
-        const ids: {
-          id: number;
-          title: string;
-          url: string;
-        }[] = [];
+      const ids: {
+        id: number;
+        title: string;
+        url: string;
+      }[] = [];
 
-        for (const file of files) {
-          const payload = {
-            url: file.filename,
-            type: extname(file.filename).replace('.', ''),
-            createdById: currentUserId,
-            isPublic: data.isPublic,
-            description: data.description,
-            title: data.title,
-          } as Link;
+      for (const file of files) {
+        const payload = {
+          url: file.filename,
+          type: extname(file.filename).replace('.', ''),
+          createdById: currentUserId,
+          isPublic: data.isPublic,
+          description: data.description,
+          title: data.title,
+        } as Link;
 
-          const created = await this.repo.create(manager, payload);
+        const created = await this.repo.create(manager, payload);
 
-          if (!created) throw new Error('Error al guardar recurso');
+        if (!created) throw new BadRequestException('Error al guardar recurso');
 
-          ids.push({ id: created.id, title: created.title, url: created.url });
-        }
-
-        return ids;
-      } catch (e) {
-        throw new BadRequestException(e.message);
+        ids.push({ id: created.id, title: created.title, url: created.url });
       }
+
+      return ids;
     });
   }
 
   async saveMultimediaOnline(data: CreateLinkDto[]) {
     return await this.entityManager.transaction(async (manager) => {
-      try {
-        const ids: {
-          id: number;
-          title: string;
-          url: string;
-        }[] = [];
+      const ids: {
+        id: number;
+        title: string;
+        url: string;
+      }[] = [];
 
-        for (const element of data) {
-          const payload = {
-            ...element,
-            type: 'online',
-          } as Link;
+      for (const element of data) {
+        const payload = {
+          ...element,
+          type: 'online',
+        } as Link;
 
-          const created = await this.repo.create(manager, payload);
+        const created = await this.repo.create(manager, payload);
 
-          if (!created) throw new Error('Error al guardar recurso');
+        if (!created) throw new BadRequestException('Error al guardar recurso');
 
-          ids.push({ id: created.id, title: created.title, url: created.url });
-        }
-
-        return ids;
-      } catch (e) {
-        throw new BadRequestException(e.message);
+        ids.push({ id: created.id, title: created.title, url: created.url });
       }
+
+      return ids;
     });
   }
 
   async getMultimedia(id: number) {
-    try {
-      const multimedia = await this.repo.getById(this.entityManager, id);
+    const multimedia = await this.repo.getById(this.entityManager, id);
 
-      const filePath = `${Environment.PUBLIC_DIR}/${multimedia.url}`;
+    const filePath = `${Environment.PUBLIC_DIR}/${multimedia.url}`;
 
-      if (!multimedia) throw new Error('Recurso no encontrado');
+    if (!multimedia) throw new NotFoundException('Recurso no encontrado');
 
-      if (multimedia.type === 'online')
-        throw new Error('Recurso no descargable');
+    if (multimedia.type === 'online')
+      throw new BadRequestException('Recurso no descargable');
 
-      const exist = fs.existsSync(filePath);
-      if (!exist) {
-        await this.updateStatus(id);
-        throw new Error('Recurso no disponible');
-      }
-
-      return {
-        buffer: await fs.readFileSync(filePath),
-        name: multimedia.url,
-      };
-    } catch (e) {
-      throw new BadRequestException(e.message);
+    const exist = fs.existsSync(filePath);
+    if (!exist) {
+      await this.updateStatus(id);
+      throw new InternalServerErrorException('Recurso no disponible');
     }
+
+    return {
+      buffer: fs.readFileSync(filePath),
+      name: multimedia.url,
+    };
   }
 
   async getByUserAndPublic(id: number, status: boolean) {
