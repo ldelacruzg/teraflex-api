@@ -94,7 +94,7 @@ export class TaskController {
 
   @Get('patients/number-of-pacients-by-ages')
   @ApiOperation({ summary: 'Get number of pacients by ages' })
-  @Role(RoleEnum.THERAPIST)
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
   async getNumberOfPacientsByAges(): Promise<ResponseDataInterface> {
     return {
       data: await this.assignmentService.getNumberOfPacientsByAges(),
