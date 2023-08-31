@@ -64,6 +64,16 @@ export class CategoryController {
     };
   }
 
+  @Get('query/total-task-each-category')
+  @ApiOperation({ summary: 'Get total task for each category' })
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  async getTotalTaskForEachCategory(): Promise<ResponseDataInterface> {
+    return {
+      message: 'El total de tareas por categoria se obtuvo correctamente',
+      data: await this.categoryService.getTotalTaskForEachCategory(),
+    };
+  }
+
   @Post()
   @ApiOperation({ summary: 'Create a category' })
   @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)

@@ -5,14 +5,17 @@ require('dotenv').config();
 
 export const Environment = {
   DATABASE_HOST: process.env.DATABASE_HOST || 'localhost',
-  DATABASE_PORT: process.env.DATABASE_PORT || 5432,
+  DATABASE_PORT: process.env.DATABASE_PORT
+    ? Number(process.env.DATABASE_PORT)
+    : 5432,
   DATABASE_USERNAME: process.env.DATABASE_USERNAME || 'root',
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD || 'root',
   DATABASE_NAME: process.env.DATABASE_NAME || 'teraflex',
-  DATABASE_SSL: process.env.DATABASE_SSL || false,
+  DATABASE_SSL: process.env?.DATABASE_SSL == 'true',
+  DATABASE_SYNC: process.env?.DATABASE_SYNC == 'true',
   JWT_SECRETKEY: process.env.JWT_SECRETKEY,
   PUBLIC_DIR: process.env.PUBLIC_DIR || './src/public',
-  FILE_SIZE: process.env.FILE_SIZE || 20,
+  FILE_SIZE: process.env.FILE_SIZE ? Number(process.env.FILE_SIZE) : 20,
   FIREBASE_CONFIG:
     process.env.FIREBASE_CONFIG ||
     path.join(__dirname, '../../../firebase.json'),

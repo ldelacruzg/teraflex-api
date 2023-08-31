@@ -37,3 +37,4 @@ lerna-debug.log*
 .env
 src/public
 firebase.json
+/nginx

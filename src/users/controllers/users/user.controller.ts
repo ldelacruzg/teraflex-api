@@ -44,7 +44,6 @@ export class UserController {
     @Body() body: CreateUserDto,
   ) {
     return {
-      data: null,
       message: await this.service.create(body, RoleEnum.THERAPIST, user),
     } as ResponseDataInterface;
   }
@@ -57,7 +56,6 @@ export class UserController {
     @Body() body: CreatePatientDto,
   ) {
     return {
-      data: null,
       message: await this.service.create(body, RoleEnum.PATIENT, user),
     } as ResponseDataInterface;
   }
@@ -68,7 +66,6 @@ export class UserController {
   async findById(@Param('id', ParseIntPipe) id: number) {
     return {
       data: await this.service.findById(id),
-      message: null,
     } as ResponseDataInterface;
   }
 
@@ -107,7 +104,6 @@ export class UserController {
     body.updatedBy = user.id;
     return {
       data: await this.service.update(id, body),
-      message: null,
     } as ResponseDataInterface;
   }
 
@@ -117,7 +113,6 @@ export class UserController {
   async getMyProfile(@CurrentUser() { id }: InfoUserInterface) {
     return {
       data: await this.service.findById(id),
-      message: null,
     } as ResponseDataInterface;
   }
 
@@ -133,7 +128,6 @@ export class UserController {
   ) {
     return {
       data: await this.service.getAllPatients(user, status),
-      message: null,
     } as ResponseDataInterface;
   }
 
@@ -144,7 +138,6 @@ export class UserController {
   async getAllTherapists(@Query('status') status: boolean) {
     return {
       data: await this.service.getAllTherapists(status),
-      message: null,
     } as ResponseDataInterface;
   }
 }

@@ -104,7 +104,7 @@ export class AssignmentService {
     }
 
     // add the last date and current date to the query
-    queryTasks
+    await queryTasks
       .andWhere('date(assignment.createdAt) = :lastDate', { lastDate })
       .andWhere('date(assignment.dueDate) >= :currentDate', { currentDate })
       .innerJoin('assignment.task', 'task')
@@ -190,6 +190,99 @@ export class AssignmentService {
       dueDate: assignment.dueDate,
       files,
     };
+  }
+
+  // get the last task completed of pacients by therapist
+  async getLastTaskCompleted(options: { therapistId: number }) {
+    const { therapistId } = options;
+
+    // verify if the user exists and is a therapist
+    const user = await this.userRepository.findOneBy({
+      id: therapistId,
+      role: RoleEnum.THERAPIST,
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `El terapeuta con Id "${therapistId}" no existe`,
+      );
+    }
+
+    return this.assignmentRepository
+      .createQueryBuilder('assignment')
+      .select([
+        'assignment.id as "assignmentId"',
+        'task.title as title',
+        'assignment.is_completed as "isCompleted"',
+        'concat("user".first_name, \' \', "user".last_name) as "patientFullName"',
+        'assignment.updated_at as "updatedAt"',
+      ])
+      .innerJoin('assignment.user', 'user')
+      .innerJoin('assignment.task', 'task')
+      .where('assignment.created_by = :therapistId', { therapistId })
+      .andWhere('assignment.is_completed = :isCompleted', { isCompleted: true })
+      .orderBy('assignment.created_at', 'DESC')
+      .limit(8)
+      .getRawMany();
+  }
+
+  // get number of pacients by age
+  async getNumberOfPacientsByAges() {
+    const numberPacientsByAges = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['extract(year from age(user.birth_date)) as "age"', 'count(*)'])
+      .where('user.role = :role', { role: RoleEnum.PATIENT })
+      .andWhere('extract(year from age(user.birth_date)) > 0')
+      .groupBy('age')
+      .getRawMany();
+
+    const rangeOfAges = [
+      { min: 3, max: 9 },
+      { min: 10, max: 17 },
+      { min: 18, max: 25 },
+      { min: 26, max: 35 },
+      { min: 36 },
+    ];
+
+    const numberOfPatients = numberPacientsByAges.reduce(
+      (prevValue, currValue) => {
+        return prevValue + Number(currValue.count);
+      },
+      0,
+    );
+
+    return rangeOfAges.map((rangeOfAge) => {
+      const { min, max } = rangeOfAge;
+
+      const tag = max
+        ? `De ${min} a ${max} años`
+        : `De ${min} años en adelante`;
+
+      const numberAgeByRange = numberPacientsByAges.reduce(
+        (prevValue, currValue) => {
+          const { age, count } = currValue;
+          // if max is undefined, it means that the range is from min to infinity
+          if (max === undefined && Number(age) >= min) {
+            return prevValue + Number(count);
+          }
+
+          // if max is defined, it means that the range is from min to max
+          if (Number(age) >= min && Number(age) <= max) {
+            return prevValue + Number(count);
+          }
+
+          // if the age is not in the range, return the previous value
+          return prevValue;
+        },
+        0,
+      );
+
+      return {
+        tag,
+        quantity: numberAgeByRange,
+        percentage: Number((numberAgeByRange / numberOfPatients).toFixed(2)),
+      };
+    });
   }
 
   // assign one or more tasks to a user

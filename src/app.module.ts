@@ -26,7 +26,7 @@ import { NotificationToken } from '@entities/notification-token.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: Environment.DATABASE_HOST,
-      port: Environment.DATABASE_PORT as number,
+      port: Environment.DATABASE_PORT,
       username: Environment.DATABASE_USERNAME,
       password: Environment.DATABASE_PASSWORD,
       database: Environment.DATABASE_NAME,
@@ -43,8 +43,8 @@ import { NotificationToken } from '@entities/notification-token.entity';
         Notification,
         NotificationToken,
       ],
-      synchronize: false,
-      ssl: Environment.DATABASE_SSL as boolean,
+      synchronize: Environment.DATABASE_SYNC,
+      ssl: Environment.DATABASE_SSL,
       logging: ['error', 'warn'],
       retryAttempts: 5,
       cache: {

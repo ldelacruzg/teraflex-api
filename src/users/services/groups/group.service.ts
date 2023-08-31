@@ -27,95 +27,82 @@ export class GroupService {
 
   async addPatient(patientId: number, therapist: InfoUserInterface) {
     return await this.cnx.transaction(async (manager) => {
-      try {
-        const patient = await this.userRepo.findById(manager, patientId);
+      const patient = await this.userRepo.findById(manager, patientId);
 
-        if (!patient) throw new NotFoundException(notFound('paciente'));
+      if (!patient) throw new NotFoundException(notFound('paciente'));
 
-        if (!patient.status)
-          throw new BadRequestException(
-            'No se puede agregar al paciente porque está inactivo',
-          );
-
-        if (patient.role !== RoleEnum.PATIENT)
-          throw new BadRequestException('El usuario no es paciente');
-
-        const group = await this.repo.findPacientByTherapist(
-          manager,
-          patientId,
-          therapist.id,
+      if (!patient.status)
+        throw new BadRequestException(
+          'No se puede agregar al paciente porque está inactivo',
         );
 
-        if (group.status)
-          throw new BadRequestException('Paciente ya está registrado');
+      if (patient.role !== RoleEnum.PATIENT)
+        throw new BadRequestException('El usuario no es paciente');
 
-        if (!group) {
-          const add = await this.repo.addPatient(manager, {
-            patientId,
-            therapistId: therapist.id,
-          } as Group);
+      const group = await this.repo.findPacientByTherapist(
+        manager,
+        patientId,
+        therapist.id,
+      );
 
-          if (!add)
-            throw new BadRequestException('No se pudo agregar al paciente');
+      if (group.status)
+        throw new BadRequestException('Paciente ya está registrado');
 
-          return insertSucessful('paciente');
-        } else {
-          return this.updateStatusPatient(patientId, therapist);
-        }
-      } catch (e) {
-        throw e;
+      if (!group) {
+        const add = await this.repo.addPatient(manager, {
+          patientId,
+          therapistId: therapist.id,
+        } as Group);
+
+        if (!add)
+          throw new BadRequestException('No se pudo agregar al paciente');
+
+        return insertSucessful('paciente');
+      } else {
+        return this.updateStatusPatient(patientId, therapist);
       }
     });
   }
 
   async updateStatusPatient(patientId: number, therapist: InfoUserInterface) {
-    try {
-      const patient = await this.userRepo.findById(this.cnx, patientId);
-      if (!patient) throw new NotFoundException(notFound('paciente'));
+    const patient = await this.userRepo.findById(this.cnx, patientId);
+    if (!patient) throw new NotFoundException(notFound('paciente'));
 
-      if (!patient.status)
-        throw new BadRequestException(
-          'No se puede asociar/desasociar el paciente porque está inactivo',
-        );
-
-      const inGroup = await this.repo.findPacientByTherapist(
-        this.cnx,
-        patientId,
-        therapist.id,
+    if (!patient.status)
+      throw new BadRequestException(
+        'No se puede asociar/desasociar el paciente porque está inactivo',
       );
 
-      if (!inGroup)
-        throw new BadRequestException('Paciente no está registrado');
+    const inGroup = await this.repo.findPacientByTherapist(
+      this.cnx,
+      patientId,
+      therapist.id,
+    );
 
-      const deletePatient = await this.repo.updateStatusPatient(
-        this.cnx,
-        therapist.id,
-        patientId,
-        !inGroup.status,
-      );
+    if (!inGroup) throw new BadRequestException('Paciente no está registrado');
 
-      if (deletePatient.affected === 0)
-        throw new BadRequestException(updateFailed('paciente'));
+    const deletePatient = await this.repo.updateStatusPatient(
+      this.cnx,
+      therapist.id,
+      patientId,
+      !inGroup.status,
+    );
 
-      return updateSucessful('paciente');
-    } catch (e) {
-      throw e;
-    }
+    if (deletePatient.affected === 0)
+      throw new BadRequestException(updateFailed('paciente'));
+
+    return updateSucessful('paciente');
   }
 
   async getAllByTherapist(therapistId: number, status?: boolean) {
-    try {
-      const patients = await this.repo.getAllByTherapist(
-        this.cnx,
-        therapistId,
-        status,
-      );
+    const patients = await this.repo.getAllByTherapist(
+      this.cnx,
+      therapistId,
+      status,
+    );
 
-      if (!patients) throw new Error('No se encontraron pacientes');
+    if (!patients) throw new Error('No se encontraron pacientes');
 
-      return patients;
-    } catch (e) {
-      throw e;
-    }
+    return patients;
   }
 }

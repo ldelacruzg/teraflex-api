@@ -38,7 +38,6 @@ import { Response } from 'express';
 
 @Controller('multimedia')
 @ApiTags('Multimedia')
-@UseInterceptors(ResponseHttpInterceptor)
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class MultimediaController {
@@ -46,7 +45,7 @@ export class MultimediaController {
 
   @Post('upload/files')
   @Role(RoleEnum.THERAPIST)
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(FilesInterceptor('files'), ResponseHttpInterceptor)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     type: uploadMultimediaDto,
@@ -66,6 +65,7 @@ export class MultimediaController {
 
   @Post('upload/online')
   @Role(RoleEnum.THERAPIST)
+  @UseInterceptors(ResponseHttpInterceptor)
   @ApiOperation({ summary: 'Cargar un recurso online' })
   @ApiBody({
     type: [CreateLinkDto],
@@ -100,6 +100,7 @@ export class MultimediaController {
   }
 
   @Get('all')
+  @UseInterceptors(ResponseHttpInterceptor)
   @Role(RoleEnum.THERAPIST)
   @ApiOperation({
     summary: 'Obtener todos los recursos públic y creados por el usuario',
@@ -115,6 +116,7 @@ export class MultimediaController {
   }
 
   @Put('update/:id')
+  @UseInterceptors(ResponseHttpInterceptor)
   @Role(RoleEnum.THERAPIST)
   @ApiOperation({ summary: 'Actualizar un recurso' })
   async update(
@@ -127,6 +129,7 @@ export class MultimediaController {
   }
 
   @Patch('update/:id/status')
+  @UseInterceptors(ResponseHttpInterceptor)
   @Role(RoleEnum.THERAPIST)
   @ApiOperation({ summary: 'Actualizar el estado de un recurso' })
   async updateStatus(@Param('id', ParseIntPipe) id: number) {
