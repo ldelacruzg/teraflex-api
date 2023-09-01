@@ -7,6 +7,6 @@ export class AppController {
   @Get()
   @Redirect()
   getHello() {
-    return { url: '/api' };
+    return { url: 'https://fyc.uteq.edu.ec:4000' };
   }
 }

@@ -7,7 +7,7 @@ export class FormatDateService {
     return moment(date)
       .locale('es')
       .tz('America/Guayaquil')
-      .format('dddd, MMMM D YYYY, h:mm:ss a');
+      .format('dddd, MMMM D YYYY, h:mm a');
   }
 
   public formatDates(data: any): any {
