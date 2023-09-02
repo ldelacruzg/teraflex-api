@@ -110,10 +110,12 @@ export class TaskController {
     @Param('therapistId', ParseIntPipe) therapistId: number,
     @Query('status', ParseBoolAllowUndefinedPipe) status: boolean | undefined,
   ): Promise<ResponseDataInterface> {
+    console.log({ status });
     // get tasks by therapist id
     const tasks = await this.taskService.getAllTasks({
       userId: therapistId,
       status,
+      isPublic: true,
     });
 
     return {
@@ -130,6 +132,7 @@ export class TaskController {
     @Req() req,
     @Query('status', ParseBoolAllowUndefinedPipe) status: boolean | undefined,
   ): Promise<ResponseDataInterface> {
+    console.log({ status });
     // get user logged
     const { id: userId, role } = req.user as InfoUserInterface;
 
@@ -148,7 +151,11 @@ export class TaskController {
     }
 
     // get tasks by therapist id
-    const tasks = await this.taskService.getAllTasks({ userId, status });
+    const tasks = await this.taskService.getAllTasks({
+      userId,
+      status,
+      isPublic: true,
+    });
 
     // get tasks by therapist id
     return {
