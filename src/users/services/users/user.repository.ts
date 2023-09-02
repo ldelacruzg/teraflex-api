@@ -60,6 +60,7 @@ export class UserRepository {
         'category.id as "categoryId"',
         'category.name as "categoryName"',
         'user.role as role',
+        'user.first_time as "firstTime"',
       ])
       .from(User, 'user')
       .leftJoin(Category, 'category', 'category.id = user.category_id')

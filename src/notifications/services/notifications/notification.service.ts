@@ -14,9 +14,9 @@ import {
 import { NotificationRepository } from '@/notifications/services/notifications/notification.repository';
 import { Notification } from '@entities/notification.entity';
 import firebase from 'firebase-admin';
-import * as path from 'path';
 import { NotificationTokenRepository } from '@/notifications/services/notification-tokens/notification-token.repository';
 import { NotificationToken } from '@entities/notification-token.entity';
+import { Environment } from '@/shared/constants/environment';
 
 @Injectable()
 export class NotificationService {
@@ -27,9 +27,7 @@ export class NotificationService {
     private readonly notificationTokenRepository: NotificationTokenRepository,
   ) {
     firebase.initializeApp({
-      credential: firebase.credential.cert(
-        path.join(__dirname, '../../../../firebase.json'),
-      ),
+      credential: firebase.credential.cert(Environment.FIREBASE_CONFIG),
     });
   }
 

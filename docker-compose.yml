@@ -1,17 +1,17 @@
 version: '3.8'
 services:
-  api:
-    container_name: teraflex_api
-    build:
-      context: .
-      dockerfile: Dockerfile
+  teraflex_server:
+    container_name: teraflex_server
+    image: imanzabag/teraflex:latest
     ports:
       - "3000:3000"
     volumes:
       - teraflex_storage:/home/teraflex_storage
+      - ./firebase.json:/home/firebase.json
     restart: always
     environment:
       - PUBLIC_DIR=/home/teraflex_storage
+      - FIREBASE_CONFIG=/home/firebase.json
     env_file:
       - .env
     command: yarn run start:prod
