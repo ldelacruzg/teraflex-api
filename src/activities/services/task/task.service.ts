@@ -94,6 +94,11 @@ export class TaskService {
         description: true,
         estimatedTime: true,
         isPublic: true,
+        createdBy: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
         tasksCategories: {
           id: true,
           category: {
@@ -120,6 +125,7 @@ export class TaskService {
         tasksMultimedia: {
           link: true,
         },
+        createdBy: true,
       },
     });
 

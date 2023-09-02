@@ -110,7 +110,6 @@ export class TaskController {
     @Param('therapistId', ParseIntPipe) therapistId: number,
     @Query('status', ParseBoolAllowUndefinedPipe) status: boolean | undefined,
   ): Promise<ResponseDataInterface> {
-    console.log({ status });
     // get tasks by therapist id
     const tasks = await this.taskService.getAllTasks({
       userId: therapistId,
@@ -132,7 +131,6 @@ export class TaskController {
     @Req() req,
     @Query('status', ParseBoolAllowUndefinedPipe) status: boolean | undefined,
   ): Promise<ResponseDataInterface> {
-    console.log({ status });
     // get user logged
     const { id: userId, role } = req.user as InfoUserInterface;
 
