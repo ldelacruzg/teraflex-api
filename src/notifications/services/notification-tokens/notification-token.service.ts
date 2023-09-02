@@ -35,6 +35,15 @@ export class NotificationTokenService {
       );
 
       if (!exist) {
+        const existToken = await this.notificationTokenRepository.getByToken(
+          manager,
+          data.token,
+        );
+
+        if (existToken) {
+          return await this.updateDevice(existToken.id, data.device);
+        }
+
         const created = await this.notificationTokenRepository.create(
           manager,
           data as NotificationToken,
@@ -64,6 +73,20 @@ export class NotificationTokenService {
           );
       }
     });
+  }
+
+  private async updateDevice(deviceId: number, device: string) {
+    const updated = await this.notificationTokenRepository.update(
+      this.cnx,
+      deviceId,
+      { device } as NotificationToken,
+    );
+
+    if (updated.affected === 0) {
+      throw new BadRequestException(updateFailed('notification token'));
+    }
+
+    return updateSucessful('Dispositivo');
   }
 
   async getByDevice(device: string, status?: boolean) {
