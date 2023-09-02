@@ -3,7 +3,19 @@ import { IsBooleanString, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateLinkDto {
   @ApiProperty()
-  @IsUrl({}, { message: 'El campo url debe ser una url válida' })
+  @IsUrl(
+    {
+      protocols: ['https'],
+      require_protocol: true,
+      require_valid_protocol: true,
+      host_whitelist: ['www.youtube.com', 'www.dailymotion.com', 'vimeo.com'],
+    },
+    {
+      message:
+        'El campo url debe ser una url válida, de las plataformas: YouTube, Dailymotion o Vimeo',
+      always: true,
+    },
+  )
   url: string;
 
   @ApiProperty()
@@ -11,7 +23,7 @@ export class CreateLinkDto {
   title: string;
 
   @ApiProperty({ type: 'boolean', required: false })
-  @IsBooleanString({ message: 'El campo isPublic debe ser booleano' })
+  @IsBooleanString({ message: 'El campo isPublic debe ser booleano, como string' })
   @IsOptional()
   isPublic: boolean;
 

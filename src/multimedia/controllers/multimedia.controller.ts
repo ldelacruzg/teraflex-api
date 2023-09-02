@@ -67,17 +67,11 @@ export class MultimediaController {
   @Role(RoleEnum.THERAPIST)
   @UseInterceptors(ResponseHttpInterceptor)
   @ApiOperation({ summary: 'Cargar un recurso online' })
-  @ApiBody({
-    type: [CreateLinkDto],
-    description: 'Cargar uno o varios recursos online',
-  })
   async uploadOnline(
-    @Body() body: CreateLinkDto[],
+    @Body() body: CreateLinkDto,
     @CurrentUser() user: InfoUserInterface,
   ) {
-    for (const element of body) {
-      element.createdById = user.id;
-    }
+    body.createdById = user.id;
 
     return {
       data: await this.service.saveMultimediaOnline(body),

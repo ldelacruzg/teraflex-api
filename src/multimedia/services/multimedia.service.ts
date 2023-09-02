@@ -60,28 +60,18 @@ export class MultimediaService {
     });
   }
 
-  async saveMultimediaOnline(data: CreateLinkDto[]) {
+  async saveMultimediaOnline(data: CreateLinkDto) {
     return await this.entityManager.transaction(async (manager) => {
-      const ids: {
-        id: number;
-        title: string;
-        url: string;
-      }[] = [];
+      const payload = {
+        ...data,
+        type: 'online',
+      } as Link;
 
-      for (const element of data) {
-        const payload = {
-          ...element,
-          type: 'online',
-        } as Link;
+      const created = await this.repo.create(manager, payload);
 
-        const created = await this.repo.create(manager, payload);
+      if (!created) throw new BadRequestException('Error al guardar recurso');
 
-        if (!created) throw new BadRequestException('Error al guardar recurso');
-
-        ids.push({ id: created.id, title: created.title, url: created.url });
-      }
-
-      return ids;
+      return { id: created.id, title: created.title, url: created.url };
     });
   }
 
