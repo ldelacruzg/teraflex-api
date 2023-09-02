@@ -45,8 +45,8 @@ export class GroupService {
         therapist.id,
       );
 
-      if (group.status)
-        throw new BadRequestException('Paciente ya está registrado');
+      if (group?.status)
+        throw new BadRequestException('Paciente ya está vinculado');
 
       if (!group) {
         const add = await this.repo.addPatient(manager, {
@@ -57,7 +57,7 @@ export class GroupService {
         if (!add)
           throw new BadRequestException('No se pudo agregar al paciente');
 
-        return insertSucessful('paciente');
+        return "Se vinculó correctamente el paciente";
       } else {
         return this.updateStatusPatient(patientId, therapist);
       }
