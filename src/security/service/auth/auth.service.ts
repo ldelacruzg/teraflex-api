@@ -24,6 +24,9 @@ export class AuthService {
   async login(cnx: EntityManager, payload: LoginDto) {
     const user = await this.userService.findByDocNumber(payload.identification);
 
+    if (!user.status)
+      throw new UnauthorizedException('El usuario se encuentra desactivado');
+
     const password = await this.userService.getPassword(cnx, user.id);
 
     if (!(await compare(payload.password, password))) {
