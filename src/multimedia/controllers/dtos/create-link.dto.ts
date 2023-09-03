@@ -8,11 +8,10 @@ export class CreateLinkDto {
       protocols: ['https'],
       require_protocol: true,
       require_valid_protocol: true,
-      host_whitelist: ['www.youtube.com', 'www.dailymotion.com', 'vimeo.com'],
+      host_whitelist: ['www.youtube.com'],
     },
     {
-      message:
-        'El campo url debe ser una url válida, de las plataformas: YouTube, Dailymotion o Vimeo',
+      message: 'El campo url debe ser una url válida, de la plataforma Youtube',
       always: true,
     },
   )
@@ -23,7 +22,9 @@ export class CreateLinkDto {
   title: string;
 
   @ApiProperty({ type: 'boolean', required: false })
-  @IsBooleanString({ message: 'El campo isPublic debe ser booleano, como string' })
+  @IsBooleanString({
+    message: 'El campo isPublic debe ser booleano, como string',
+  })
   @IsOptional()
   isPublic: boolean;
 
