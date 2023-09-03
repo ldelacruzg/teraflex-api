@@ -114,6 +114,7 @@ export class TaskController {
     const tasks = await this.taskService.getAllTasks({
       userId: therapistId,
       status,
+      isPublic: true,
     });
 
     return {
@@ -148,7 +149,11 @@ export class TaskController {
     }
 
     // get tasks by therapist id
-    const tasks = await this.taskService.getAllTasks({ userId, status });
+    const tasks = await this.taskService.getAllTasks({
+      userId,
+      status,
+      isPublic: true,
+    });
 
     // get tasks by therapist id
     return {
