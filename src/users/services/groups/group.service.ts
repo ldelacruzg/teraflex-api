@@ -11,7 +11,6 @@ import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { UserRepository } from '@users/services/users/user.repository';
 import {
-  insertSucessful,
   notFound,
   updateFailed,
   updateSucessful,
@@ -57,7 +56,7 @@ export class GroupService {
         if (!add)
           throw new BadRequestException('No se pudo agregar al paciente');
 
-        return "Se vinculó correctamente el paciente";
+        return 'Se vinculó correctamente el paciente';
       } else {
         return this.updateStatusPatient(patientId, therapist);
       }
@@ -101,7 +100,7 @@ export class GroupService {
       status,
     );
 
-    if (!patients) throw new Error('No se encontraron pacientes');
+    if (!patients) throw new NotFoundException('No se encontraron pacientes');
 
     return patients;
   }

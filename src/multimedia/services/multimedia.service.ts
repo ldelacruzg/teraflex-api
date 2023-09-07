@@ -78,9 +78,9 @@ export class MultimediaService {
   async getMultimedia(id: number) {
     const multimedia = await this.repo.getById(this.entityManager, id);
 
-    const filePath = `${Environment.PUBLIC_DIR}/${multimedia.url}`;
-
     if (!multimedia) throw new NotFoundException('Recurso no encontrado');
+
+    const filePath = `${Environment.PUBLIC_DIR}/${multimedia.url}`;
 
     if (multimedia.type === 'online')
       throw new BadRequestException('Recurso no descargable');
