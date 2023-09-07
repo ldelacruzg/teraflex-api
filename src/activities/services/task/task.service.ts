@@ -87,7 +87,14 @@ export class TaskService {
   async getTask(id: number) {
     // Consulta la tarea por Id
     const task = await this.entityManager.findOne(Task, {
-      where: { id },
+      where: {
+        id,
+        tasksMultimedia: {
+          link: {
+            status: true,
+          },
+        },
+      },
       select: {
         id: true,
         title: true,
@@ -113,6 +120,7 @@ export class TaskService {
             title: true,
             url: true,
             type: true,
+            status: true,
           },
         },
         createdAt: true,
