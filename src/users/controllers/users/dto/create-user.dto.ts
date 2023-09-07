@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   Length,
+  MinDate,
   MinLength,
 } from 'class-validator';
 
@@ -41,6 +42,7 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsDateString({ strict: true })
+  @MinDate(new Date('1910-01-01'))
   @IsOptional()
   birthDate: Date;
 
