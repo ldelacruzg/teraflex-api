@@ -1,5 +1,11 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsBooleanString, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsBooleanString,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MinLength,
+} from 'class-validator';
 
 export class CreateLinkDto {
   @ApiProperty()
@@ -19,6 +25,7 @@ export class CreateLinkDto {
 
   @ApiProperty()
   @IsString()
+  @MinLength(3)
   title: string;
 
   @ApiProperty({ type: 'boolean', required: false })
