@@ -53,6 +53,7 @@ export class AssignmentService {
       const tasks = await this.assignmentRepository.find({
         where: { userId, isCompleted },
         relations: ['task'],
+        order: { createdAt: 'DESC' },
       });
 
       return tasks.map((assignTask) => ({
@@ -104,12 +105,12 @@ export class AssignmentService {
     }
 
     // add the last date and current date to the query
-    await queryTasks
+    queryTasks
       .andWhere('date(assignment.createdAt) = :lastDate', { lastDate })
       .andWhere('date(assignment.dueDate) >= :currentDate', { currentDate })
       .innerJoin('assignment.task', 'task')
       .addSelect(['task.id', 'task.title'])
-      .getMany();
+      .orderBy('assignment.createdAt', 'DESC');
 
     // execute the query
     const assignTasks = await queryTasks.getMany();
