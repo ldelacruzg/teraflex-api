@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-import compression from 'compression';
+// import compression from 'compression';
 import helmet from 'helmet';
 import { Environment } from '@shared/constants/environment';
 
@@ -36,11 +36,11 @@ async function bootstrap() {
     }),
   );
 
-  app.use(
-    compression({
-      level: 9,
-    }),
-  );
+  // app.use(
+  //   compression({
+  //     level: 9,
+  //   }),
+  // );
 
   app.use(helmet());
 

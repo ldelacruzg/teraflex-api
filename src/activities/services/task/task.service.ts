@@ -27,8 +27,12 @@ export class TaskService {
     @InjectEntityManager() private entityManager: EntityManager,
   ) {}
 
-  async getAllTasks(options: { userId?: number; status?: boolean }) {
-    const { userId, status } = options;
+  async getAllTasks(options: {
+    userId?: number;
+    status?: boolean;
+    isPublic?: boolean;
+  }) {
+    const { userId, status, isPublic } = options;
 
     // create query builder and select fields
     const query = await this.taksRepository
@@ -48,6 +52,11 @@ export class TaskService {
     // if userId exists, add where clause
     if (userId) {
       query.where('task.createdById = :userId', { userId });
+    }
+
+    // get all public tasks
+    if (isPublic !== undefined) {
+      query.orWhere('task.isPublic = :isPublic', { isPublic: true });
     }
 
     // if status exists, add where clause
@@ -78,13 +87,25 @@ export class TaskService {
   async getTask(id: number) {
     // Consulta la tarea por Id
     const task = await this.entityManager.findOne(Task, {
-      where: { id },
+      where: {
+        id,
+        tasksMultimedia: {
+          link: {
+            status: true,
+          },
+        },
+      },
       select: {
         id: true,
         title: true,
         description: true,
         estimatedTime: true,
         isPublic: true,
+        createdBy: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
         tasksCategories: {
           id: true,
           category: {
@@ -99,6 +120,7 @@ export class TaskService {
             title: true,
             url: true,
             type: true,
+            status: true,
           },
         },
         createdAt: true,
@@ -111,6 +133,7 @@ export class TaskService {
         tasksMultimedia: {
           link: true,
         },
+        createdBy: true,
       },
     });
 

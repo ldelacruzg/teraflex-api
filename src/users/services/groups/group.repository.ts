@@ -49,6 +49,7 @@ export class GroupRepository {
           phone: true,
           description: true,
           birthDate: true,
+          status: true,
         },
       },
       where: { therapistId, status: status ?? true },

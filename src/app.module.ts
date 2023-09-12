@@ -47,10 +47,7 @@ import { NotificationToken } from '@entities/notification-token.entity';
       ssl: Environment.DATABASE_SSL,
       logging: ['error', 'warn'],
       retryAttempts: 5,
-      cache: {
-        duration: 300000,
-        alwaysEnabled: true,
-      },
+      cache: true,
     }),
     SharedModule,
     SecurityModule,

@@ -44,4 +44,8 @@ export class NotificationTokenRepository {
   async update(cnx: EntityManager, id: number, data: NotificationToken) {
     return await cnx.update(NotificationToken, id, data);
   }
+
+  async getByToken(cnx: EntityManager, token: string) {
+    return await cnx.findOne(NotificationToken, { where: { token } });
+  }
 }

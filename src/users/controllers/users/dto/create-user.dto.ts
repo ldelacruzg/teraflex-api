@@ -5,22 +5,25 @@ import {
   IsOptional,
   IsString,
   Length,
+  MinLength,
 } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty()
   @IsString()
   @Length(10, 13, {
-    message: 'El número de documento debe tener entre 10 y 13 caracteres',
+    message: 'El número de identificación debe tener entre 10 y 13 caracteres',
   })
   docNumber: string;
 
   @ApiProperty()
   @IsString()
+  @MinLength(2)
   firstName: string;
 
   @ApiProperty()
   @IsString()
+  @MinLength(2)
   lastName: string;
 
   @ApiProperty()
@@ -37,7 +40,7 @@ export class CreateUserDto {
   description: string;
 
   @ApiProperty()
-  @IsDateString()
+  @IsDateString({ strict: true })
   @IsOptional()
   birthDate: Date;
 
