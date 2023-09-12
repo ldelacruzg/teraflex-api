@@ -20,6 +20,7 @@ $ yarn run start
 
 # watch mode
 $ yarn run start:dev
+$ yarn run dev
 
 # production mode
 $ yarn run start:prod
@@ -51,8 +52,12 @@ PORT
 CORS
 
 # Admin
-ADMIN_USERNAME
+ADMIN_USER
 ADMIN_PASSWORD
+
+#Files
+PUBLIC_DIR
+FILE_SIZE
 ```
 
 ## Información adicional
