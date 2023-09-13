@@ -27,12 +27,8 @@ export class TaskService {
     @InjectEntityManager() private entityManager: EntityManager,
   ) {}
 
-  async getAllTasks(options: {
-    userId?: number;
-    status?: boolean;
-    isPublic?: boolean;
-  }) {
-    const { userId, status, isPublic } = options;
+  async getAllTasks(options: { userId?: number; status?: boolean }) {
+    const { userId, status } = options;
 
     // create query builder and select fields
     const query = await this.taksRepository
@@ -47,21 +43,15 @@ export class TaskService {
         'task.createdAt',
         'task.updatedAt',
       ])
-      .innerJoinAndSelect('task.tasksCategories', 'tasksCategories');
-
-    // if userId exists, add where clause
-    if (userId) {
-      query.where('task.createdById = :userId', { userId });
-    }
-
-    // get all public tasks
-    if (isPublic !== undefined) {
-      query.orWhere('task.isPublic = :isPublic', { isPublic: true });
-    }
+      .innerJoinAndSelect('task.tasksCategories', 'tasksCategories')
+      .where('(task.isPublic = :isPublic OR task.createdById = :userId)', {
+        isPublic: true,
+        userId,
+      });
 
     // if status exists, add where clause
     if (status !== undefined) {
-      query.andWhere('task.status = :status', { status });
+      query.andWhere('task.status = :_status', { _status: status });
     }
 
     // order by the date of creation
