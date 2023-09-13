@@ -43,11 +43,14 @@ export class TaskService {
         'task.createdAt',
         'task.updatedAt',
       ])
-      .innerJoinAndSelect('task.tasksCategories', 'tasksCategories')
-      .where('(task.isPublic = :isPublic OR task.createdById = :userId)', {
+      .innerJoinAndSelect('task.tasksCategories', 'tasksCategories');
+
+    if (userId !== undefined) {
+      query.where('(task.isPublic = :isPublic OR task.createdById = :userId)', {
         isPublic: true,
         userId,
       });
+    }
 
     // if status exists, add where clause
     if (status !== undefined) {
