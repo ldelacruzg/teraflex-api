@@ -17,6 +17,7 @@ async function bootstrap() {
       'https://github.com/IvanM9/teraflex-api',
     )
     .setContact('FyC', 'https://fyc.uteq.edu.ec/', 'info@uteq.edu.ec')
+    .addServer(Environment.SWAGGER_REQ)
     .setVersion('1.0')
     .addBearerAuth()
     .build();

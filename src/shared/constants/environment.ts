@@ -23,4 +23,5 @@ export const Environment = {
   PORT: process.env.PORT ? Number(process.env.PORT) : 3000,
   ADMIN_USER: process.env.ADMIN_USER || '1234567890',
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '12345',
+  SWAGGER_REQ: process.env.SWAGGER_REQ || 'http://localhost:3000',
 };
