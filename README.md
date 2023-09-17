@@ -58,6 +58,9 @@ ADMIN_PASSWORD
 #Files
 PUBLIC_DIR
 FILE_SIZE
+
+#Swagger
+SWAGGER_REQ
 ```
 
 ## Información adicional
