@@ -60,12 +60,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     CacheModule.register({ isGlobal: true }),
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

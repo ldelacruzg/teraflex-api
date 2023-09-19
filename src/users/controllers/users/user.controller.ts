@@ -27,10 +27,11 @@ import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller()
 @ApiTags('User')
-@UseInterceptors(ResponseHttpInterceptor)
+@UseInterceptors(ResponseHttpInterceptor, CacheInterceptor)
 @UseGuards(JwtAuthGuard, RoleGuard)
 @ApiBearerAuth()
 export class UserController {

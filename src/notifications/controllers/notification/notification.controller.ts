@@ -17,11 +17,12 @@ import { ResponseDataInterface } from '@shared/interfaces/response-data.interfac
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 import { CurrentUser } from '@security/jwt-strategy/auth.decorator';
 import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('notification')
 @ApiTags('Notification')
 @UseGuards(JwtAuthGuard, RoleGuard)
-@UseInterceptors(ResponseHttpInterceptor)
+@UseInterceptors(ResponseHttpInterceptor, CacheInterceptor)
 @ApiBearerAuth()
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
