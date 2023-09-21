@@ -18,7 +18,7 @@ export class NotificationToken {
   @Column({ name: 'token', type: 'varchar', length: 255 })
   token: string;
 
-  @Column({ name: 'device', type: 'varchar', length: 255, unique: true })
+  @Column({ name: 'device', type: 'varchar', length: 255 })
   device: string;
 
   @Column({ name: 'user_id', type: 'int' })
