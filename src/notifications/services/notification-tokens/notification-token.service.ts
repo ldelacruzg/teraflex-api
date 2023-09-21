@@ -29,10 +29,12 @@ export class NotificationTokenService {
     return await this.cnx.transaction(async (manager) => {
       data.device = await this.encryptService.encrypt(data.device);
 
-      const exist = await this.notificationTokenRepository.getByDevice(
+      const devices = await this.notificationTokenRepository.getByUser(
         manager,
-        data.device,
+        data.userId,
       );
+
+      const exist = devices.find((device) => device.device === data.device);
 
       if (!exist) {
         const existToken = await this.notificationTokenRepository.getByToken(
@@ -40,7 +42,7 @@ export class NotificationTokenService {
           data.token,
         );
 
-        if (existToken) {
+        if (existToken && existToken.userId === data.userId) {
           return await this.updateDevice(existToken.id, data.device);
         }
 
@@ -89,13 +91,18 @@ export class NotificationTokenService {
     return updateSucessful('Dispositivo');
   }
 
-  async getByDevice(device: string, status?: boolean) {
-    const notificationToken =
-      await this.notificationTokenRepository.getByDevice(
-        this.cnx,
-        await this.encryptService.encrypt(device),
-        status,
-      );
+  async getByDevice(device: string, userId: number, status?: boolean) {
+    const encryptedDevice = await this.encryptService.encrypt(device);
+
+    const devices = await this.notificationTokenRepository.getByUser(
+      this.cnx,
+      userId,
+      status,
+    );
+
+    const notificationToken = devices.find(
+      (device) => device.device === encryptedDevice,
+    );
 
     if (!notificationToken) {
       throw new NotFoundException(notFound('Dispositivo'));
@@ -119,7 +126,7 @@ export class NotificationTokenService {
   }
 
   async updateStatus(device: string, currentUserId: number, status?: boolean) {
-    const notificationToken = await this.getByDevice(device);
+    const notificationToken = await this.getByDevice(device, currentUserId);
 
     if (notificationToken.userId !== currentUserId)
       throw new BadRequestException(

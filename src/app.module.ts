@@ -20,6 +20,8 @@ import { MultimediaModule } from '@multimedia/multimedia.module';
 import { NotificationModule } from '@/notifications/notification.module';
 import { Notification } from '@entities/notification.entity';
 import { NotificationToken } from '@entities/notification-token.entity';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -55,6 +57,7 @@ import { NotificationToken } from '@entities/notification-token.entity';
     ActivityModule,
     MultimediaModule,
     NotificationModule,
+    CacheModule.register({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [AppService],
