@@ -57,8 +57,11 @@ export class NotificationTokenController {
   @Get('verify-device/:device')
   @Role(RoleEnum.PATIENT)
   @ApiOperation({ summary: 'Verificar dispositivo' })
-  async verifyDevice(@Param('device') device: string) {
-    await this.service.getByDevice(device, true);
+  async verifyDevice(
+    @Param('device') device: string,
+    @CurrentUser() { id }: InfoUserInterface,
+  ) {
+    await this.service.getByDevice(device, id, true);
 
     return {
       message: 'Dispositivo verificado',

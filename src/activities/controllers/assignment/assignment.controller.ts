@@ -32,9 +32,10 @@ import { ResponseDataInterface } from '@shared/interfaces/response-data.interfac
 import { NotificationService } from '@notifications/services/notifications/notification.service';
 import moment from 'moment';
 import { UserService } from '@/users/services/users/user.service';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller()
-@UseInterceptors(ResponseHttpInterceptor)
+@UseInterceptors(ResponseHttpInterceptor, CacheInterceptor)
 @ApiTags('Assignments')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)

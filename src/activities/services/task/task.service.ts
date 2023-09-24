@@ -80,14 +80,20 @@ export class TaskService {
   async getTask(id: number) {
     // Consulta la tarea por Id
     const task = await this.entityManager.findOne(Task, {
-      where: {
-        id,
-        tasksMultimedia: {
-          link: {
-            status: true,
+      where: [
+        {
+          id,
+          tasksMultimedia: {
+            link: {
+              status: true,
+            },
           },
         },
-      },
+        {
+          id,
+          tasksMultimedia: null,
+        },
+      ],
       select: {
         id: true,
         title: true,
@@ -134,7 +140,6 @@ export class TaskService {
     if (!task) {
       throw new NotFoundException(`La tarea con Id "${id}" no existe`);
     }
-
     // Se obtiene las categorias de la tarea
     const categories = task.tasksCategories.map(({ category }) => category);
 

@@ -30,9 +30,10 @@ import { AssignmentService } from '@activities/services/assignment/assignment.se
 import { ParseBoolAllowUndefinedPipe } from '@shared/pipes/parse-bool-allow-undefined.pipe';
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller()
-@UseInterceptors(ResponseHttpInterceptor)
+@UseInterceptors(ResponseHttpInterceptor, CacheInterceptor)
 @ApiTags('Tasks')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)

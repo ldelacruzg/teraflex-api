@@ -29,9 +29,10 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ResponseHttpInterceptor } from '@shared/interceptors/response-http.interceptor';
 import { ResponseDataInterface } from '@shared/interfaces/response-data.interface';
 import { ParseBoolAllowUndefinedPipe } from '@/shared/pipes/parse-bool-allow-undefined.pipe';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('categories')
-@UseInterceptors(ResponseHttpInterceptor)
+@UseInterceptors(ResponseHttpInterceptor, CacheInterceptor)
 @ApiTags('Categories')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
