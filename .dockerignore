@@ -1,8 +1,17 @@
-node_modules
-dist
-client
-test
-.env
-.git
-prisma/migrations
-firebase.json
+# Folders
+node_modules/
+dist/
+test/
+.git/
+.devcontainer/
+.vscode/
+
+# Files
+.gitignore
+.dockerignore
+Dockerfile
+Dockerfile.dev
+docker-compose.yml
+docker-compose.dev.yml
+yarn.lock
+package-lock.json
