@@ -5,21 +5,27 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Relation,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserValidation } from './user-validation.entity';
-import { Assignment } from './assignment.entity';
-import { Task } from './task.entity';
-import { Category } from './category.entity';
-import { Link } from './link.entity';
-import { TaskCategory } from './task-category.entity';
-import { TaskMultimedia } from './task-multimedia.entity';
+
+import {
+  Assignment,
+  UserValidation,
+  Task,
+  Category,
+  Link,
+  TaskCategory,
+  TaskMultimedia,
+  Group,
+  Notification,
+  NotificationToken,
+  Patient,
+  Treatment,
+} from '@/entities';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
-import { Group } from './group.entity';
-import { Notification } from '@entities/notification.entity';
-import { NotificationToken } from '@entities/notification-token.entity';
 
 @Entity('user')
 export class User {
@@ -140,4 +146,10 @@ export class User {
     (notificationToken) => notificationToken.user,
   )
   notificationTokens: Relation<NotificationToken[]>;
+
+  @OneToOne(() => Patient, (patient) => patient.user)
+  patient: Relation<Patient>;
+
+  @OneToMany(() => Treatment, (treatment) => treatment.therapist)
+  treatments: Relation<Treatment[]>;
 }

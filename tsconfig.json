@@ -27,6 +27,7 @@
       "@shared/*": ["shared/*"],
       "@users/*": ["users/*"],
       "@notifications/*": ["notifications/*"],
+      "@gamification/*": ["gamification/*"]
     }
   }
 }
