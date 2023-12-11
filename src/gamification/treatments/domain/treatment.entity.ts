@@ -4,11 +4,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Patient, User } from '@/entities';
+import { Assignment, Patient, User } from '@/entities';
 
 @Entity({ name: 'treatments' })
 export class Treatment {
@@ -38,4 +40,7 @@ export class Treatment {
   @ManyToOne(() => User, (user) => user.treatments)
   @JoinColumn({ name: 'therapist_id' })
   therapist: User;
+
+  @OneToMany(() => Assignment, (assigment) => assigment.treatment)
+  assignments: Relation<Assignment[]>;
 }
