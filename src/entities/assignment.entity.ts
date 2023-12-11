@@ -4,15 +4,19 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Task } from './task.entity';
+import { AssignmentConfiguration } from './assignment-configuration.entity';
+import { Treatment } from '.';
 
 @Entity('assignment')
 export class Assignment {
+  // Fields
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -32,11 +36,12 @@ export class Assignment {
   isCompleted: boolean;
 
   @Column({ name: 'due_date', type: 'date' })
-  dueDate: Date;
+  dueDate: Date; // Fecha limite
 
   @Column({ name: 'description', type: 'text', nullable: true })
   description: string;
 
+  // Fields for audit
   @Column({ name: 'created_by', type: 'bigint' })
   createdById: number;
 
@@ -44,15 +49,16 @@ export class Assignment {
   updatedById: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
-  createdAt: Date;
+  createdAt: Date; // Fecha de asignación/creación
 
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamp with time zone',
     nullable: true,
   })
-  updatedAt: Date;
+  updatedAt: Date; // Fecha de cumplimiento/actualización
 
+  // Relations
   @ManyToOne(() => User, (user) => user.assignments, { eager: true })
   @JoinColumn({ name: 'user_id' })
   user: Relation<User>;
@@ -68,4 +74,14 @@ export class Assignment {
   @ManyToOne(() => User, (user) => user.assignmentsUpdated, { eager: true })
   @JoinColumn({ name: 'updated_by' })
   updatedBy: Relation<User>;
+
+  @OneToOne(
+    () => AssignmentConfiguration,
+    (assigmentConfiguration) => assigmentConfiguration.assigment,
+  )
+  assigmentConfiguration: Relation<AssignmentConfiguration>;
+
+  @ManyToOne(() => Treatment, (treatment) => treatment.assignments)
+  @JoinColumn({ name: 'treatment_id' })
+  treatment: Relation<Treatment>;
 }

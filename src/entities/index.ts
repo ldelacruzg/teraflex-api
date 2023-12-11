@@ -9,6 +9,7 @@ export * from '@entities/user-validation.entity';
 export * from '@entities/group.entity';
 export * from '@entities/notification.entity';
 export * from '@entities/notification-token.entity';
+export * from '@/entities/assignment-configuration.entity';
 export * from '@gamification/patients/domain/patient.entity';
 export * from '@gamification/treatments/domain/treatment.entity';
 export * from '@gamification/streaks/domain/streak.entity';

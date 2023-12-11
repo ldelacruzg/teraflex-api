@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedModule } from '@shared/shared.module';
 import { Environment } from '@shared/constants/environment';
 import { GamificationModule } from '@gamification/gamification.module';
+import { DatabaseModule } from './database/database.module';
 
 import {
   Assignment,
@@ -26,6 +27,7 @@ import {
   UseStoreItem,
   Leaderboard,
   PatientLeaderboard,
+  AssignmentConfiguration,
 } from '@/entities';
 
 import { SecurityModule } from '@security/security.module';
@@ -38,6 +40,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
+    DatabaseModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: Environment.DATABASE_HOST,
@@ -65,6 +68,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
         UseStoreItem,
         Leaderboard,
         PatientLeaderboard,
+        AssignmentConfiguration,
       ],
       synchronize: Environment.DATABASE_SYNC,
       ssl: Environment.DATABASE_SSL,
