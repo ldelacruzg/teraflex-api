@@ -9,9 +9,14 @@ import { GroupRepository } from './services/groups/group.repository';
 import { GroupController } from './controllers/groups/group.controller';
 import { GroupService } from './services/groups/group.service';
 import { SharedModule } from '@shared/shared.module';
+import { GamificationModule } from '@/gamification/gamification.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserValidation]), SharedModule],
+  imports: [
+    TypeOrmModule.forFeature([User, UserValidation]),
+    SharedModule,
+    GamificationModule,
+  ],
   controllers: [UserController, GroupController],
   providers: [UserService, UserRepository, GroupRepository, GroupService],
   exports: [UserService],

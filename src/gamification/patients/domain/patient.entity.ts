@@ -23,6 +23,7 @@ import { Rank } from '@/gamification/leaderboards/domain/rank.enum';
 
 @Entity({ name: 'patients' })
 export class Patient {
+  // Fields
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -40,6 +41,7 @@ export class Patient {
   })
   rank: Rank;
 
+  // Fields for audit
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
@@ -50,6 +52,10 @@ export class Patient {
   })
   updatedAt: Date;
 
+  @Column({ name: 'user_id' })
+  userId: number;
+
+  // Relations
   @OneToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: Relation<User>;

@@ -1,8 +1,8 @@
 export enum Rank {
-  'Fortaleza',
-  'Superación',
-  'Renovación',
-  'Recuperación',
-  'Crecimiento',
-  'Dominio',
+  Fortaleza = 'Fortaleza',
+  Superación = 'Superación',
+  Renovación = 'Renovación',
+  Recuperación = 'Recuperación',
+  Crecimiento = 'Crecimiento',
+  Dominio = 'Dominio',
 }

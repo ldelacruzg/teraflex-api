@@ -3,18 +3,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UserRepository } from './user.repository';
 import { EntityManager } from 'typeorm';
+import { hashSync } from 'bcrypt';
+import { InjectEntityManager } from '@nestjs/typeorm';
+
+import { UserRepository } from './user.repository';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
-import { User } from '@entities/user.entity';
 import {
   CreatePatientDto,
   CreateUserDto,
 } from '../../controllers/users/dto/create-user.dto';
-import { hashSync } from 'bcrypt';
 import { InfoUserInterface } from '@security/jwt-strategy/info-user.interface';
 import { GroupRepository } from '../groups/group.repository';
-import { InjectEntityManager } from '@nestjs/typeorm';
 import { UpdateUserDto } from '../../controllers/users/dto/update-user.dto';
 import {
   deleteFailed,
@@ -23,14 +23,16 @@ import {
   notFound,
   updateSucessful,
 } from '@shared/constants/messages';
-import { Group } from '@entities/group.entity';
+import { Group, User } from '@/entities';
 import { Environment } from '@/shared/constants/environment';
+import { PatientRepository } from '@/gamification/patients/domain/patient.repository';
 
 @Injectable()
 export class UserService {
   constructor(
     private repo: UserRepository,
     private groupRepository: GroupRepository,
+    private patientRepository: PatientRepository,
     @InjectEntityManager() private cnx: EntityManager,
   ) {
     cnx
@@ -56,11 +58,16 @@ export class UserService {
     currentUser: InfoUserInterface,
   ) {
     return await this.cnx.transaction(async (manager) => {
-      const userExist = await this.repo.findByDocNumber(
-        manager,
-        user.docNumber,
-        currentUser.role,
-      );
+      const userExist = await manager.getRepository(User).findOneBy({
+        docNumber: user.docNumber,
+      });
+
+      if (userExist && userExist.id) {
+        console.log('existe el usuario');
+        throw new BadRequestException(
+          `El usuario con Nro de Identificación: ${userExist.docNumber} ya existe`,
+        );
+      }
 
       let userCreated: User;
       if (!userExist) {
@@ -75,6 +82,18 @@ export class UserService {
         userCreated = await this.repo.create(manager, data);
 
         if (!userCreated) throw new Error(insertFailed('usuario'));
+
+        // Create patient
+        if (role === RoleEnum.PATIENT) {
+          const newPatient = await this.patientRepository.create(
+            { userId: userCreated.id },
+            manager,
+          );
+
+          if (!newPatient) {
+            throw new Error(insertFailed('paciente'));
+          }
+        }
       } else if (!userExist.status)
         await this.updateStatus(userExist.id, currentUser);
 
