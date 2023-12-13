@@ -63,7 +63,6 @@ export class UserService {
       });
 
       if (userExist && userExist.id) {
-        console.log('existe el usuario');
         throw new BadRequestException(
           `El usuario con Nro de Identificación: ${userExist.docNumber} ya existe`,
         );

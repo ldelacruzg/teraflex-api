@@ -9,11 +9,23 @@ import { CreatePatientDto } from '../domain/dtos/create-patient.dto';
 export class PatientService implements IPatientService {
   constructor(private readonly repository: PatientRepository) {}
 
+  create(payload: CreatePatientDto): Promise<Patient> {
+    return this.repository.create(payload);
+  }
+
   findAll(): Promise<Patient[]> {
     return this.repository.findAll();
   }
 
-  create(payload: CreatePatientDto): Promise<Patient> {
-    return this.repository.create(payload);
+  findOne(id: number): Promise<Patient> {
+    throw new Error('Method not implemented.');
+  }
+
+  update(id: number, payload: CreatePatientDto): Promise<Patient> {
+    throw new Error('Method not implemented.');
+  }
+
+  remove(id: number): Promise<Patient> {
+    throw new Error('Method not implemented.');
   }
 }

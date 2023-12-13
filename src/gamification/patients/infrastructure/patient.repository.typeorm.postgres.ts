@@ -13,15 +13,31 @@ export class PatientRepositoryTypeOrmPostgres implements PatientRepository {
     private patient: Repository<Patient>,
   ) {}
 
-  findAll(): Promise<Patient[]> {
-    return this.patient.createQueryBuilder().getMany();
-  }
-
   create(payload: CreatePatientDto, tx?: EntityManager): Promise<Patient> {
     if (tx === undefined) {
       return this.patient.save(payload);
     }
 
     return tx.save(Patient, payload);
+  }
+
+  findAll(tx?: EntityManager): Promise<Patient[]> {
+    return this.patient.createQueryBuilder().getMany();
+  }
+
+  findOne(id: number, tx?: EntityManager): Promise<Patient> {
+    throw new Error('Method not implemented.');
+  }
+
+  update(
+    id: number,
+    payload: CreatePatientDto,
+    tx?: EntityManager,
+  ): Promise<Patient> {
+    throw new Error('Method not implemented.');
+  }
+
+  remove(id: number, tx?: EntityManager): Promise<Patient> {
+    throw new Error('Method not implemented.');
   }
 }
