@@ -40,4 +40,9 @@ export class PatientRepositoryTypeOrmPostgres implements PatientRepository {
   remove(id: number, tx?: EntityManager): Promise<Patient> {
     throw new Error('Method not implemented.');
   }
+
+  existsById(id: number, tx?: EntityManager): Promise<boolean> {
+    if (tx) return tx.exists(Patient, { where: { id } });
+    return this.patient.exist({ where: { id } });
+  }
 }
