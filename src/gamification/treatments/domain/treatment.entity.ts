@@ -14,6 +14,7 @@ import { Assignment, Patient, User } from '@/entities';
 
 @Entity({ name: 'treatments' })
 export class Treatment {
+  // Fields
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,6 +24,13 @@ export class Treatment {
   @Column({ name: 'end_date', nullable: false })
   endDate: Date;
 
+  @Column({ name: 'patient_id' })
+  patientId: number;
+
+  @Column({ name: 'therapist_id' })
+  therapistId: number;
+
+  // Fields for audit
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
@@ -33,6 +41,7 @@ export class Treatment {
   })
   updatedAt: Date;
 
+  // Relations
   @ManyToOne(() => Patient, (patient) => patient.treatments)
   @JoinColumn({ name: 'patient_id' })
   patient: Patient;

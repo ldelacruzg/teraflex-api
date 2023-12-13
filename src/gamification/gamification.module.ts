@@ -1,21 +1,34 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { User, Patient } from '@/entities';
+import { User, Patient, Treatment } from '@/entities';
 import { SharedModule } from '@/shared/shared.module';
-import { PatientController } from './patients/application/patient.controller';
-import { PatientService } from './patients/infrastructure/patient.service.impl';
-import { PatientRepository } from './patients/domain/patient.repository';
-import { PatientRepositoryTypeOrmPostgres } from './patients/infrastructure/patient.repository.typeorm.postgres';
+import {
+  PatientController,
+  PatientService,
+  PatientRepository,
+  PatientRepositoryTypeOrmPostgres,
+} from './patients';
+import {
+  TreatmentController,
+  TreatmentRepository,
+  TreatmentRepositoryTypeOrmPostgres,
+  TreatmentService,
+} from './treatments';
 
 @Module({
-  imports: [SharedModule, TypeOrmModule.forFeature([Patient, User])],
-  controllers: [PatientController],
+  imports: [SharedModule, TypeOrmModule.forFeature([User, Patient, Treatment])],
+  controllers: [PatientController, TreatmentController],
   providers: [
     PatientService,
     {
       provide: PatientRepository,
       useClass: PatientRepositoryTypeOrmPostgres,
+    },
+    TreatmentService,
+    {
+      provide: TreatmentRepository,
+      useClass: TreatmentRepositoryTypeOrmPostgres,
     },
   ],
   exports: [PatientRepository],
