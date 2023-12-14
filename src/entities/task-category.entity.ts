@@ -8,9 +8,8 @@ import {
   Relation,
   UpdateDateColumn,
 } from 'typeorm';
-import { Category } from './category.entity';
-import { Task } from '../activities/tasks/domain/task.entity';
-import { User } from './user.entity';
+
+import { Category, Task, User } from '@/entities';
 
 @Entity('task_category')
 export class TaskCategory {

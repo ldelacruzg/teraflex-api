@@ -9,11 +9,11 @@ import {
   Relation,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../../entities/user.entity';
-import { TaskCategory } from '../../../entities/task-category.entity';
-import { TaskMultimedia } from '../../../entities/task-multimedia.entity';
 
-@Entity('task')
+import { User, TaskCategory, TaskMultimedia } from '@/entities';
+import { TreatmentTasks } from '@/activities/treatment-tasks/domain/treatment-tasks.entity';
+
+@Entity('tasks')
 export class Task {
   // Fields
   @PrimaryGeneratedColumn()
@@ -62,4 +62,7 @@ export class Task {
 
   @OneToMany(() => TaskMultimedia, (taskMultimedia) => taskMultimedia.task)
   tasksMultimedia: Relation<TaskMultimedia[]>;
+
+  @OneToMany(() => TreatmentTasks, (treatmentTasks) => treatmentTasks.task)
+  treatmentTasks: Relation<TreatmentTasks[]>;
 }

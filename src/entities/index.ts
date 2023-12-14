@@ -20,3 +20,4 @@ export * from '@gamification/patient-leaderboards/domain/patient-leaderboard.ent
 // Module activities
 export * from '@activities/tasks/domain/task.entity';
 export * from '@activities/treatments/domain/treatment.entity';
+export * from '@activities/treatment-tasks/domain/treatment-tasks.entity';
