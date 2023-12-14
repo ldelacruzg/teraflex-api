@@ -38,6 +38,9 @@ export class Assignment {
   @Column({ name: 'description', type: 'text', nullable: true })
   description: string;
 
+  @Column({ name: 'treatment_id' })
+  treatmentId: number;
+
   // Fields for audit
   @Column({ name: 'created_by', type: 'bigint' })
   createdById: number;
