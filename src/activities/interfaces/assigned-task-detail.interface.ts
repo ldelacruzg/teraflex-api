@@ -5,7 +5,6 @@ export interface IAssignedTaskDetail {
   taskId: number;
   title: string;
   description: string;
-  estimatedTime: number;
   isCompleted: boolean;
   createdAt: Date;
   dueDate: Date;

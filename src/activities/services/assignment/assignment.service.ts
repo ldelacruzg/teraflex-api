@@ -65,7 +65,6 @@ export class AssignmentService {
           id: assignTask.task.id,
           title: assignTask.task.title,
           description: assignTask.description,
-          estimatedTime: assignTask.estimatedTime,
         },
       }));
     }
@@ -93,7 +92,6 @@ export class AssignmentService {
         'assignment.createdAt',
         'assignment.dueDate',
         'assignment.isCompleted',
-        'assignment.estimatedTime',
         'assignment.description',
       ])
       .where('assignment.userId = :userId', { userId });
@@ -123,7 +121,6 @@ export class AssignmentService {
       task: {
         id: assignTask.task.id,
         title: assignTask.task.title,
-        estimatedTime: assignTask.estimatedTime,
         description: assignTask.description,
       },
     }));
@@ -185,7 +182,6 @@ export class AssignmentService {
       taskId: task.id,
       title: task.title,
       description: assignment.description,
-      estimatedTime: assignment.estimatedTime,
       isCompleted: assignment.isCompleted,
       createdAt: assignment.createdAt,
       dueDate: assignment.dueDate,
@@ -320,10 +316,9 @@ export class AssignmentService {
 
     // create the data to insert
     const dataAssignments: ICreateAssignment[] = tasks.map(
-      ({ id: taskId, estimatedTime, description }) => ({
+      ({ id: taskId, description }) => ({
         userId,
         taskId,
-        estimatedTime,
         description,
         dueDate,
         createdById,

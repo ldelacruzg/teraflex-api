@@ -29,9 +29,6 @@ export class Assignment {
   @Column({ type: 'boolean', default: true })
   status: boolean;
 
-  @Column({ name: 'estimated_time', type: 'smallint', default: 6000 })
-  estimatedTime: number;
-
   @Column({ name: 'is_completed', type: 'boolean', default: false })
   isCompleted: boolean;
 

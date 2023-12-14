@@ -28,9 +28,6 @@ export class Task {
   @Column({ type: 'boolean', default: true })
   status: boolean;
 
-  @Column({ name: 'estimated_time', type: 'smallint' })
-  estimatedTime: number;
-
   @Column({ name: 'is_public', type: 'boolean', default: false })
   isPublic: boolean;
 

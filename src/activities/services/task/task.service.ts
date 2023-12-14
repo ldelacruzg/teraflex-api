@@ -37,7 +37,6 @@ export class TaskService {
         'task.id',
         'task.title',
         'task.description',
-        'task.estimatedTime',
         'task.status',
         'task.isPublic',
         'task.createdAt',
@@ -98,7 +97,6 @@ export class TaskService {
         id: true,
         title: true,
         description: true,
-        estimatedTime: true,
         isPublic: true,
         createdBy: {
           id: true,
