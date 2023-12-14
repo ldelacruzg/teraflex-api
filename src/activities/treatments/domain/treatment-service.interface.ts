@@ -3,4 +3,6 @@ import { Treatment } from './treatment.entity';
 import { CreateTreatmentDto } from './dtos/create-treament.dto';
 
 export interface ITreatmentService
-  extends Resource<Treatment, CreateTreatmentDto> {}
+  extends Resource<Treatment, CreateTreatmentDto> {
+  // metodo para asignar tareas a un tratamiento
+}

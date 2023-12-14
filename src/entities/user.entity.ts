@@ -12,7 +12,6 @@ import {
 } from 'typeorm';
 
 import {
-  Assignment,
   UserValidation,
   Task,
   Category,
@@ -92,15 +91,6 @@ export class User {
 
   @OneToMany(() => UserValidation, (userValidation) => userValidation.user)
   userValidations: Relation<UserValidation[]>;
-
-  @OneToMany(() => Assignment, (assignment) => assignment.user)
-  assignments: Relation<Assignment[]>;
-
-  @OneToMany(() => Assignment, (assignment) => assignment.createdBy)
-  assignmentsCreated: Relation<Assignment[]>;
-
-  @OneToMany(() => Assignment, (assignment) => assignment.updatedBy)
-  assignmentsUpdated: Relation<Assignment[]>;
 
   @OneToMany(() => Task, (task) => task.createdBy)
   tasksCreated: Relation<Task[]>;

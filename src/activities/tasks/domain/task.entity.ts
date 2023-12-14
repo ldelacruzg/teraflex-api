@@ -9,13 +9,13 @@ import {
   Relation,
   UpdateDateColumn,
 } from 'typeorm';
-import { Assignment } from './assignment.entity';
-import { User } from './user.entity';
-import { TaskCategory } from './task-category.entity';
-import { TaskMultimedia } from './task-multimedia.entity';
+import { User } from '../../../entities/user.entity';
+import { TaskCategory } from '../../../entities/task-category.entity';
+import { TaskMultimedia } from '../../../entities/task-multimedia.entity';
 
 @Entity('task')
 export class Task {
+  // Fields
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -31,6 +31,7 @@ export class Task {
   @Column({ name: 'is_public', type: 'boolean', default: false })
   isPublic: boolean;
 
+  // Fields for audit
   @Column({ name: 'created_by', type: 'bigint' })
   createdById: number;
 
@@ -47,9 +48,7 @@ export class Task {
   })
   updatedAt: Date;
 
-  @OneToMany(() => Assignment, (assignment) => assignment.task)
-  assignments: Relation<Assignment[]>;
-
+  // Relations
   @ManyToOne(() => User, (user) => user.tasksCreated)
   @JoinColumn({ name: 'created_by' })
   createdBy: Relation<User>;

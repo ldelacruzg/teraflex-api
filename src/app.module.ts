@@ -7,7 +7,6 @@ import { Environment } from '@shared/constants/environment';
 import { GamificationModule } from '@gamification/gamification.module';
 
 import {
-  Assignment,
   Category,
   Link,
   Task,
@@ -26,7 +25,6 @@ import {
   UseStoreItem,
   Leaderboard,
   PatientLeaderboard,
-  AssignmentConfiguration,
 } from '@/entities';
 
 import { SecurityModule } from '@security/security.module';
@@ -34,8 +32,7 @@ import { UserModule } from '@/users/user.module';
 import { ActivityModule } from '@/activities/activity.module';
 import { MultimediaModule } from '@multimedia/multimedia.module';
 import { NotificationModule } from '@/notifications/notification.module';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -47,7 +44,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
       password: Environment.DATABASE_PASSWORD,
       database: Environment.DATABASE_NAME,
       entities: [
-        Assignment,
         Category,
         Link,
         Task,
@@ -66,7 +62,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
         UseStoreItem,
         Leaderboard,
         PatientLeaderboard,
-        AssignmentConfiguration,
       ],
       synchronize: Environment.DATABASE_SYNC,
       ssl: Environment.DATABASE_SSL,

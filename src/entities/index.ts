@@ -1,7 +1,5 @@
-export * from '@entities/assignment.entity';
 export * from '@entities/category.entity';
 export * from '@entities/link.entity';
-export * from '@entities/task.entity';
 export * from '@entities/task-category.entity';
 export * from '@entities/task-multimedia.entity';
 export * from '@entities/user.entity';
@@ -9,12 +7,16 @@ export * from '@entities/user-validation.entity';
 export * from '@entities/group.entity';
 export * from '@entities/notification.entity';
 export * from '@entities/notification-token.entity';
-export * from '@/entities/assignment-configuration.entity';
+
+// Module gamification
 export * from '@gamification/patients/domain/patient.entity';
-export * from '@gamification/treatments/domain/treatment.entity';
 export * from '@gamification/streaks/domain/streak.entity';
 export * from '@gamification/store-items/domain/store-item.entity';
 export * from '@gamification/purchased-items/domain/purchased-item.entity';
-export * from '@/gamification/use-store-items/domain/use-store-item.entity';
-export * from '@/gamification/leaderboards/domain/leaderboard.entity';
-export * from '@/gamification/patient-leaderboards/domain/patient-leaderboard.entity';
+export * from '@gamification/use-store-items/domain/use-store-item.entity';
+export * from '@gamification/leaderboards/domain/leaderboard.entity';
+export * from '@gamification/patient-leaderboards/domain/patient-leaderboard.entity';
+
+// Module activities
+export * from '@activities/tasks/domain/task.entity';
+export * from '@activities/treatments/domain/treatment.entity';

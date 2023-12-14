@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Category } from './category.entity';
-import { Task } from './task.entity';
+import { Task } from '../activities/tasks/domain/task.entity';
 import { User } from './user.entity';
 
 @Entity('task_category')
