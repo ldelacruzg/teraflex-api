@@ -16,5 +16,6 @@ import { MultimediaRepository } from './services/multimedia.repository';
       useClass: CustomFileInterceptor,
     }),
   ],
+  exports: [MultimediaRepository],
 })
 export class MultimediaModule {}

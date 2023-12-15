@@ -1,10 +1,16 @@
-import { Brackets, EntityManager } from 'typeorm';
+import { Brackets, EntityManager, Repository } from 'typeorm';
 import { Link } from '@entities/link.entity';
 import { Injectable } from '@nestjs/common';
 import { GetByUserAndPublic } from '@/multimedia/services/interfaces/multimedia.interface';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class MultimediaRepository {
+  constructor(
+    @InjectRepository(Link)
+    private readonly link: Repository<Link>,
+  ) {}
+
   async create(cnx: EntityManager, payload: Link) {
     const obj = cnx.create(Link, payload);
     return await cnx.save(obj);
@@ -43,5 +49,16 @@ export class MultimediaRepository {
 
   async update(cnx: EntityManager, id: number, payload: Link) {
     return await cnx.update(Link, { id }, payload);
+  }
+
+  async exists(ids: number[]) {
+    if (ids.length === 0) return true;
+
+    const count = await this.link
+      .createQueryBuilder()
+      .where('id IN (:...ids)', { ids })
+      .getCount();
+
+    return count === ids.length;
   }
 }

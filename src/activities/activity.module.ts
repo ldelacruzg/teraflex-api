@@ -1,15 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Category } from '@entities/category.entity';
-import { TaskCategory } from '@entities/task-category.entity';
-import { Task } from '@/activities/tasks/domain/task.entity';
-import { User } from '@entities/user.entity';
 import { CategoryService } from './services/category/category.service';
 import { CategoryController } from './controllers/category/category.controller';
-import { Link } from '@entities/link.entity';
-import { TaskMultimedia } from '@entities/task-multimedia.entity';
-import { NotificationModule } from '@notifications/notification.module';
 import { UserModule } from '@users/user.module';
+import { NotificationModule } from '@notifications/notification.module';
+import { GamificationModule } from '@/gamification/gamification.module';
+import { Category, TaskCategory } from '@/entities';
+
 import {
   Treatment,
   TreatmentController,
@@ -17,31 +14,43 @@ import {
   TreatmentRepositoryTypeOrmPostgres,
   TreatmentService,
 } from './treatments';
-import { GamificationModule } from '@/gamification/gamification.module';
+
+import {
+  Task,
+  TaskController,
+  TaskRepositoryTypeOrmPostgres,
+  TaskRespository,
+  TaskService,
+} from './tasks';
+import { CategoryRepository } from './repositories/category/category.respository';
+import { CategoryRepositoryTypeOrmPostgres } from './repositories/category/category-typeorm-postgres.repository';
+import { MultimediaModule } from '@/multimedia/multimedia.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Task,
-      Category,
-      TaskCategory,
-      User,
-      Link,
-      TaskMultimedia,
-      Treatment,
-    ]),
+    TypeOrmModule.forFeature([Category, TaskCategory, Treatment, Task]),
     NotificationModule,
     UserModule,
+    MultimediaModule,
     GamificationModule,
   ],
   providers: [
     CategoryService,
     TreatmentService,
+    TaskService,
+    {
+      provide: CategoryRepository,
+      useClass: CategoryRepositoryTypeOrmPostgres,
+    },
     {
       provide: TreatmentRepository,
       useClass: TreatmentRepositoryTypeOrmPostgres,
     },
+    {
+      provide: TaskRespository,
+      useClass: TaskRepositoryTypeOrmPostgres,
+    },
   ],
-  controllers: [CategoryController, TreatmentController],
+  controllers: [CategoryController, TreatmentController, TaskController],
 })
 export class ActivityModule {}
