@@ -13,6 +13,15 @@ export class TaskRepositoryTypeOrmPostgres implements TaskRespository {
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
 
+  async exists(ids: number[]): Promise<boolean> {
+    const count = await this.task
+      .createQueryBuilder()
+      .where('id IN (:...ids)', { ids })
+      .getCount();
+
+    return count === ids.length;
+  }
+
   async create(payload: CreateTaskDto): Promise<Task> {
     return await this.entityManager.transaction(async (tx) => {
       // Crear nueva tarea

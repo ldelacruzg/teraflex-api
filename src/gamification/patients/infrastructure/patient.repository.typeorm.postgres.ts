@@ -41,8 +41,12 @@ export class PatientRepositoryTypeOrmPostgres implements PatientRepository {
     throw new Error('Method not implemented.');
   }
 
-  existsById(id: number, tx?: EntityManager): Promise<boolean> {
-    if (tx) return tx.exists(Patient, { where: { id } });
-    return this.patient.exist({ where: { id } });
+  async exists(ids: number[]): Promise<boolean> {
+    const count = await this.patient
+      .createQueryBuilder()
+      .where('id IN (:...ids)', { ids })
+      .getCount();
+
+    return count === ids.length;
   }
 }

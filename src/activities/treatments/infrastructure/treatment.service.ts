@@ -15,7 +15,7 @@ export class TreatmentService implements ITreatmentService {
 
   async create(payload: CreateTreatmentDto): Promise<Treatment> {
     const { patientId } = payload;
-    const patientExists = await this.patientRepository.existsById(patientId);
+    const patientExists = await this.patientRepository.exists([patientId]);
 
     if (!patientExists) {
       throw new BadRequestException(

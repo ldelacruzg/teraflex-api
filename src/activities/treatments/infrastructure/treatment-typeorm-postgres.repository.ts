@@ -10,6 +10,15 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     private readonly treatment: Repository<Treatment>,
   ) {}
 
+  async exists(ids: number[]): Promise<boolean> {
+    const count = await this.treatment
+      .createQueryBuilder()
+      .where('id IN (:...ids)', { ids })
+      .getCount();
+
+    return count === ids.length;
+  }
+
   create(payload: CreateTreatmentDto, tx?: EntityManager): Promise<Treatment> {
     if (tx) return tx.save(Treatment, payload);
     return this.treatment.save(payload);

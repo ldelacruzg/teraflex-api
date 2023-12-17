@@ -3,7 +3,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { ResponseDataInterface } from '@/shared/interfaces/response-data.interface';
 import { ResponseHttpInterceptor } from '@/shared/interceptors/response-http.interceptor';
-import { PatientService } from '../infrastructure/patient.service.impl';
+import { PatientService } from '../infrastructure/patient.service';
 
 @Controller()
 @UseInterceptors(ResponseHttpInterceptor)

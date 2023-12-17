@@ -9,9 +9,14 @@ import {
   Relation,
 } from 'typeorm';
 
-interface IFrecuency {
+export enum FrecuencyType {
+  day = 'day',
+  week = 'week',
+}
+
+export interface IFrecuency {
   value: number;
-  type: 'minute' | 'hour' | 'day' | 'week';
+  type: FrecuencyType;
 }
 
 @Entity({ name: 'treatment_tasks' })

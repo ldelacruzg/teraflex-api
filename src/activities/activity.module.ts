@@ -22,13 +22,28 @@ import {
   TaskRespository,
   TaskService,
 } from './tasks';
+
+import {
+  TreatmentTasks,
+  TreatmentTaskController,
+  TreatmentTaskService,
+  TreatmentTaskRepositoryTypeOrmPostgres,
+  TreatmentTaskRepository,
+} from './treatment-tasks';
+
 import { CategoryRepository } from './repositories/category/category.respository';
 import { CategoryRepositoryTypeOrmPostgres } from './repositories/category/category-typeorm-postgres.repository';
 import { MultimediaModule } from '@/multimedia/multimedia.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Category, TaskCategory, Treatment, Task]),
+    TypeOrmModule.forFeature([
+      Category,
+      TaskCategory,
+      Treatment,
+      Task,
+      TreatmentTasks,
+    ]),
     NotificationModule,
     UserModule,
     MultimediaModule,
@@ -38,6 +53,7 @@ import { MultimediaModule } from '@/multimedia/multimedia.module';
     CategoryService,
     TreatmentService,
     TaskService,
+    TreatmentTaskService,
     {
       provide: CategoryRepository,
       useClass: CategoryRepositoryTypeOrmPostgres,
@@ -50,7 +66,16 @@ import { MultimediaModule } from '@/multimedia/multimedia.module';
       provide: TaskRespository,
       useClass: TaskRepositoryTypeOrmPostgres,
     },
+    {
+      provide: TreatmentTaskRepository,
+      useClass: TreatmentTaskRepositoryTypeOrmPostgres,
+    },
   ],
-  controllers: [CategoryController, TreatmentController, TaskController],
+  controllers: [
+    CategoryController,
+    TreatmentController,
+    TaskController,
+    TreatmentTaskController,
+  ],
 })
 export class ActivityModule {}
