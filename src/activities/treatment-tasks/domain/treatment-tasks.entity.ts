@@ -31,10 +31,17 @@ export class TreatmentTasks {
   @Column({ name: 'task_id' })
   taskId: number;
 
-  @CreateDateColumn({ name: 'assignment_date' })
+  @CreateDateColumn({
+    name: 'assignment_date',
+    type: 'timestamp without time zone',
+  })
   assignmentDate: Date;
 
-  @Column({ name: 'performance_date', type: 'date', nullable: true })
+  @Column({
+    name: 'performance_date',
+    type: 'timestamp without time zone',
+    nullable: true,
+  })
   performanceDate: Date;
 
   @Column({ name: 'expiration_date', type: 'date' })
