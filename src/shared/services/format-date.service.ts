@@ -24,4 +24,18 @@ export class FormatDateService {
 
     return formattedData as { createdAt: string; updatedAt: string };
   }
+
+  public static getLastMonday() {
+    const today = moment().locale('es').tz('America/Guayaquil');
+    const day = today.day();
+    const diff = today.date() - day + (day === 0 ? -6 : 1);
+    return moment(today).date(diff).format('YYYY-MM-DD');
+  }
+
+  public static getNextSunday() {
+    const today = moment().locale('es').tz('America/Guayaquil');
+    const day = today.day();
+    const diff = today.date() - day + (day === 0 ? 0 : 7);
+    return moment(today).date(diff).format('YYYY-MM-DD');
+  }
 }
