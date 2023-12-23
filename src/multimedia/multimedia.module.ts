@@ -6,12 +6,13 @@ import { Link } from '@entities/link.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { CustomFileInterceptor } from './interceptors/custom-file.interceptor';
 import { MultimediaRepository } from './services/multimedia.repository';
+import { TaskMultimedia } from '@/entities';
 
 @Module({
   controllers: [MultimediaController],
   providers: [MultimediaService, MultimediaRepository],
   imports: [
-    TypeOrmModule.forFeature([Link]),
+    TypeOrmModule.forFeature([Link, TaskMultimedia]),
     MulterModule.registerAsync({
       useClass: CustomFileInterceptor,
     }),

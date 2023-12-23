@@ -3,12 +3,15 @@ import { Link } from '@entities/link.entity';
 import { Injectable } from '@nestjs/common';
 import { GetByUserAndPublic } from '@/multimedia/services/interfaces/multimedia.interface';
 import { InjectRepository } from '@nestjs/typeorm';
+import { TaskMultimedia } from '@/entities';
 
 @Injectable()
 export class MultimediaRepository {
   constructor(
     @InjectRepository(Link)
     private readonly link: Repository<Link>,
+    @InjectRepository(TaskMultimedia)
+    private readonly taskMultimedia: Repository<TaskMultimedia>,
   ) {}
 
   async create(cnx: EntityManager, payload: Link) {
@@ -60,5 +63,20 @@ export class MultimediaRepository {
       .getCount();
 
     return count === ids.length;
+  }
+
+  async findTaskMultimedia(taskId: number): Promise<Link[]> {
+    const taskMultimedia = await this.taskMultimedia.find({
+      where: { taskId },
+    });
+    const linkIds = taskMultimedia.map(
+      (taskMultimedia) => taskMultimedia.linkId,
+    );
+    const links = await this.link
+      .createQueryBuilder()
+      .where('id IN (:...linkIds)', { linkIds })
+      .getMany();
+
+    return links;
   }
 }

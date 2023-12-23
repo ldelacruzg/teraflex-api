@@ -5,6 +5,7 @@ import { Task } from '../domain/task.entity';
 import { TaskRespository } from '../domain/task.repository';
 import { CategoryRepository } from '@/activities/repositories/category/category.respository';
 import { MultimediaRepository } from '@/multimedia/services/multimedia.repository';
+import { ITaskWithRelations } from '../domain/interfaces/task-with-relations.interface';
 
 @Injectable()
 export class TaskService implements ITaskService {
@@ -13,6 +14,25 @@ export class TaskService implements ITaskService {
     private readonly categoryRepository: CategoryRepository,
     private readonly multimediaRepository: MultimediaRepository,
   ) {}
+
+  async findOneWithRelations(id: number): Promise<ITaskWithRelations> {
+    // Obtener tarea
+    const task = await this.repository.findOne(id);
+    if (!task) {
+      throw new BadRequestException(`La tarea con id [${id}] no existe`);
+    }
+
+    const [categories, links] = await Promise.all([
+      this.categoryRepository.findTaskCategories(id),
+      this.multimediaRepository.findTaskMultimedia(id),
+    ]);
+
+    return {
+      task,
+      categories,
+      links,
+    };
+  }
 
   async create(payload: CreateTaskDto): Promise<Task> {
     const { categoryIds, fileIds } = payload;
@@ -40,7 +60,7 @@ export class TaskService implements ITaskService {
   }
 
   findOne(id: number): Promise<Task> {
-    throw new Error('Method not implemented.');
+    return this.repository.findOne(id);
   }
 
   update(id: number, payload: CreateTaskDto): Promise<Task> {

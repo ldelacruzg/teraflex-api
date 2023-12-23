@@ -56,13 +56,12 @@ export class TaskRepositoryTypeOrmPostgres implements TaskRespository {
     });
   }
 
-  findAll(tx?: EntityManager): Promise<Task[]> {
-    if (tx) return tx.find(Task);
+  findAll(): Promise<Task[]> {
     return this.task.find();
   }
 
-  findOne(id: number, tx?: any): Promise<Task> {
-    throw new Error('Method not implemented.');
+  findOne(id: number): Promise<Task> {
+    return this.task.findOne({ where: { id } });
   }
 
   update(id: number, payload: CreateTaskDto, tx?: any): Promise<Task> {

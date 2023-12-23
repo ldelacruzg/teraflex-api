@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   UseGuards,
   UseInterceptors,
@@ -54,6 +56,20 @@ export class TaskController {
     return {
       message: 'Tareas obtenidas correctamente',
       data: tasks,
+    };
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a task' })
+  @Role(RoleEnum.THERAPIST)
+  async getTaskWithRelations(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ResponseDataInterface> {
+    const task = await this.service.findOneWithRelations(id);
+
+    return {
+      message: 'Tarea obtenida correctamente',
+      data: task,
     };
   }
 }
