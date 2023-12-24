@@ -15,10 +15,14 @@ export class PatientRepositoryTypeOrmPostgres implements PatientRepository {
 
   create(payload: CreatePatientDto, tx?: EntityManager): Promise<Patient> {
     if (tx === undefined) {
-      return this.patient.save(payload);
+      return this.patient.save({
+        id: payload.userId,
+      });
     }
 
-    return tx.save(Patient, payload);
+    return tx.save(Patient, {
+      id: payload.userId,
+    });
   }
 
   findAll(tx?: EntityManager): Promise<Patient[]> {

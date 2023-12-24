@@ -5,7 +5,7 @@ import {
   JoinColumn,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Relation,
   UpdateDateColumn,
 } from 'typeorm';
@@ -24,7 +24,7 @@ import { Rank } from '@/gamification/leaderboards/domain/rank.enum';
 @Entity({ name: 'patients' })
 export class Patient {
   // Fields
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   @Column({ nullable: false, default: 0 })
@@ -52,12 +52,9 @@ export class Patient {
   })
   updatedAt: Date;
 
-  @Column({ name: 'user_id' })
-  userId: number;
-
   // Relations
   @OneToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'id' })
   user: Relation<User>;
 
   @OneToMany(() => Treatment, (treatment) => treatment.patient)
