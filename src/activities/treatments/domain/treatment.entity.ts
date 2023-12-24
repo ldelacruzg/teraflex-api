@@ -19,10 +19,19 @@ export class Treatment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'start_date', nullable: false })
+  @Column({ length: 70 })
+  title: string;
+
+  @Column({ type: 'text' })
+  description: string;
+
+  @Column({ name: 'is_active', default: true })
+  isActive: boolean;
+
+  @Column({ name: 'start_date', type: 'date' })
   startDate: Date;
 
-  @Column({ name: 'end_date', nullable: false })
+  @Column({ name: 'end_date', nullable: true, type: 'date' })
   endDate: Date;
 
   @Column({ name: 'patient_id' })
