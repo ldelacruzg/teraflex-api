@@ -8,6 +8,8 @@ import {
 } from '../domain/dtos/create-treatment-task.dto';
 import { TreatmentRepository } from '@/activities/treatments';
 import { TaskRespository } from '@/activities/tasks';
+import { PatientRepository } from '@/gamification/patients';
+import { IFindAssignedTasksByPatient } from '../domain/interfaces';
 
 @Injectable()
 export class TreatmentTaskService implements ITreatmentTaskService {
@@ -15,21 +17,37 @@ export class TreatmentTaskService implements ITreatmentTaskService {
     private readonly repository: TreatmentTaskRepository,
     private readonly treatmentRepository: TreatmentRepository,
     private readonly taskRepository: TaskRespository,
+    private readonly patientRepository: PatientRepository,
   ) {}
+
+  async getAssignedTasksByPatient(options: IFindAssignedTasksByPatient) {
+    const { patientId } = options;
+
+    // verificar que existe el paciente
+    const patientExists = await this.patientRepository.exists([patientId]);
+
+    if (!patientExists) {
+      throw new BadRequestException(
+        `El paciente con id [${patientId}] no existe`,
+      );
+    }
+
+    return this.repository.findAssignedTasksByPatient(options);
+  }
 
   async assignTasksToTreatment(
     payload: AssignTasksToTreatmentDto,
   ): Promise<TreatmentTasks[]> {
     const { treatmentId, tasks } = payload;
 
-    // verificar que el tratamiento exista
-    const treatmentExists = await this.treatmentRepository.exists([
+    // verificar que el tratamiento exista y esta activo
+    const treatmentExists = await this.treatmentRepository.existsAndIsActive(
       treatmentId,
-    ]);
+    );
 
     if (!treatmentExists) {
       throw new BadRequestException(
-        `El tratamiento con id "${treatmentId}" no existe`,
+        `El tratamiento con id "${treatmentId}" no existe o no esta activo`,
       );
     }
 

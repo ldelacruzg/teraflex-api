@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,6 +19,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 import { JwtAuthGuard } from '@/security/jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '@/security/jwt-strategy/roles.guard';
 import { ResponseDataInterface } from '@/shared/interfaces/response-data.interface';
+import { ParseBoolAllowUndefinedPipe } from '@/shared/pipes/parse-bool-allow-undefined.pipe';
 
 @Controller()
 @UseInterceptors(ResponseHttpInterceptor, CacheInterceptor)
@@ -41,6 +44,33 @@ export class TreatmentTaskController {
     return {
       message: 'Tareas asignadas correctamente',
       data: assigments,
+    };
+  }
+
+  /**
+   * Get assigned tasks by patient
+   * @param patientId
+   * @param taskDone true: tareas realizadas, false: tareas pendientes, undefined: todas las tareas
+   * @param treatmentActive true: tratamientos activos, false: tratamientos inactivos, undefined: todos los tratamientos
+   */
+  @Get('patients/:patientId/assignments')
+  @ApiOperation({ summary: 'Get assigned tasks by patient' })
+  @Role(RoleEnum.PATIENT, RoleEnum.THERAPIST)
+  async getAssignedTasksByPatientId(
+    @Param('patientId', ParseIntPipe) patientId: number,
+    @Query('task-done', ParseBoolAllowUndefinedPipe) taskDone: boolean,
+    @Query('treatment-active', ParseBoolAllowUndefinedPipe)
+    treatmentActive: boolean,
+  ): Promise<ResponseDataInterface> {
+    const tasks = await this.service.getAssignedTasksByPatient({
+      patientId,
+      taskDone,
+      treatmentActive,
+    });
+
+    return {
+      message: 'Tareas asignadas obtenidas correctamente',
+      data: tasks,
     };
   }
 }
