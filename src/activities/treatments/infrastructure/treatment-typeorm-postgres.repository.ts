@@ -10,6 +10,16 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     private readonly treatment: Repository<Treatment>,
   ) {}
 
+  existsAndIsActive(id: number): Promise<boolean> {
+    const result = this.treatment
+      .createQueryBuilder('t')
+      .where('t.id = :id', { id })
+      .andWhere('t.isActive = :isActive', { isActive: true })
+      .getExists();
+
+    return result;
+  }
+
   async exists(ids: number[]): Promise<boolean> {
     const count = await this.treatment
       .createQueryBuilder()

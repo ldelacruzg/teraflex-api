@@ -7,4 +7,5 @@ export abstract class TreatmentRepository extends Resource<
   CreateTreatmentDto
 > {
   abstract exists(ids: number[]): Promise<boolean>;
+  abstract existsAndIsActive(id: number): Promise<boolean>;
 }
