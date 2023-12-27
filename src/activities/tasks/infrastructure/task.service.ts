@@ -5,7 +5,7 @@ import { Task } from '../domain/task.entity';
 import { TaskRespository } from '../domain/task.repository';
 import { CategoryRepository } from '@/activities/repositories/category/category.respository';
 import { MultimediaRepository } from '@/multimedia/services/multimedia.repository';
-import { ITaskWithRelations } from '../domain/interfaces/task-with-relations.interface';
+import { ITaskWithRelations } from '../domain/interfaces';
 
 @Injectable()
 export class TaskService implements ITaskService {

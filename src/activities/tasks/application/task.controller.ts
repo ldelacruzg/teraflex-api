@@ -20,7 +20,7 @@ import { CreateTaskDto } from '../domain/dtos/create-task.dto';
 import { CurrentUser } from '@/security/jwt-strategy/auth.decorator';
 import { InfoUserInterface } from '@/security/jwt-strategy/info-user.interface';
 
-@Controller('tasks')
+@Controller()
 @UseInterceptors(ResponseHttpInterceptor)
 @ApiTags('Tasks')
 @ApiBearerAuth()
@@ -28,7 +28,7 @@ import { InfoUserInterface } from '@/security/jwt-strategy/info-user.interface';
 export class TaskController {
   constructor(private readonly service: TaskService) {}
 
-  @Post()
+  @Post('tasks')
   @ApiOperation({ summary: 'Create a task' })
   @Role(RoleEnum.THERAPIST)
   async create(
@@ -47,7 +47,7 @@ export class TaskController {
     };
   }
 
-  @Get()
+  @Get('tasks')
   @ApiOperation({ summary: 'Get all tasks' })
   @Role(RoleEnum.THERAPIST)
   async findAll(): Promise<ResponseDataInterface> {
@@ -59,7 +59,7 @@ export class TaskController {
     };
   }
 
-  @Get(':id')
+  @Get('tasks/:id')
   @ApiOperation({ summary: 'Get a task' })
   @Role(RoleEnum.THERAPIST)
   async getTaskWithRelations(
