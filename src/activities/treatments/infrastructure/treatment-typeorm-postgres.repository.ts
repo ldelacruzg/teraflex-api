@@ -3,6 +3,7 @@ import { Treatment } from '../domain/treatment.entity';
 import { TreatmentRepository } from '../domain/treatment.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTreatmentDto } from '../domain/dtos/create-treament.dto';
+import { IFindAllTreatmentsOptions } from '../domain/interfaces';
 
 export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
   constructor(
@@ -34,8 +35,19 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     return this.treatment.save(payload);
   }
 
-  findAll(tx?: any): Promise<Treatment[]> {
-    throw new Error('Method not implemented.');
+  findAll(options?: IFindAllTreatmentsOptions): Promise<Treatment[]> {
+    const { patientId, treatmentActive } = options;
+    const query = this.treatment.createQueryBuilder('t');
+
+    if (patientId) {
+      query.where('t.patientId = :patientId', { patientId });
+    }
+
+    if (treatmentActive !== undefined) {
+      query.andWhere('t.isActive = :isActive', { isActive: treatmentActive });
+    }
+
+    return query.getMany();
   }
 
   findOne(id: number, tx?: any): Promise<Treatment> {

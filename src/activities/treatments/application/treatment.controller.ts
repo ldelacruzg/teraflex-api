@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -16,6 +18,8 @@ import { CurrentUser } from '@/security/jwt-strategy/auth.decorator';
 import { InfoUserInterface } from '@/security/jwt-strategy/info-user.interface';
 import { CreateTreatmentDto } from '../domain/dtos/create-treament.dto';
 import { ResponseDataInterface } from '@/shared/interfaces/response-data.interface';
+import { ParseBoolAllowUndefinedPipe } from '@/shared/pipes/parse-bool-allow-undefined.pipe';
+import { ParseIntAllowsUndefinedPipe } from '@/shared/pipes/parse-int-allows-undefined.pipe';
 
 @Controller('treatments')
 @UseInterceptors(ResponseHttpInterceptor)
@@ -40,6 +44,25 @@ export class TreatmentController {
     return {
       message: 'Tratamiento creado correctamente',
       data: newTreatment,
+    };
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all treatments' })
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
+  async getAll(
+    @Query('patient-id', ParseIntAllowsUndefinedPipe) patientId: number,
+    @Query('treatment-active', ParseBoolAllowUndefinedPipe)
+    treatmentActive: boolean,
+  ): Promise<ResponseDataInterface> {
+    const treatments = await this.service.findAll({
+      patientId,
+      treatmentActive,
+    });
+
+    return {
+      message: 'Tratamientos obtenidos correctamente',
+      data: treatments,
     };
   }
 }
