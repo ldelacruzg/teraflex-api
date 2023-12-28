@@ -3,13 +3,46 @@ import { Treatment } from '../domain/treatment.entity';
 import { TreatmentRepository } from '../domain/treatment.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTreatmentDto } from '../domain/dtos/create-treament.dto';
-import { IFindAllTreatmentsOptions } from '../domain/interfaces';
+import {
+  IFindAllTreatmentTasksOptions,
+  IFindAllTreatmentsOptions,
+} from '../domain/interfaces';
+import { TreatmentTasks } from '@/entities';
 
 export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
   constructor(
     @InjectRepository(Treatment)
     private readonly treatment: Repository<Treatment>,
+    @InjectRepository(TreatmentTasks)
+    private readonly treatmentTasks: Repository<TreatmentTasks>,
   ) {}
+
+  findTasks(
+    treatmentId: number,
+    options?: Omit<IFindAllTreatmentTasksOptions, 'treatmentId'>,
+  ): Promise<TreatmentTasks[]> {
+    const { taskDone, treatmentActive } = options;
+
+    const query = this.treatmentTasks
+      .createQueryBuilder('a')
+      .innerJoinAndSelect('a.task', 'tsk')
+      .innerJoin('a.treatment', 't')
+      .where('t.id = :treatmentId', { treatmentId });
+
+    if (taskDone !== undefined) {
+      query.andWhere(
+        taskDone
+          ? 'a.performanceDate IS NOT NULL'
+          : 'a.performanceDate IS NULL',
+      );
+    }
+
+    if (treatmentActive !== undefined) {
+      query.andWhere('t.isActive = :isActive', { isActive: treatmentActive });
+    }
+
+    return query.getMany();
+  }
 
   existsAndIsActive(id: number): Promise<boolean> {
     const result = this.treatment

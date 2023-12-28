@@ -5,7 +5,13 @@ import { CreateTreatmentDto } from '../domain/dtos/create-treament.dto';
 import { Treatment } from '../domain/treatment.entity';
 import { ITreatmentService } from '../domain/treatment-service.interface';
 import { TreatmentRepository } from '../domain/treatment.repository';
-import { IFindAllTreatmentsOptions } from '../domain/interfaces';
+import {
+  IFindAllTreatmentTasksOptions,
+  IFindAllTreatmentsOptions,
+} from '../domain/interfaces';
+import { TreatmentTasks } from '@/entities';
+import { AssignedTaskDetailDto } from '@/activities/treatment-tasks/domain/dtos/assigned-task-detail.dto';
+import { TreatmentTasksMapper } from '@/activities/treatment-tasks/infrastructure/mapper';
 
 @Injectable()
 export class TreatmentService implements ITreatmentService {
@@ -13,6 +19,23 @@ export class TreatmentService implements ITreatmentService {
     private readonly repository: TreatmentRepository,
     private readonly patientRepository: PatientRepository,
   ) {}
+
+  async findAllTreatmentTasks(
+    options: IFindAllTreatmentTasksOptions,
+  ): Promise<AssignedTaskDetailDto[]> {
+    const { treatmentId } = options;
+    const treatmentExists = await this.repository.exists([treatmentId]);
+
+    if (!treatmentExists) {
+      throw new BadRequestException(
+        `El tratamiento con id "${treatmentId}" no existe`,
+      );
+    }
+
+    const tasks = await this.repository.findTasks(treatmentId, options);
+
+    return tasks.map((task) => TreatmentTasksMapper.toAssignedTaskDetail(task));
+  }
 
   async create(payload: CreateTreatmentDto): Promise<Treatment> {
     const { patientId } = payload;

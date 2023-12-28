@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -63,6 +65,27 @@ export class TreatmentController {
     return {
       message: 'Tratamientos obtenidos correctamente',
       data: treatments,
+    };
+  }
+
+  @Get(':treatmentId/tasks')
+  @ApiOperation({ summary: 'Get all tasks from a treatment' })
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
+  async getAllTreatmentTasks(
+    @Param('treatmentId', ParseIntPipe) treatmentId: number,
+    @Query('task-done', ParseBoolAllowUndefinedPipe) taskDone: boolean,
+    @Query('treatment-active', ParseBoolAllowUndefinedPipe)
+    treatmentActive: boolean,
+  ): Promise<ResponseDataInterface> {
+    const tasks = await this.service.findAllTreatmentTasks({
+      treatmentId,
+      taskDone,
+      treatmentActive,
+    });
+
+    return {
+      message: 'Las tareas del tratamiento se obtuvieron correctamente',
+      data: tasks,
     };
   }
 }
