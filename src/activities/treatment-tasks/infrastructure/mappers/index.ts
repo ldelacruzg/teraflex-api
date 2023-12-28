@@ -1,5 +1,8 @@
 import { TreatmentTasks } from '../../domain/treatment-tasks.entity';
-import { AssignedTaskDetailDto } from '../../domain/dtos/assigned-task-detail.dto';
+import {
+  AssignedTaskDetailDto,
+  AssignedTaskFullDetailDto,
+} from '../../domain/dtos/assigned-task-detail.dto';
 
 export class TreatmentTasksMapper {
   static toAssignedTaskDetail(
@@ -21,6 +24,20 @@ export class TreatmentTasksMapper {
         breakTime: assignedTask.breakTime,
         series: assignedTask.series,
       },
+    };
+  }
+
+  static toAssignedTaskFullDetail(
+    assigment: TreatmentTasks,
+  ): AssignedTaskFullDetailDto {
+    return {
+      ...this.toAssignedTaskDetail(assigment),
+      multimedia: assigment.task.tasksMultimedia.map((tm) => ({
+        id: tm.link.id,
+        url: tm.link.url,
+        title: tm.link.title,
+        description: tm.link.description,
+      })),
     };
   }
 }

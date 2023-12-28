@@ -5,9 +5,14 @@ import {
   CreateTreatmentTaskDto,
 } from './dtos/create-treatment-task.dto';
 import { IFindAssignedTasksByPatient } from './interfaces';
+import { AssignedTaskFullDetailDto } from './dtos/assigned-task-detail.dto';
 
 export interface ITreatmentTaskService
   extends Resource<Treatment, CreateTreatmentTaskDto> {
+  getAssignedTaskDetails(
+    assignmentId: number,
+  ): Promise<AssignedTaskFullDetailDto>;
+
   assignTasksToTreatment(
     payload: AssignTasksToTreatmentDto,
   ): Promise<TreatmentTasks[]>;

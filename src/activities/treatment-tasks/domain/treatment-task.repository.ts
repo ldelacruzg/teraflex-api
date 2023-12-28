@@ -7,6 +7,12 @@ export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  abstract findAssignedTaskDetails(
+    assignmentId: number,
+  ): Promise<TreatmentTasks>;
+
+  abstract exists(ids: number[]): Promise<boolean>;
+
   abstract findAssignedTasksByPatient(
     options: IFindAssignedTasksByPatient,
   ): Promise<TreatmentTasks[]>;

@@ -11,7 +11,7 @@ import {
 } from '../domain/interfaces';
 import { TreatmentTasks } from '@/entities';
 import { AssignedTaskDetailDto } from '@/activities/treatment-tasks/domain/dtos/assigned-task-detail.dto';
-import { TreatmentTasksMapper } from '@/activities/treatment-tasks/infrastructure/mapper';
+import { TreatmentTasksMapper } from '@/activities/treatment-tasks/infrastructure/mappers';
 
 @Injectable()
 export class TreatmentService implements ITreatmentService {

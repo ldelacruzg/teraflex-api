@@ -13,6 +13,27 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     private readonly repository: Repository<TreatmentTasks>,
   ) {}
 
+  async findAssignedTaskDetails(assignmentId: number): Promise<TreatmentTasks> {
+    const query = await this.repository
+      .createQueryBuilder('a')
+      .innerJoinAndSelect('a.task', 'tsk')
+      .innerJoinAndSelect('tsk.tasksMultimedia', 'tm')
+      .innerJoinAndSelect('tm.link', 'l')
+      .where('a.id = :assignmentId', { assignmentId })
+      .getOne();
+
+    return query;
+  }
+
+  async exists(ids: number[]): Promise<boolean> {
+    const count = await this.repository
+      .createQueryBuilder('a')
+      .where('a.id IN (:...ids)', { ids })
+      .getCount();
+
+    return count === ids.length;
+  }
+
   async findAssignedTasksByPatient(
     options: IFindAssignedTasksByPatient,
   ): Promise<TreatmentTasks[]> {

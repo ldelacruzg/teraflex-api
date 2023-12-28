@@ -10,6 +10,8 @@ import { TreatmentRepository } from '@/activities/treatments';
 import { TaskRespository } from '@/activities/tasks';
 import { PatientRepository } from '@/gamification/patients';
 import { IFindAssignedTasksByPatient } from '../domain/interfaces';
+import { AssignedTaskFullDetailDto } from '../domain/dtos/assigned-task-detail.dto';
+import { TreatmentTasksMapper } from './mappers';
 
 @Injectable()
 export class TreatmentTaskService implements ITreatmentTaskService {
@@ -19,6 +21,25 @@ export class TreatmentTaskService implements ITreatmentTaskService {
     private readonly taskRepository: TaskRespository,
     private readonly patientRepository: PatientRepository,
   ) {}
+
+  async getAssignedTaskDetails(
+    assignmentId: number,
+  ): Promise<AssignedTaskFullDetailDto> {
+    // validar que la asignación existe
+    const assignmentExists = this.repository.exists([assignmentId]);
+
+    if (!assignmentExists) {
+      throw new BadRequestException(
+        `La asignación con id [${assignmentId}] no existe`,
+      );
+    }
+
+    const assignedTask = await this.repository.findAssignedTaskDetails(
+      assignmentId,
+    );
+
+    return TreatmentTasksMapper.toAssignedTaskFullDetail(assignedTask);
+  }
 
   async getAssignedTasksByPatient(options: IFindAssignedTasksByPatient) {
     const { patientId } = options;

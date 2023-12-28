@@ -5,6 +5,10 @@ export class AssignedTaskDetailDto {
   setting: TaskSetting;
 }
 
+export class AssignedTaskFullDetailDto extends AssignedTaskDetailDto {
+  multimedia: Multimedia[];
+}
+
 class Task {
   id: number;
   title: string;
@@ -20,4 +24,11 @@ class TaskSetting {
   frecuency: IFrecuency;
   breakTime: number;
   series: number;
+}
+
+class Multimedia {
+  id: number; // link id
+  url: string;
+  title: string;
+  description: string;
 }

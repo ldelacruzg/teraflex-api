@@ -73,4 +73,18 @@ export class TreatmentTaskController {
       data: tasks,
     };
   }
+
+  @Get('assignments/:assignmentId')
+  @ApiOperation({ summary: 'Get a task assigned' })
+  @Role(RoleEnum.PATIENT, RoleEnum.THERAPIST)
+  async getAssignedTask(
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+  ): Promise<ResponseDataInterface> {
+    const task = await this.service.getAssignedTaskDetails(assignmentId);
+
+    return {
+      message: 'Tarea asignada obtenida correctamente',
+      data: task,
+    };
+  }
 }
