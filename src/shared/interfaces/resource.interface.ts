@@ -12,7 +12,6 @@ export abstract class Resource<R, T> {
    * @param tx Transaction to be used
    */
   abstract findAll(): Promise<R[]>;
-  abstract findAll(tx?: any): Promise<R[]>;
 
   /**
    * @description Finds one entity by id

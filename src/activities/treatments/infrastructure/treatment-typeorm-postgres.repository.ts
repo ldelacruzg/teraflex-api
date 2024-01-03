@@ -8,6 +8,11 @@ import {
   IFindAllTreatmentsOptions,
 } from '../domain/interfaces';
 import { TreatmentTasks } from '@/entities';
+import {
+  TreatmentRawOne,
+  TreatmentRawOneDto,
+  TreatmentTypeOrmPostgresMapper,
+} from './mappers/treatment-typeorm-postgres.mapper';
 
 export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
   constructor(
@@ -68,9 +73,45 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     return this.treatment.save(payload);
   }
 
-  findAll(options?: IFindAllTreatmentsOptions): Promise<Treatment[]> {
-    const { patientId, treatmentActive } = options;
+  async findAll(options?: IFindAllTreatmentsOptions): Promise<Treatment[]>;
+  async findAll(
+    options?: IFindAllTreatmentsOptions,
+  ): Promise<Treatment[] | TreatmentRawOneDto[]> {
+    const { patientId, treatmentActive, tasksNumber } = options;
     const query = this.treatment.createQueryBuilder('t');
+    const isSubQuery = tasksNumber !== undefined && tasksNumber;
+
+    if (isSubQuery) {
+      query.select(['t.id', 't.title']);
+      query.addSelect(
+        (subQuery) =>
+          subQuery
+            .select('count(*)', 'numberTasks')
+            .from(TreatmentTasks, 'tt')
+            .where('tt.treatmentId = t.id'),
+        'numberTasks',
+      );
+
+      query.addSelect(
+        (subQuery) =>
+          subQuery
+            .select('count(*)', 'completedTasks')
+            .from(TreatmentTasks, 'tt')
+            .where('tt.treatmentId = t.id')
+            .andWhere('tt.performanceDate IS NOT NULL'),
+        'completedTasks',
+      );
+
+      query.addSelect(
+        (subQuery) =>
+          subQuery
+            .select('count(*)', 'pendingTasks')
+            .from(TreatmentTasks, 'tt')
+            .where('tt.treatmentId = t.id')
+            .andWhere('tt.performanceDate IS NULL'),
+        'pendingTasks',
+      );
+    }
 
     if (patientId) {
       query.where('t.patientId = :patientId', { patientId });
@@ -80,7 +121,9 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
       query.andWhere('t.isActive = :isActive', { isActive: treatmentActive });
     }
 
-    return query.getMany();
+    return isSubQuery
+      ? TreatmentTypeOrmPostgresMapper.fromRawMany(await query.getRawMany())
+      : query.getMany();
   }
 
   findOne(id: number, tx?: any): Promise<Treatment> {

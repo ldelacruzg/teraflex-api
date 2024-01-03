@@ -56,10 +56,13 @@ export class TreatmentController {
     @Query('patient-id', ParseIntAllowsUndefinedPipe) patientId: number,
     @Query('treatment-active', ParseBoolAllowUndefinedPipe)
     treatmentActive: boolean,
+    @Query('tasks-number', ParseBoolAllowUndefinedPipe)
+    tasksNumber: boolean,
   ): Promise<ResponseDataInterface> {
     const treatments = await this.service.findAll({
       patientId,
       treatmentActive,
+      tasksNumber,
     });
 
     return {

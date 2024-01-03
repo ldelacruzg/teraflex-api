@@ -6,6 +6,7 @@ import {
   IFindAllTreatmentsOptions,
 } from './interfaces';
 import { TreatmentTasks } from '@/entities';
+import { TreatmentRawOneDto } from '../infrastructure/mappers/treatment-typeorm-postgres.mapper';
 
 export abstract class TreatmentRepository extends Resource<
   Treatment,
@@ -17,6 +18,10 @@ export abstract class TreatmentRepository extends Resource<
   ): Promise<TreatmentTasks[]>;
 
   abstract findAll(options?: IFindAllTreatmentsOptions): Promise<Treatment[]>;
+  abstract findAll(
+    options?: IFindAllTreatmentsOptions,
+  ): Promise<Treatment[] | TreatmentRawOneDto[]>;
+
   abstract exists(ids: number[]): Promise<boolean>;
   abstract existsAndIsActive(id: number): Promise<boolean>;
 }
