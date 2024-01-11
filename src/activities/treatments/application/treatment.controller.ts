@@ -91,4 +91,18 @@ export class TreatmentController {
       data: tasks,
     };
   }
+
+  @Get(':treatmentId')
+  @ApiOperation({ summary: 'Get a treatment by id' })
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
+  async getOne(
+    @Param('treatmentId', ParseIntPipe) treatmentId: number,
+  ): Promise<ResponseDataInterface> {
+    const treatment = await this.service.findOne(treatmentId);
+
+    return {
+      message: 'Tratamiento obtenido correctamente',
+      data: treatment,
+    };
+  }
 }

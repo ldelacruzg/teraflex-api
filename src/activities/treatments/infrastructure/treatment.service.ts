@@ -9,7 +9,6 @@ import {
   IFindAllTreatmentTasksOptions,
   IFindAllTreatmentsOptions,
 } from '../domain/interfaces';
-import { TreatmentTasks } from '@/entities';
 import { AssignedTaskDetailDto } from '@/activities/treatment-tasks/domain/dtos/assigned-task-detail.dto';
 import { TreatmentTasksMapper } from '@/activities/treatment-tasks/infrastructure/mappers';
 
@@ -68,7 +67,13 @@ export class TreatmentService implements ITreatmentService {
   }
 
   findOne(id: number): Promise<Treatment> {
-    throw new Error('Method not implemented.');
+    const treatmentExists = this.repository.exists([id]);
+
+    if (!treatmentExists) {
+      throw new BadRequestException(`El tratamiento con id "${id}" no existe`);
+    }
+
+    return this.repository.findOne(id);
   }
 
   update(id: number, payload: CreateTreatmentDto): Promise<Treatment> {

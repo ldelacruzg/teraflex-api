@@ -126,8 +126,10 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
       : query.getMany();
   }
 
-  findOne(id: number, tx?: any): Promise<Treatment> {
-    throw new Error('Method not implemented.');
+  findOne(id: number): Promise<Treatment> {
+    return this.treatment.findOne({
+      where: { id },
+    });
   }
 
   update(
