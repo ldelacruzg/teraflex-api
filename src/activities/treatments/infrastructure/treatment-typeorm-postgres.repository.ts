@@ -46,6 +46,9 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
       query.andWhere('t.isActive = :isActive', { isActive: treatmentActive });
     }
 
+    query.orderBy('a.assignmentDate', 'DESC');
+    query.addOrderBy('a.performanceDate', 'DESC', 'NULLS FIRST');
+
     return query.getMany();
   }
 
@@ -120,6 +123,8 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     if (treatmentActive !== undefined) {
       query.andWhere('t.isActive = :isActive', { isActive: treatmentActive });
     }
+
+    query.orderBy('t.startDate', 'DESC');
 
     return isSubQuery
       ? TreatmentTypeOrmPostgresMapper.fromRawMany(await query.getRawMany())
