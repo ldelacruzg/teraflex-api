@@ -76,14 +76,18 @@ export class TreatmentController {
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   async getAllTreatmentTasks(
     @Param('treatmentId', ParseIntPipe) treatmentId: number,
-    @Query('task-done', ParseBoolAllowUndefinedPipe) taskDone: boolean,
-    @Query('treatment-active', ParseBoolAllowUndefinedPipe)
-    treatmentActive: boolean,
+    @Query('completedTasks', ParseBoolAllowUndefinedPipe)
+    completedTasks: boolean,
+    @Query('pendingTasks', ParseBoolAllowUndefinedPipe)
+    pendingTasks: boolean,
+    @Query('expiredTasks', ParseBoolAllowUndefinedPipe)
+    expiredTasks: boolean,
   ): Promise<ResponseDataInterface> {
     const tasks = await this.service.findAllTreatmentTasks({
       treatmentId,
-      taskDone,
-      treatmentActive,
+      completedTasks,
+      pendingTasks,
+      expiredTasks,
     });
 
     return {

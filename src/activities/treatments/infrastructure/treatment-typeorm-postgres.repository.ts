@@ -1,4 +1,4 @@
-import { EntityManager, Repository } from 'typeorm';
+import { Brackets, EntityManager, Repository } from 'typeorm';
 import { Treatment } from '../domain/treatment.entity';
 import { TreatmentRepository } from '../domain/treatment.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,7 +9,6 @@ import {
 } from '../domain/interfaces';
 import { TreatmentTasks } from '@/entities';
 import {
-  TreatmentRawOne,
   TreatmentRawOneDto,
   TreatmentTypeOrmPostgresMapper,
 } from './mappers/treatment-typeorm-postgres.mapper';
@@ -26,28 +25,42 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     treatmentId: number,
     options?: Omit<IFindAllTreatmentTasksOptions, 'treatmentId'>,
   ): Promise<TreatmentTasks[]> {
-    const { taskDone, treatmentActive } = options;
+    const { completedTasks, pendingTasks, expiredTasks } = options;
+    const params = [completedTasks, pendingTasks, expiredTasks];
+    const paramsValid = params.every(
+      (value) => typeof value === 'boolean' && !value,
+    );
 
     const query = this.treatmentTasks
       .createQueryBuilder('a')
       .innerJoinAndSelect('a.task', 'tsk')
-      .innerJoin('a.treatment', 't')
-      .where('t.id = :treatmentId', { treatmentId });
+      .where('a.treatmentId = :treatmentId', { treatmentId })
+      .andWhere(
+        new Brackets((qb) => {
+          if (paramsValid) {
+            qb.where('1=2');
+            return;
+          }
 
-    if (taskDone !== undefined) {
-      query.andWhere(
-        taskDone
-          ? 'a.performanceDate IS NOT NULL'
-          : 'a.performanceDate IS NULL',
-      );
-    }
+          if (completedTasks !== undefined && completedTasks) {
+            qb.andWhere('a.performanceDate IS NOT NULL');
+          }
 
-    if (treatmentActive !== undefined) {
-      query.andWhere('t.isActive = :isActive', { isActive: treatmentActive });
-    }
+          if (pendingTasks !== undefined && pendingTasks) {
+            qb.orWhere(
+              'a.performanceDate IS NULL AND a.expirationDate >= CURRENT_DATE',
+            );
+          }
 
-    query.orderBy('a.assignmentDate', 'DESC');
-    query.addOrderBy('a.performanceDate', 'DESC', 'NULLS FIRST');
+          if (expiredTasks !== undefined && expiredTasks) {
+            qb.orWhere(
+              'a.performanceDate IS NULL AND a.expirationDate < CURRENT_DATE',
+            );
+          }
+        }),
+      )
+      .orderBy('a.assignmentDate', 'DESC')
+      .addOrderBy('a.performanceDate', 'DESC', 'NULLS FIRST');
 
     return query.getMany();
   }
