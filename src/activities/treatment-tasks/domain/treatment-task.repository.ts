@@ -2,11 +2,16 @@ import { Resource } from '@/shared/interfaces/resource.interface';
 import { TreatmentTasks } from './treatment-tasks.entity';
 import { CreateTreatmentTaskDto } from './dtos/create-treatment-task.dto';
 import { IFindAssignedTasksByPatient } from './interfaces';
+import { LinkRawOne } from './dtos/raw/multimedia.raw';
 
 export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  abstract findMultimediaByAssigment(
+    assigmentId: number,
+  ): Promise<LinkRawOne[]>;
+
   abstract findAssignedTaskDetails(
     assignmentId: number,
   ): Promise<TreatmentTasks>;

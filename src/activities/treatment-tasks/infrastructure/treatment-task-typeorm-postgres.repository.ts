@@ -4,6 +4,7 @@ import { TreatmentTaskRepository } from '../domain/treatment-task.repository';
 import { TreatmentTasks } from '../domain/treatment-tasks.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IFindAssignedTasksByPatient } from '../domain/interfaces';
+import { LinkRawOne } from '../domain/dtos/raw/multimedia.raw';
 
 export class TreatmentTaskRepositoryTypeOrmPostgres
   implements TreatmentTaskRepository
@@ -12,6 +13,28 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @InjectRepository(TreatmentTasks)
     private readonly repository: Repository<TreatmentTasks>,
   ) {}
+
+  async findMultimediaByAssigment(assigmentId: number): Promise<LinkRawOne[]> {
+    const query = await this.repository
+      .createQueryBuilder('a')
+      .innerJoinAndSelect('a.task', 'tsk')
+      .innerJoinAndSelect('tsk.tasksMultimedia', 'tm')
+      .innerJoinAndSelect('tm.link', 'l')
+      .innerJoinAndSelect('l.createdBy', 'u')
+      .select([
+        'l.id',
+        'l.title',
+        'l.description',
+        'l.url',
+        'l.status',
+        'l.type',
+        "concat(u.firstName, ' ', u.lastName) as therapist",
+      ])
+      .where('a.id = :assigmentId', { assigmentId })
+      .getRawMany();
+
+    return query as LinkRawOne[];
+  }
 
   async findAssignedTaskDetails(assignmentId: number): Promise<TreatmentTasks> {
     const query = await this.repository

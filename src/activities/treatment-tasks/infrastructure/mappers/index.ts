@@ -3,6 +3,7 @@ import {
   AssignedTaskDetailDto,
   AssignedTaskFullDetailDto,
 } from '../../domain/dtos/assigned-task-detail.dto';
+import { LinkRawOne } from '../../domain/dtos/raw/multimedia.raw';
 
 export class TreatmentTasksMapper {
   static toAssignedTaskDetail(
@@ -39,5 +40,17 @@ export class TreatmentTasksMapper {
         description: tm.link.description,
       })),
     };
+  }
+
+  static toMultimedia(raw: LinkRawOne[]): MultimediaDto[] {
+    return raw.map((r) => ({
+      id: r.l_id,
+      title: r.l_title,
+      description: r.l_description,
+      url: r.l_url,
+      status: r.l_status,
+      type: r.l_type,
+      therapist: r.therapist,
+    }));
   }
 }

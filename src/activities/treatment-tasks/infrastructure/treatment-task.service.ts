@@ -22,6 +22,22 @@ export class TreatmentTaskService implements ITreatmentTaskService {
     private readonly patientRepository: PatientRepository,
   ) {}
 
+  async getMultimediasByAssigment(
+    assignmentId: number,
+  ): Promise<MultimediaDto[]> {
+    const assignmentExists = await this.repository.exists([assignmentId]);
+
+    if (!assignmentExists) {
+      throw new BadRequestException(
+        `La asignación con id [${assignmentId}] no existe`,
+      );
+    }
+
+    const raw = await this.repository.findMultimediaByAssigment(assignmentId);
+
+    return TreatmentTasksMapper.toMultimedia(raw);
+  }
+
   async getAssignedTaskDetails(
     assignmentId: number,
   ): Promise<AssignedTaskFullDetailDto> {

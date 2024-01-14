@@ -87,4 +87,20 @@ export class TreatmentTaskController {
       data: task,
     };
   }
+
+  @Get('assignments/:assignmentId/multimedia')
+  @ApiOperation({ summary: 'Get multimedia from assignment' })
+  @Role(RoleEnum.PATIENT, RoleEnum.THERAPIST)
+  async getMultimedia(
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+  ): Promise<ResponseDataInterface> {
+    const multimedia = await this.service.getMultimediasByAssigment(
+      assignmentId,
+    );
+
+    return {
+      message: 'Multimedia obtenida correctamente',
+      data: multimedia,
+    };
+  }
 }
