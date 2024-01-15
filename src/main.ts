@@ -5,9 +5,11 @@ import { ValidationPipe } from '@nestjs/common';
 // import compression from 'compression';
 import helmet from 'helmet';
 import { Environment } from '@shared/constants/environment';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const config = new DocumentBuilder()
     .setTitle('Teraflex Server')
@@ -44,6 +46,11 @@ async function bootstrap() {
   // );
 
   app.use(helmet());
+
+  // configurar carpeta de archivos estáticos
+  app.useStaticAssets(join(__dirname, '..', Environment.PUBLIC_DIR), {
+    prefix: '/uploads/',
+  });
 
   await app.listen(Environment.PORT);
 }

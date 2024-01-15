@@ -24,4 +24,5 @@ export const Environment = {
   ADMIN_USER: process.env.ADMIN_USER || '1234567890',
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '12345',
   SWAGGER_REQ: process.env.SWAGGER_REQ || 'http://localhost:3000',
+  HOSTNAME: process.env.HOSTNAME || 'http://localhost:3000',
 };

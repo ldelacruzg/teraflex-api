@@ -38,3 +38,4 @@ lerna-debug.log*
 src/public
 firebase.json
 /nginx
+/uploads

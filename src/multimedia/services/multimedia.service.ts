@@ -41,7 +41,7 @@ export class MultimediaService {
 
       for (const file of files) {
         const payload = {
-          url: file.filename,
+          url: `${Environment.HOSTNAME}/${Environment.PUBLIC_DIR}/${file.filename}`,
           type: extname(file.filename).replace('.', ''),
           createdById: currentUserId,
           isPublic: data.isPublic,
