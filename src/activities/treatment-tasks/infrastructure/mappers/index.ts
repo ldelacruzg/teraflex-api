@@ -10,6 +10,7 @@ export class TreatmentTasksMapper {
     assignedTask: TreatmentTasks,
   ): AssignedTaskDetailDto {
     return {
+      assignmentId: assignedTask.id,
       task: {
         id: assignedTask.task.id,
         title: assignedTask.task.title,
