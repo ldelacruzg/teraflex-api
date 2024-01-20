@@ -21,6 +21,12 @@ export class PatientLeaderboard {
   @CreateDateColumn({ name: 'joining_date', type: 'timestamp with time zone' })
   joiningDate: Date;
 
+  @Column({ name: 'patient_id' })
+  patientId: number;
+
+  @Column({ name: 'leaderboard_id' })
+  leaderboardId: number;
+
   @ManyToOne(() => Patient, (patient) => patient.patientLeaderboards)
   @JoinColumn({ name: 'patient_id' })
   patient: Relation<Patient>;
