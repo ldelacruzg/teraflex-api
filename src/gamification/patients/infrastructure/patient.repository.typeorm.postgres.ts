@@ -29,8 +29,8 @@ export class PatientRepositoryTypeOrmPostgres implements PatientRepository {
     return this.patient.createQueryBuilder().getMany();
   }
 
-  findOne(id: number, tx?: EntityManager): Promise<Patient> {
-    throw new Error('Method not implemented.');
+  findOne(id: number): Promise<Patient> {
+    return this.patient.findOne({ where: { id } });
   }
 
   update(
