@@ -38,4 +38,15 @@ export class FormatDateService {
     const diff = today.date() - day + (day === 0 ? 0 : 7);
     return moment(today).date(diff).format('YYYY-MM-DD');
   }
+
+  public static getCurrentDateRange() {
+    const today = moment().locale('es').tz('America/Guayaquil');
+    const day = today.day();
+    const diff = today.date() - day + (day === 0 ? -6 : 1);
+    const start = moment(today).date(diff).format('YYYY-MM-DD');
+    const end = moment(today)
+      .date(diff + 6)
+      .format('YYYY-MM-DD');
+    return { start, end };
+  }
 }

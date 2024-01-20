@@ -4,8 +4,9 @@ import { Leaderboard } from '../domain/leaderboard.entity';
 import { LeaderboardRepository } from '../domain/leaderboard.repository';
 import { EntityManager, Repository } from 'typeorm';
 import { Inject } from '@nestjs/common';
-import { Patient } from '@/entities';
+import { Patient, PatientLeaderboard } from '@/entities';
 import { FormatDateService } from '@/shared/services/format-date.service';
+import { Rank } from '../domain/rank.enum';
 
 export class LeaderboardRepositoryTypeOrmPostgres
   implements LeaderboardRepository
@@ -13,20 +14,30 @@ export class LeaderboardRepositoryTypeOrmPostgres
   constructor(
     @InjectRepository(Leaderboard)
     private readonly repository: Repository<Leaderboard>,
+    @InjectRepository(PatientLeaderboard)
+    private readonly patientLeaderboardRepository: Repository<PatientLeaderboard>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
-  patientRankLeaderboardExists(patientId: number): Promise<boolean> {
+  verifyPatientBelongsToLeaderboard(
+    patientId: number,
+    leaderboardId: number,
+  ): Promise<boolean> {
+    return this.patientLeaderboardRepository
+      .createQueryBuilder('pl')
+      .where('pl.patientId = :patientId', { patientId })
+      .andWhere('pl.leaderboardId = :leaderboardId', { leaderboardId })
+      .getExists();
+  }
+
+  findCurrentLeaderboardByRank(rank: Rank): Promise<Leaderboard> {
     const rangeDate = FormatDateService.getCurrentDateRange();
 
-    return this.entityManager.transaction(async (tx) => {
-      const patient = await tx.findOne(Patient, { where: { id: patientId } });
-      return await tx
-        .createQueryBuilder(Leaderboard, 'l')
-        .where('l.rank = :rank', { rank: patient.rank })
-        .andWhere('l.startDate = :startDate', { startDate: rangeDate.start })
-        .andWhere('l.endDate = :endDate', { endDate: rangeDate.end })
-        .getExists();
-    });
+    return this.repository
+      .createQueryBuilder('l')
+      .where('l.rank = :rank', { rank })
+      .andWhere('l.startDate = :startDate', { startDate: rangeDate.start })
+      .andWhere('l.endDate = :endDate', { endDate: rangeDate.end })
+      .getOne();
   }
 
   create(payload: CreateLeaderboardDto): Promise<Leaderboard> {
