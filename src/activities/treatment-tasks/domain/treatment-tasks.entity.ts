@@ -49,28 +49,24 @@ export class TreatmentTasks {
 
   @Column({
     name: 'time_per_repetition',
-    type: 'numeric',
-    precision: 5,
-    scale: 2,
+    type: 'double precision',
   })
   timePerRepetition: number;
 
   @Column()
   repetitions: number;
 
-  @Column({ type: 'json' })
+  @Column({ type: 'json', nullable: true })
   frecuency: IFrecuency;
 
   @Column({
     name: 'break_time',
-    type: 'numeric',
-    precision: 5,
-    scale: 2,
+    type: 'double precision',
     nullable: true,
   })
   breakTime: number;
 
-  @Column({ nullable: true })
+  @Column()
   series: number;
 
   // Relations

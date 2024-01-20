@@ -4,6 +4,7 @@ import {
   ArrayNotEmpty,
   IsDateString,
   IsDecimal,
+  IsEmpty,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -13,6 +14,7 @@ import {
   IsPositive,
   Max,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { FrecuencyType, IFrecuency } from '../treatment-tasks.entity';
@@ -46,7 +48,7 @@ export class CreateTreatmentTaskDto {
   expirationDate: Date;
 
   @ApiProperty()
-  @IsDecimal({ decimal_digits: '2', force_decimal: true })
+  @IsDecimal({ force_decimal: true })
   @IsNumberString()
   @IsNotEmpty()
   timePerRepetition: number;
@@ -62,24 +64,21 @@ export class CreateTreatmentTaskDto {
   @ValidateNested()
   @Type(() => FrecuencyDto)
   @IsObject()
-  @IsNotEmpty()
+  @IsOptional()
   frecuency: FrecuencyDto;
 
   @ApiProperty()
-  @IsDecimal({ decimal_digits: '2', force_decimal: true })
+  @IsDecimal({ force_decimal: true })
   @IsNumberString()
   @IsOptional()
   breakTime: number;
 
   @ApiProperty()
   @Max(5)
-  @Min(0)
+  @Min(1)
   @IsNumber()
   @IsOptional()
   series: number;
-
-  // assigmentDate: Date; // Default
-  // performedDate: Date; // Patient input
 }
 
 export class TaskAssigmentParamDto extends OmitType(CreateTreatmentTaskDto, [
