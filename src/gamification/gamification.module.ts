@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { User } from '@/entities';
+import { PatientLeaderboard, User } from '@/entities';
 import { SharedModule } from '@/shared/shared.module';
 import {
   Patient,
@@ -22,7 +22,7 @@ import {
 @Module({
   imports: [
     SharedModule,
-    TypeOrmModule.forFeature([User, Patient, Leaderboard]),
+    TypeOrmModule.forFeature([User, Patient, Leaderboard, PatientLeaderboard]),
   ],
   controllers: [PatientController, LeaderboardController],
   providers: [
@@ -37,6 +37,6 @@ import {
       useClass: LeaderboardRepositoryTypeOrmPostgres,
     },
   ],
-  exports: [PatientRepository],
+  exports: [PatientRepository, LeaderboardRepository],
 })
 export class GamificationModule {}
