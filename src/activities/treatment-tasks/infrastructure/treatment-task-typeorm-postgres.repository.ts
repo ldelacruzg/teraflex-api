@@ -1,10 +1,11 @@
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { CreateTreatmentTaskDto } from '../domain/dtos/create-treatment-task.dto';
 import { TreatmentTaskRepository } from '../domain/treatment-task.repository';
 import { TreatmentTasks } from '../domain/treatment-tasks.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IFindAssignedTasksByPatient } from '../domain/interfaces';
 import { LinkRawOne } from '../domain/dtos/raw/multimedia.raw';
+import moment from 'moment-timezone';
 
 export class TreatmentTaskRepositoryTypeOrmPostgres
   implements TreatmentTaskRepository
@@ -13,6 +14,19 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @InjectRepository(TreatmentTasks)
     private readonly repository: Repository<TreatmentTasks>,
   ) {}
+  async updateAssignedTaskCompletion(
+    assignmentId: number,
+    options?: { tx?: EntityManager },
+  ): Promise<void> {
+    const queryRunner = options?.tx || this.repository;
+
+    await queryRunner
+      .createQueryBuilder()
+      .update(TreatmentTasks)
+      .set({ performanceDate: moment().format() })
+      .where('id = :assignmentId', { assignmentId })
+      .execute();
+  }
 
   async findMultimediaByAssigment(assigmentId: number): Promise<LinkRawOne[]> {
     const query = await this.repository
