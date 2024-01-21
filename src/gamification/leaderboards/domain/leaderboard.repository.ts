@@ -3,11 +3,20 @@ import { Leaderboard } from './leaderboard.entity';
 import { CreateLeaderboardDto } from './dtos/create-learderboard.dto';
 import { Rank } from './rank.enum';
 import { PatientLeaderboard } from '@/entities';
+import { EntityManager } from 'typeorm';
 
 export abstract class LeaderboardRepository extends Resource<
   Leaderboard,
   CreateLeaderboardDto
 > {
+  // actualizar la suma de experiencia de un paciente en la tabla de clasificación
+  abstract updatePatientExperienceInLeaderboard(
+    patientId: number,
+    leaderboardId: number,
+    experience: number,
+    options?: { tx?: EntityManager },
+  ): Promise<void>;
+
   // crear un registro de paciente en la tabla de clasificación
   abstract createPatientInLeaderboard(
     patientId: number,

@@ -18,6 +18,24 @@ export class LeaderboardRepositoryTypeOrmPostgres
     private readonly patientLeaderboardRepository: Repository<PatientLeaderboard>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
+  async updatePatientExperienceInLeaderboard(
+    patientId: number,
+    leaderboardId: number,
+    experience: number,
+    options?: { tx?: EntityManager },
+  ): Promise<void> {
+    const { tx } = options;
+    const queryRunner = tx || this.patientLeaderboardRepository;
+
+    await queryRunner
+      .createQueryBuilder()
+      .update(PatientLeaderboard)
+      .set({ experience: () => `experience + ${experience}` })
+      .where('patientId = :patientId', { patientId })
+      .andWhere('leaderboardId = :leaderboardId', { leaderboardId })
+      .execute();
+  }
+
   createPatientInLeaderboard(
     patientId: number,
     leaderboardId: number,
