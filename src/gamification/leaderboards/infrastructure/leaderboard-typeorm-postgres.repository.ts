@@ -4,7 +4,7 @@ import { Leaderboard } from '../domain/leaderboard.entity';
 import { LeaderboardRepository } from '../domain/leaderboard.repository';
 import { EntityManager, Repository } from 'typeorm';
 import { Inject } from '@nestjs/common';
-import { Patient, PatientLeaderboard } from '@/entities';
+import { PatientLeaderboard } from '@/entities';
 import { FormatDateService } from '@/shared/services/format-date.service';
 import { Rank } from '../domain/rank.enum';
 
@@ -18,6 +18,17 @@ export class LeaderboardRepositoryTypeOrmPostgres
     private readonly patientLeaderboardRepository: Repository<PatientLeaderboard>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
+  findPatientInLeaderboard(
+    patientId: number,
+    leaderboardId: number,
+  ): Promise<PatientLeaderboard> {
+    return this.patientLeaderboardRepository
+      .createQueryBuilder('pl')
+      .where('pl.patientId = :patientId', { patientId })
+      .andWhere('pl.leaderboardId = :leaderboardId', { leaderboardId })
+      .getOne();
+  }
+
   verifyPatientBelongsToLeaderboard(
     patientId: number,
     leaderboardId: number,
@@ -41,7 +52,7 @@ export class LeaderboardRepositoryTypeOrmPostgres
   }
 
   create(payload: CreateLeaderboardDto): Promise<Leaderboard> {
-    throw new Error('Method not implemented.');
+    return this.repository.save(payload);
   }
 
   findAll(): Promise<Leaderboard[]> {
