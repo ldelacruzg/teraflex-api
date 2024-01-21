@@ -24,8 +24,7 @@ export class LeaderboardRepositoryTypeOrmPostgres
     experience: number,
     options?: { tx?: EntityManager },
   ): Promise<void> {
-    const { tx } = options;
-    const queryRunner = tx || this.patientLeaderboardRepository;
+    const queryRunner = options?.tx || this.patientLeaderboardRepository;
 
     await queryRunner
       .createQueryBuilder()

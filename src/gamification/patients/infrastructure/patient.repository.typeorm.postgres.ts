@@ -17,8 +17,7 @@ export class PatientRepositoryTypeOrmPostgres implements PatientRepository {
     experience: number,
     options?: { tx?: EntityManager },
   ): Promise<void> {
-    const { tx } = options;
-    const queryRunner = tx || this.patient;
+    const queryRunner = options?.tx || this.patient;
 
     await queryRunner
       .createQueryBuilder()
@@ -33,8 +32,7 @@ export class PatientRepositoryTypeOrmPostgres implements PatientRepository {
     flexicoins: number,
     options?: { tx?: EntityManager },
   ): Promise<void> {
-    const { tx } = options;
-    const queryRunner = tx || this.patient;
+    const queryRunner = options?.tx || this.patient;
 
     await queryRunner
       .createQueryBuilder()
