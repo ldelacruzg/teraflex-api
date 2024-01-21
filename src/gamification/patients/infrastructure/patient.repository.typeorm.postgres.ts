@@ -12,6 +12,37 @@ export class PatientRepositoryTypeOrmPostgres implements PatientRepository {
     @InjectRepository(Patient)
     private patient: Repository<Patient>,
   ) {}
+  async updateExperience(
+    patientId: number,
+    experience: number,
+    options?: { tx?: EntityManager },
+  ): Promise<void> {
+    const { tx } = options;
+    const queryRunner = tx || this.patient;
+
+    await queryRunner
+      .createQueryBuilder()
+      .update(Patient)
+      .set({ experience: () => `experience + ${experience}` })
+      .where('id = :patientId', { patientId })
+      .execute();
+  }
+
+  async updateFlexicoins(
+    patientId: number,
+    flexicoins: number,
+    options?: { tx?: EntityManager },
+  ): Promise<void> {
+    const { tx } = options;
+    const queryRunner = tx || this.patient;
+
+    await queryRunner
+      .createQueryBuilder()
+      .update(Patient)
+      .set({ flexicoins: () => `flexicoins + ${flexicoins}` })
+      .where('id = :patientId', { patientId })
+      .execute();
+  }
 
   create(payload: CreatePatientDto, tx?: EntityManager): Promise<Patient> {
     if (tx === undefined) {
