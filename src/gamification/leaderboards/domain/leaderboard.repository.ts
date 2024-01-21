@@ -8,6 +8,12 @@ export abstract class LeaderboardRepository extends Resource<
   Leaderboard,
   CreateLeaderboardDto
 > {
+  // crear un registro de paciente en la tabla de clasificación
+  abstract createPatientInLeaderboard(
+    patientId: number,
+    leaderboardId: number,
+  ): Promise<PatientLeaderboard>;
+
   // obtener el paciente en la tabla de clasificación
   abstract findPatientInLeaderboard(
     patientId: number,

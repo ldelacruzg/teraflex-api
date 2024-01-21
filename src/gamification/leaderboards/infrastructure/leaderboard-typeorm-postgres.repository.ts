@@ -18,6 +18,16 @@ export class LeaderboardRepositoryTypeOrmPostgres
     private readonly patientLeaderboardRepository: Repository<PatientLeaderboard>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
+  createPatientInLeaderboard(
+    patientId: number,
+    leaderboardId: number,
+  ): Promise<PatientLeaderboard> {
+    return this.patientLeaderboardRepository.save({
+      patientId,
+      leaderboardId,
+    });
+  }
+
   findPatientInLeaderboard(
     patientId: number,
     leaderboardId: number,
