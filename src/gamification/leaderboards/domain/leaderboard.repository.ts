@@ -9,6 +9,9 @@ export abstract class LeaderboardRepository extends Resource<
   Leaderboard,
   CreateLeaderboardDto
 > {
+  // obtener el total de puntos de experiencia obtenidos en la semana
+  abstract getWeeklyExperience(pLeaderboardId: number): Promise<number>;
+
   // actualizar la suma de experiencia de un paciente en la tabla de clasificación
   abstract updatePatientExperienceInLeaderboard(
     pLeaderboardId: number,
