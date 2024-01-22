@@ -9,6 +9,9 @@ export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  // obtener el total de puntos de experiencia de la semana
+  abstract getWeeklyExperience(patientId: number): Promise<number>;
+
   // finalizar la tarea asignada del paciente
   abstract finishAssignedTask(
     assignmentId: number,
