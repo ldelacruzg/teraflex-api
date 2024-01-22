@@ -25,6 +25,16 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+  async getTotalAssignedTasksHistory(patientId: number): Promise<number> {
+    const numAssignedTask = await this.repository
+      .createQueryBuilder('a')
+      .innerJoin('a.treatment', 't')
+      .where('t.patientId = :patientId', { patientId })
+      .getCount();
+
+    return numAssignedTask;
+  }
+
   async getWeeklyExperience(patientId: number): Promise<number> {
     const { end, start } = FormatDateService.getCurrentDateRange();
 
