@@ -25,4 +25,10 @@ export const Environment = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '12345',
   SWAGGER_REQ: process.env.SWAGGER_REQ || 'http://localhost:3000',
   HOSTNAME: process.env.HOSTNAME || 'http://localhost:3000',
+
+  // Gamification
+  AMOUNT_FLEXICOINS_PER_TASK_PERFORMED:
+    Number(process.env.AMOUNT_FLEXICOINS_PER_TASK_PERFORMED) || 5,
+  AMOUNT_EXPERIENCE_PER_TASK_PERFORMED:
+    Number(process.env.AMOUNT_EXPERIENCE_PER_TASK_PERFORMED) || 15,
 };
