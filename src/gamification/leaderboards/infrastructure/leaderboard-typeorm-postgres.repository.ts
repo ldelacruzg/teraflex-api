@@ -18,7 +18,7 @@ export class LeaderboardRepositoryTypeOrmPostgres
     private readonly patientLeaderboardRepository: Repository<PatientLeaderboard>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
-  async getWeeklyExperience(pLeaderboardId: number): Promise<number> {
+  async getTotalWeeklyExperience(pLeaderboardId: number): Promise<number> {
     const query = await this.patientLeaderboardRepository
       .createQueryBuilder('pl')
       .select('pl.experience')
