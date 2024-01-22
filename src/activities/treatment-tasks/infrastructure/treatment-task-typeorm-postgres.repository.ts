@@ -6,6 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IFindAssignedTasksByPatient } from '../domain/interfaces';
 import { LinkRawOne } from '../domain/dtos/raw/multimedia.raw';
 import moment from 'moment-timezone';
+import { Inject } from '@nestjs/common';
+import { LeaderboardRepository } from '@/gamification/leaderboards';
+import { PatientRepository } from '@/gamification/patients';
 
 export class TreatmentTaskRepositoryTypeOrmPostgres
   implements TreatmentTaskRepository
@@ -13,7 +16,39 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
   constructor(
     @InjectRepository(TreatmentTasks)
     private readonly repository: Repository<TreatmentTasks>,
+    @Inject(LeaderboardRepository)
+    private readonly leaderboardRepository: LeaderboardRepository,
+    @Inject(PatientRepository)
+    private readonly patientRepository: PatientRepository,
+    @Inject(EntityManager)
+    private readonly entityManager: EntityManager,
   ) {}
+  async finishAssignedTask(
+    assignmentId: number,
+    patientId: number,
+    pLeaderboardId: number,
+    experience: number,
+    flexicoins: number,
+  ) {
+    await this.entityManager.transaction(async (tx) => {
+      await Promise.all([
+        // actualizar la suma de experiencia (patient_leaderboard)
+        this.leaderboardRepository.updatePatientExperienceInLeaderboard(
+          pLeaderboardId,
+          experience,
+          { tx },
+        ),
+
+        // actualizar la suma de experiencia y flexicoins (patient)
+        this.patientRepository.updateExperience(patientId, experience, { tx }),
+        this.patientRepository.updateFlexicoins(patientId, flexicoins, { tx }),
+
+        // actualizar fecha de realización de la tarea (treatment_tasks)
+        this.updateAssignedTaskCompletion(assignmentId, { tx }),
+      ]);
+    });
+  }
+
   async updateAssignedTaskCompletion(
     assignmentId: number,
     options?: { tx?: EntityManager },

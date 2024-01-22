@@ -9,6 +9,15 @@ export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  // finalizar la tarea asignada del paciente
+  abstract finishAssignedTask(
+    assignmentId: number,
+    patientId: number,
+    leaderboardId: number,
+    experience: number,
+    flexicoins: number,
+  ): Promise<void>;
+
   // actualizar la fecha de finalización de una asignación
   abstract updateAssignedTaskCompletion(
     assignmentId: number,
