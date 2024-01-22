@@ -25,6 +25,22 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+  async getTotalWeeklyAssignedTasks(patientId: number): Promise<number> {
+    const { end, start } = FormatDateService.getCurrentDateRange();
+
+    const numAssignedTask = await this.repository
+      .createQueryBuilder('a')
+      .innerJoin('a.treatment', 't')
+      .where('t.patientId = :patientId', { patientId })
+      .andWhere('date(a.assignmentDate) BETWEEN :start AND :end', {
+        start,
+        end,
+      })
+      .getCount();
+
+    return numAssignedTask;
+  }
+
   async getTotalCompletedAssignedTasksHistory(
     patientId: number,
   ): Promise<number> {
@@ -49,18 +65,7 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
   }
 
   async getWeeklyExperience(patientId: number): Promise<number> {
-    const { end, start } = FormatDateService.getCurrentDateRange();
-
-    const numAssignedTask = await this.repository
-      .createQueryBuilder('a')
-      .innerJoin('a.treatment', 't')
-      .where('t.patientId = :patientId', { patientId })
-      .andWhere('date(a.assignmentDate) BETWEEN :start AND :end', {
-        start,
-        end,
-      })
-      .getCount();
-
+    const numAssignedTask = await this.getTotalWeeklyAssignedTasks(patientId);
     return numAssignedTask * Environment.AMOUNT_EXPERIENCE_PER_TASK_PERFORMED;
   }
 
