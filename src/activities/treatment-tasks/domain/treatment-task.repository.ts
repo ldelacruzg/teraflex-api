@@ -9,6 +9,11 @@ export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  // obtener el total de tareas asignadas completadas en toda la historia
+  abstract getTotalCompletedAssignedTasksHistory(
+    patientId: number,
+  ): Promise<number>;
+
   // obtener el total de tareas asignadas en toda la historia
   abstract getTotalAssignedTasksHistory(patientId: number): Promise<number>;
 

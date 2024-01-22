@@ -25,6 +25,19 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+  async getTotalCompletedAssignedTasksHistory(
+    patientId: number,
+  ): Promise<number> {
+    const numAssigedTaskCompleted = await this.repository
+      .createQueryBuilder('a')
+      .innerJoin('a.treatment', 't')
+      .where('t.patientId = :patientId', { patientId })
+      .andWhere('a.performanceDate IS NOT NULL')
+      .getCount();
+
+    return numAssigedTaskCompleted;
+  }
+
   async getTotalAssignedTasksHistory(patientId: number): Promise<number> {
     const numAssignedTask = await this.repository
       .createQueryBuilder('a')
