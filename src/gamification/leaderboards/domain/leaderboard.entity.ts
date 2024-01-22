@@ -1,5 +1,4 @@
 import { PatientLeaderboard } from '@/entities';
-import { FormatDateService } from '@/shared/services/format-date.service';
 import {
   BeforeInsert,
   Column,
@@ -9,6 +8,7 @@ import {
   Relation,
 } from 'typeorm';
 import { Rank } from './rank.enum';
+import { FormatDateService } from '@/shared/services/format-date.service';
 
 @Entity({ name: 'leaderboard' })
 export class Leaderboard {
@@ -35,7 +35,7 @@ export class Leaderboard {
   // Hooks
   @BeforeInsert()
   initialize() {
-    this.startDate = new Date(FormatDateService.getLastMonday());
-    this.endDate = new Date(FormatDateService.getNextSunday());
+    this.startDate = FormatDateService.getLastMonday();
+    this.endDate = FormatDateService.getNextSunday();
   }
 }

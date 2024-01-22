@@ -15,10 +15,13 @@ export class PatientLeaderboard {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
+  @Column({ default: 0 })
   experience: number;
 
-  @CreateDateColumn({ name: 'joining_date', type: 'timestamp with time zone' })
+  @CreateDateColumn({
+    name: 'joining_date',
+    type: 'timestamp without time zone',
+  })
   joiningDate: Date;
 
   @Column({ name: 'patient_id' })
