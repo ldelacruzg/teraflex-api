@@ -9,6 +9,11 @@ export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  // obtener el total de tareas asignadas completadas en la semana
+  abstract getTotalWeeklyCompletedAssignedTasks(
+    patientId: number,
+  ): Promise<number>;
+
   // obtener el total de tareas asignadas en la semana
   abstract getTotalWeeklyAssignedTasks(patientId: number): Promise<number>;
 

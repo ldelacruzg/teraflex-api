@@ -25,6 +25,25 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+  async getTotalWeeklyCompletedAssignedTasks(
+    patientId: number,
+  ): Promise<number> {
+    const { end, start } = FormatDateService.getCurrentDateRange();
+
+    const numAssigedTaskCompleted = await this.repository
+      .createQueryBuilder('a')
+      .innerJoin('a.treatment', 't')
+      .where('t.patientId = :patientId', { patientId })
+      .andWhere('a.performanceDate IS NOT NULL')
+      .andWhere('date(a.assignmentDate) BETWEEN :start AND :end', {
+        start,
+        end,
+      })
+      .getCount();
+
+    return numAssigedTaskCompleted;
+  }
+
   async getTotalWeeklyAssignedTasks(patientId: number): Promise<number> {
     const { end, start } = FormatDateService.getCurrentDateRange();
 
