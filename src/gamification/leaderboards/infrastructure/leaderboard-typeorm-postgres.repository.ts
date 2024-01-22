@@ -19,8 +19,7 @@ export class LeaderboardRepositoryTypeOrmPostgres
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
   async updatePatientExperienceInLeaderboard(
-    patientId: number,
-    leaderboardId: number,
+    pLeaderboardId: number,
     experience: number,
     options?: { tx?: EntityManager },
   ): Promise<void> {
@@ -30,8 +29,7 @@ export class LeaderboardRepositoryTypeOrmPostgres
       .createQueryBuilder()
       .update(PatientLeaderboard)
       .set({ experience: () => `experience + ${experience}` })
-      .where('patientId = :patientId', { patientId })
-      .andWhere('leaderboardId = :leaderboardId', { leaderboardId })
+      .where('id = :pLeaderboardId', { pLeaderboardId })
       .execute();
   }
 
@@ -79,7 +77,10 @@ export class LeaderboardRepositoryTypeOrmPostgres
   }
 
   create(payload: CreateLeaderboardDto): Promise<Leaderboard> {
-    return this.repository.save(payload);
+    const leaderboard = new Leaderboard();
+    leaderboard.rank = payload.rank;
+
+    return this.repository.save(leaderboard);
   }
 
   findAll(): Promise<Leaderboard[]> {

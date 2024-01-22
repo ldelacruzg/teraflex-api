@@ -11,8 +11,7 @@ export abstract class LeaderboardRepository extends Resource<
 > {
   // actualizar la suma de experiencia de un paciente en la tabla de clasificación
   abstract updatePatientExperienceInLeaderboard(
-    patientId: number,
-    leaderboardId: number,
+    pLeaderboardId: number,
     experience: number,
     options?: { tx?: EntityManager },
   ): Promise<void>;
