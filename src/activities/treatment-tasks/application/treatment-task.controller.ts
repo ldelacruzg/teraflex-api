@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -47,12 +48,6 @@ export class TreatmentTaskController {
     };
   }
 
-  /**
-   * Get assigned tasks by patient
-   * @param patientId
-   * @param taskDone true: tareas realizadas, false: tareas pendientes, undefined: todas las tareas
-   * @param treatmentActive true: tratamientos activos, false: tratamientos inactivos, undefined: todos los tratamientos
-   */
   @Get('patients/:patientId/assignments')
   @ApiOperation({ summary: 'Get assigned tasks by patient' })
   @Role(RoleEnum.PATIENT, RoleEnum.THERAPIST)
@@ -101,6 +96,21 @@ export class TreatmentTaskController {
     return {
       message: 'Multimedia obtenida correctamente',
       data: multimedia,
+    };
+  }
+
+  // endpoint para finalizar una tarea asignada
+  @Patch('assignments/:assignmentId/finish')
+  @ApiOperation({ summary: 'Finish an assigned task' })
+  @Role(RoleEnum.PATIENT, RoleEnum.THERAPIST)
+  async finishAssignedTask(
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+  ): Promise<ResponseDataInterface> {
+    const weeklySummary = await this.service.finishAssignedTask(assignmentId);
+
+    return {
+      message: 'Tarea finalizada correctamente',
+      data: weeklySummary,
     };
   }
 }

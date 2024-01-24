@@ -9,6 +9,8 @@ import { AssignedTaskFullDetailDto } from './dtos/assigned-task-detail.dto';
 
 export interface ITreatmentTaskService
   extends Resource<Treatment, CreateTreatmentTaskDto> {
+  finishAssignedTask(assignmentId: number): Promise<WeeklySummaryDto>;
+
   getMultimediasByAssigment(assignmentId: number): Promise<MultimediaDto[]>;
 
   getAssignedTaskDetails(

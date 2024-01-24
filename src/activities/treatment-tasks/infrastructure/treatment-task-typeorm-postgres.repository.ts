@@ -25,6 +25,36 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+  async getWeeklySummary(
+    pLeaderboardId: number,
+    patientId: number,
+  ): Promise<WeeklySummaryDto> {
+    const [
+      totalWeeklyExperience,
+      weeklyExperience,
+      totalAssignedTasksHistory,
+      totalCompletedAssignedTasksHistory,
+      totalWeeklyAssignedTasks,
+      totalWeeklyCompletedAssignedTasks,
+    ] = await Promise.all([
+      this.leaderboardRepository.getTotalWeeklyExperience(pLeaderboardId),
+      this.getWeeklyExperience(patientId),
+      this.getTotalAssignedTasksHistory(patientId),
+      this.getTotalCompletedAssignedTasksHistory(patientId),
+      this.getTotalWeeklyAssignedTasks(patientId),
+      this.getTotalWeeklyCompletedAssignedTasks(patientId),
+    ]);
+
+    return {
+      totalExperience: totalWeeklyExperience,
+      weeklyExperience,
+      totalTasks: totalAssignedTasksHistory,
+      completedTasks: totalCompletedAssignedTasksHistory,
+      weeklyTasks: totalWeeklyAssignedTasks,
+      weeklyCompletedTasks: totalWeeklyCompletedAssignedTasks,
+    };
+  }
+
   async getTotalWeeklyCompletedAssignedTasks(
     patientId: number,
   ): Promise<number> {

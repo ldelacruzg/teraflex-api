@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ITreatmentTaskService } from '../domain/treatment-task-service.interface';
-import { Treatment, TreatmentTasks } from '@/entities';
+import { PatientLeaderboard, Treatment, TreatmentTasks } from '@/entities';
 import { TreatmentTaskRepository } from '../domain/treatment-task.repository';
 import {
   AssignTasksToTreatmentDto,
@@ -12,6 +12,8 @@ import { PatientRepository } from '@/gamification/patients';
 import { IFindAssignedTasksByPatient } from '../domain/interfaces';
 import { AssignedTaskFullDetailDto } from '../domain/dtos/assigned-task-detail.dto';
 import { TreatmentTasksMapper } from './mappers';
+import { LeaderboardRepository } from '@/gamification/leaderboards';
+import { Environment } from '@/shared/constants/environment';
 
 @Injectable()
 export class TreatmentTaskService implements ITreatmentTaskService {
@@ -20,7 +22,88 @@ export class TreatmentTaskService implements ITreatmentTaskService {
     private readonly treatmentRepository: TreatmentRepository,
     private readonly taskRepository: TaskRespository,
     private readonly patientRepository: PatientRepository,
+    private readonly leaderboardRepository: LeaderboardRepository,
   ) {}
+  async finishAssignedTask(assignmentId: number): Promise<WeeklySummaryDto> {
+    // verificar que la asignación existe
+    const assignment = await this.repository.findOne(assignmentId);
+    if (!assignment) {
+      throw new BadRequestException(
+        `La asignación con id [${assignmentId}] no existe`,
+      );
+    }
+
+    const { treatmentId } = assignment;
+    // validar que la asignación no este finalizada
+    if (assignment.performanceDate) {
+      throw new BadRequestException(
+        `La asignación con id [${assignmentId}] ya fue realizada`,
+      );
+    }
+
+    // obtener paciente
+    const treatment = await this.treatmentRepository.findOne(treatmentId);
+    const patient = await this.patientRepository.findOne(treatment.patientId);
+    const { id: patientId, rank } = patient;
+
+    // verificar que existe una tabla de clasificación con el rango del paciente
+    let patientInLeaderboard: PatientLeaderboard;
+    const leaderboard =
+      await this.leaderboardRepository.findCurrentLeaderboardByRank(rank);
+
+    if (leaderboard) {
+      const { id: leaderboardId } = leaderboard;
+
+      // verificar que el paciente permanece en esa tabla de clasificación
+      const patientBelongsToLeaderboard =
+        await this.leaderboardRepository.verifyPatientBelongsToLeaderboard(
+          patientId,
+          leaderboardId,
+        );
+
+      if (patientBelongsToLeaderboard) {
+        // traer el registro de paciente en tabla de clasificación
+        patientInLeaderboard =
+          await this.leaderboardRepository.findPatientInLeaderboard(
+            patientId,
+            leaderboardId,
+          );
+      } else {
+        // crear registro de paciente en tabla de clasificación
+        patientInLeaderboard =
+          await this.leaderboardRepository.createPatientInLeaderboard(
+            patientId,
+            leaderboardId,
+          );
+      }
+    } else {
+      // crear una nueva tabla de clasificación con ese rango
+      const newLeaderboard = await this.leaderboardRepository.create({
+        rank: patient.rank,
+      });
+
+      // crear registro de paciente en tabla de clasificación
+      patientInLeaderboard =
+        await this.leaderboardRepository.createPatientInLeaderboard(
+          patientId,
+          newLeaderboard.id,
+        );
+    }
+
+    await this.repository.finishAssignedTask(
+      assignmentId,
+      patientId,
+      patientInLeaderboard.id,
+      Environment.AMOUNT_EXPERIENCE_PER_TASK_PERFORMED,
+      Environment.AMOUNT_FLEXICOINS_PER_TASK_PERFORMED,
+    );
+
+    // return weekly summary
+    return await this.repository.getWeeklySummary(
+      patientInLeaderboard.id,
+      patientId,
+    );
+  }
 
   async getMultimediasByAssigment(
     assignmentId: number,
