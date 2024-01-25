@@ -18,6 +18,21 @@ export class LeaderboardRepositoryTypeOrmPostgres
     private readonly patientLeaderboardRepository: Repository<PatientLeaderboard>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
+  findCurrentWeekPatientLeaderboard(
+    patientId: number,
+  ): Promise<PatientLeaderboard> {
+    const { end, start } = FormatDateService.getCurrentDateRange();
+    const query = this.patientLeaderboardRepository
+      .createQueryBuilder('pl')
+      .where(
+        `date(pl.joining_date at time zone 'GTM-5') between :start and :end`,
+        { start, end },
+      )
+      .andWhere('pl.patientId = :patientId', { patientId });
+
+    return query.getOne();
+  }
+
   async getTotalWeeklyExperience(pLeaderboardId: number): Promise<number> {
     const query = await this.patientLeaderboardRepository
       .createQueryBuilder('pl')
