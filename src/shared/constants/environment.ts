@@ -31,4 +31,7 @@ export const Environment = {
     Number(process.env.AMOUNT_FLEXICOINS_PER_TASK_PERFORMED) || 5,
   AMOUNT_EXPERIENCE_PER_TASK_PERFORMED:
     Number(process.env.AMOUNT_EXPERIENCE_PER_TASK_PERFORMED) || 15,
+  ACCURANCY_RANK_UP: Number(process.env.ACCURANCY_RANK_UP) || 1,
+  ACCURANCY_RANK_DOWN: Number(process.env.ACCURANCY_RANK_DOWN) || 0.7,
+  ACCURANCY_RANK_SAME: Number(process.env.ACCURANCY_RANK_SAME) || 0.3,
 };
