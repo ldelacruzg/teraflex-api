@@ -4,10 +4,12 @@ import { Leaderboard } from '../domain/leaderboard.entity';
 import { LeaderboardRepository } from '../domain/leaderboard.repository';
 import { EntityManager, Repository } from 'typeorm';
 import { Inject } from '@nestjs/common';
-import { PatientLeaderboard, TreatmentTasks } from '@/entities';
+import { Patient, PatientLeaderboard, TreatmentTasks } from '@/entities';
 import { FormatDateService } from '@/shared/services/format-date.service';
 import { Rank } from '../domain/rank.enum';
 import { SummaryLastParticipationRaw } from '../domain/raw/summary-last-participation.raw';
+import { Environment } from '@/shared/constants/environment';
+import { RankService } from '@/shared/services/rank.service';
 
 export class LeaderboardRepositoryTypeOrmPostgres
   implements LeaderboardRepository
@@ -19,8 +21,61 @@ export class LeaderboardRepositoryTypeOrmPostgres
     private readonly patientLeaderboardRepository: Repository<PatientLeaderboard>,
     @InjectRepository(TreatmentTasks)
     private readonly treatmentTaskRepository: Repository<TreatmentTasks>,
+    @InjectRepository(Patient)
+    private readonly patientRepository: Repository<Patient>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
+  async updatePatientRank(
+    patientId: number,
+    options?: { tx?: EntityManager },
+  ): Promise<Rank> {
+    const query = options?.tx || this.patientRepository;
+
+    // obtener última participación del paciente
+    const lastParticipation = await this.findLastParticipation(patientId);
+
+    // si no ha participado aún, asignar el rango más bajo
+    if (!lastParticipation) {
+      return Rank.Fortaleza;
+    }
+
+    const [lastRank, summaryLastParticipation] = await Promise.all([
+      // obtener el rango de la última participación del paciente
+      this.repository
+        .createQueryBuilder('l')
+        .where('l.id = :leaderboardId', {
+          leaderboardId: lastParticipation.leaderboardId,
+        })
+        .getOne(),
+
+      // obtener resumen de la última participación del paciente
+      this.findSummaryLastParticipation(patientId),
+    ]);
+
+    // reajustar rango
+    let newRank: Rank;
+    if (summaryLastParticipation.accuracy <= Environment.ACCURANCY_RANK_DOWN) {
+      newRank = RankService.getNewRank(lastRank.rank, 'down');
+    } else if (
+      summaryLastParticipation.accuracy <= Environment.ACCURANCY_RANK_SAME
+    ) {
+      newRank = lastRank.rank;
+    } else {
+      newRank = RankService.getNewRank(lastRank.rank, 'up');
+    }
+
+    // actualizar el rango del paciente
+    //await query.update(Patient, patientId, { rank: newRank });
+    await query
+      .createQueryBuilder()
+      .update(Patient)
+      .set({ rank: newRank })
+      .where('id = :patientId', { patientId })
+      .execute();
+
+    return newRank;
+  }
+
   async findSummaryLastParticipation(
     patientId: number,
   ): Promise<SummaryLastParticipationRaw> {

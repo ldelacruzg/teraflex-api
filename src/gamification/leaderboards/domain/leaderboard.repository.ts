@@ -10,6 +10,12 @@ export abstract class LeaderboardRepository extends Resource<
   Leaderboard,
   CreateLeaderboardDto
 > {
+  // reajustar el rango del paciente
+  abstract updatePatientRank(
+    patientId: number,
+    options?: { tx?: EntityManager },
+  ): Promise<Rank>;
+
   // encontrar el resumen de la última participación del paciente
   abstract findSummaryLastParticipation(
     patientId: number,
