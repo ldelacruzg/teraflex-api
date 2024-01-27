@@ -4,11 +4,17 @@ import { CreateLeaderboardDto } from './dtos/create-learderboard.dto';
 import { Rank } from './rank.enum';
 import { PatientLeaderboard } from '@/entities';
 import { EntityManager } from 'typeorm';
+import { SummaryLastParticipationRaw } from './raw/summary-last-participation.raw';
 
 export abstract class LeaderboardRepository extends Resource<
   Leaderboard,
   CreateLeaderboardDto
 > {
+  // encontrar el resumen de la última participación del paciente
+  abstract findSummaryLastParticipation(
+    patientId: number,
+  ): Promise<SummaryLastParticipationRaw>;
+
   // encontrar la última participación del paciente
   abstract findLastParticipation(
     patientId: number,
