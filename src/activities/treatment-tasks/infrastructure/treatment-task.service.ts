@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ITreatmentTaskService } from '../domain/treatment-task-service.interface';
-import { PatientLeaderboard, Treatment, TreatmentTasks } from '@/entities';
+import { Treatment, TreatmentTasks } from '@/entities';
 import { TreatmentTaskRepository } from '../domain/treatment-task.repository';
 import {
   AssignTasksToTreatmentDto,
@@ -46,48 +46,16 @@ export class TreatmentTaskService implements ITreatmentTaskService {
     const patient = await this.patientRepository.findOne(treatment.patientId);
     const { id: patientId, rank } = patient;
 
-    // verificar que existe una tabla de clasificación con el rango del paciente
-    let patientInLeaderboard: PatientLeaderboard;
-    const leaderboard =
-      await this.leaderboardRepository.findCurrentLeaderboardByRank(rank);
+    // encontrar la tabla de clasificacíón que pertenece el paciente (semana actual)
+    let patientInLeaderboard =
+      await this.leaderboardRepository.findCurrentWeekPatientLeaderboard(
+        patientId,
+      );
 
-    if (leaderboard) {
-      const { id: leaderboardId } = leaderboard;
-
-      // verificar que el paciente permanece en esa tabla de clasificación
-      const patientBelongsToLeaderboard =
-        await this.leaderboardRepository.verifyPatientBelongsToLeaderboard(
-          patientId,
-          leaderboardId,
-        );
-
-      if (patientBelongsToLeaderboard) {
-        // traer el registro de paciente en tabla de clasificación
-        patientInLeaderboard =
-          await this.leaderboardRepository.findPatientInLeaderboard(
-            patientId,
-            leaderboardId,
-          );
-      } else {
-        // crear registro de paciente en tabla de clasificación
-        patientInLeaderboard =
-          await this.leaderboardRepository.createPatientInLeaderboard(
-            patientId,
-            leaderboardId,
-          );
-      }
-    } else {
-      // crear una nueva tabla de clasificación con ese rango
-      const newLeaderboard = await this.leaderboardRepository.create({
-        rank: patient.rank,
-      });
-
-      // crear registro de paciente en tabla de clasificación
+    if (!patientInLeaderboard) {
+      // crear un registro de paciente en la tabla de clasificación
       patientInLeaderboard =
-        await this.leaderboardRepository.createPatientInLeaderboard(
-          patientId,
-          newLeaderboard.id,
-        );
+        await this.leaderboardRepository.createPatientInLeaderboard(patientId);
     }
 
     await this.repository.finishAssignedTask(
