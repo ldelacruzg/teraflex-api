@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { PatientLeaderboard, User } from '@/entities';
+import { PatientLeaderboard, TreatmentTasks, User } from '@/entities';
 import { SharedModule } from '@/shared/shared.module';
 import {
   Patient,
@@ -22,7 +22,13 @@ import {
 @Module({
   imports: [
     SharedModule,
-    TypeOrmModule.forFeature([User, Patient, Leaderboard, PatientLeaderboard]),
+    TypeOrmModule.forFeature([
+      User,
+      Patient,
+      Leaderboard,
+      PatientLeaderboard,
+      TreatmentTasks,
+    ]),
   ],
   controllers: [PatientController, LeaderboardController],
   providers: [
