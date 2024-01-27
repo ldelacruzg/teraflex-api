@@ -2,7 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLeaderboardDto } from '../domain/dtos/create-learderboard.dto';
 import { Leaderboard } from '../domain/leaderboard.entity';
 import { LeaderboardRepository } from '../domain/leaderboard.repository';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Raw, Repository } from 'typeorm';
 import { Inject } from '@nestjs/common';
 import { Patient, PatientLeaderboard, TreatmentTasks } from '@/entities';
 import { FormatDateService } from '@/shared/services/format-date.service';
@@ -49,7 +49,10 @@ export class LeaderboardRepositoryTypeOrmPostgres
         .getOne(),
 
       // obtener resumen de la última participación del paciente
-      this.findSummaryLastParticipation(patientId),
+      this.findSummaryLastParticipation(
+        patientId,
+        lastParticipation.joiningDate,
+      ),
     ]);
 
     // reajustar rango
@@ -78,19 +81,20 @@ export class LeaderboardRepositoryTypeOrmPostgres
 
   async findSummaryLastParticipation(
     patientId: number,
+    lastParticipationDate: Date,
   ): Promise<SummaryLastParticipationRaw> {
-    //const lastParticipation = await this.findLastParticipation(patientId);
+    const { start, end } = FormatDateService.getDateRange(
+      lastParticipationDate,
+    );
 
-    // obtener los ptos de exp de los pacientes en la última participación del paciente actual
     const queryExp = this.patientLeaderboardRepository
       .createQueryBuilder('pl')
       .select(['pl.patientId as patient_id', 'pl.experience as experience'])
       .where(
-        `date(joining_date at time zone 'GMT-5') between '2024-01-22' and '2024-01-28'`,
-        {},
+        `date(joining_date at time zone 'GMT-5') between :start and :end`,
+        { start, end },
       );
 
-    // obtener los ptos de exp objetivo y realizados de los pacientes
     const queryExpGoal = this.treatmentTaskRepository
       .createQueryBuilder('tt')
       .select([
@@ -101,13 +105,13 @@ export class LeaderboardRepositoryTypeOrmPostgres
       .innerJoin('tt.treatment', 't')
       .leftJoin(`(${queryExp.getQuery()})`, 'pl', 'pl.patient_id = t.patientId')
       .where(
-        `date(tt.assignment_date at time zone 'GMT-5') between '2024-01-22' and '2024-01-28'`,
-        {},
+        `date(tt.assignment_date at time zone 'GMT-5') between :start and :end`,
+        { start, end },
       )
       .groupBy('t.patientId')
-      .addGroupBy('pl.experience');
+      .addGroupBy('pl.experience')
+      .setParameters(queryExp.getParameters());
 
-    // obtener el porcentaje de cumplimiento de los pacientes
     const queryExpPercentage = this.entityManager
       .createQueryBuilder()
       .select([
@@ -115,7 +119,8 @@ export class LeaderboardRepositoryTypeOrmPostgres
         'round(sq.exp_made::numeric / sq.exp_goal::numeric, 4) as accuracy',
       ])
       .from(`(${queryExpGoal.getQuery()})`, 'sq')
-      .orderBy('accuracy', 'DESC', 'NULLS LAST');
+      .orderBy('accuracy', 'DESC', 'NULLS LAST')
+      .setParameters(queryExpGoal.getParameters());
 
     const mainQuery = this.entityManager
       .createQueryBuilder()
@@ -124,7 +129,8 @@ export class LeaderboardRepositoryTypeOrmPostgres
         '*',
       ])
       .from(`(${queryExpPercentage.getQuery()})`, 'pp')
-      .where('patient_id = 4', {});
+      .where('patient_id = :patientId', { patientId })
+      .setParameters(queryExpPercentage.getParameters());
 
     return mainQuery.getRawOne<SummaryLastParticipationRaw>();
   }

@@ -19,6 +19,7 @@ export abstract class LeaderboardRepository extends Resource<
   // encontrar el resumen de la última participación del paciente
   abstract findSummaryLastParticipation(
     patientId: number,
+    lastParticipationDate: Date,
   ): Promise<SummaryLastParticipationRaw>;
 
   // encontrar la última participación del paciente

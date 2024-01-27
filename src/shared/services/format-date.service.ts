@@ -49,4 +49,15 @@ export class FormatDateService {
       .format('YYYY-MM-DD');
     return { start, end };
   }
+
+  public static getDateRange(date: Date) {
+    const today = moment(date).locale('es').tz('America/Guayaquil');
+    const day = today.day();
+    const diff = today.date() - day + (day === 0 ? -6 : 1);
+    const start = moment(today).date(diff).format('YYYY-MM-DD');
+    const end = moment(today)
+      .date(diff + 6)
+      .format('YYYY-MM-DD');
+    return { start, end };
+  }
 }
