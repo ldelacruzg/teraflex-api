@@ -44,6 +44,9 @@ export abstract class LeaderboardRepository extends Resource<
   // crear un registro de paciente en la tabla de clasificación
   abstract createPatientInLeaderboard(
     patientId: number,
+  ): Promise<PatientLeaderboard>;
+  abstract createPatientInLeaderboard(
+    patientId: number,
     leaderboardId: number,
   ): Promise<PatientLeaderboard>;
 

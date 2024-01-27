@@ -178,13 +178,35 @@ export class LeaderboardRepositoryTypeOrmPostgres
       .execute();
   }
 
+  createPatientInLeaderboard(patientId: number): Promise<PatientLeaderboard>;
   createPatientInLeaderboard(
     patientId: number,
     leaderboardId: number,
+  ): Promise<PatientLeaderboard>;
+  createPatientInLeaderboard(
+    patientId: number,
+    leaderboardId?: number,
   ): Promise<PatientLeaderboard> {
-    return this.patientLeaderboardRepository.save({
-      patientId,
-      leaderboardId,
+    return this.entityManager.transaction(async (tx) => {
+      // reajustar el rango del paciente
+      const newRank = await this.updatePatientRank(patientId, { tx });
+
+      // verificar que exista una tabla de clasificación con el rango del paciente
+      let leaderboard = await this.findCurrentLeaderboardByRank(newRank);
+
+      // si no existe, crear la tabla de clasificación con el rango del paciente
+      if (!leaderboard) {
+        // crear la tabla de clasificación con el rango del paciente
+        leaderboard = await this.create({ rank: newRank }, { tx });
+      }
+
+      // crear el paciente en la tabla de clasificación
+      const newPatientLeaderboard = tx.create(PatientLeaderboard, {
+        patientId,
+        leaderboardId: leaderboard.id,
+      });
+
+      return tx.save(newPatientLeaderboard);
     });
   }
 
@@ -221,11 +243,16 @@ export class LeaderboardRepositoryTypeOrmPostgres
       .getOne();
   }
 
-  create(payload: CreateLeaderboardDto): Promise<Leaderboard> {
+  create(
+    payload: CreateLeaderboardDto,
+    options?: { tx?: EntityManager },
+  ): Promise<Leaderboard> {
+    const queryRunner = options?.tx || this.repository.manager;
+
     const leaderboard = new Leaderboard();
     leaderboard.rank = payload.rank;
 
-    return this.repository.save(leaderboard);
+    return queryRunner.save(leaderboard);
   }
 
   findAll(): Promise<Leaderboard[]> {
