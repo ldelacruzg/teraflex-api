@@ -9,6 +9,11 @@ export abstract class LeaderboardRepository extends Resource<
   Leaderboard,
   CreateLeaderboardDto
 > {
+  // encontrar la última participación del paciente
+  abstract findLastParticipation(
+    patientId: number,
+  ): Promise<PatientLeaderboard>;
+
   // encontrar la tabla de clasificación del rango actual del paciente de la semana actual
   abstract findCurrentWeekPatientLeaderboard(
     patientId: number,

@@ -18,6 +18,15 @@ export class LeaderboardRepositoryTypeOrmPostgres
     private readonly patientLeaderboardRepository: Repository<PatientLeaderboard>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
+  findLastParticipation(patientId: number): Promise<PatientLeaderboard> {
+    const query = this.patientLeaderboardRepository
+      .createQueryBuilder('pl')
+      .where('pl.patientId = :patientId', { patientId })
+      .orderBy(`date(pl.joining_date at time zone 'GMT-5')`, 'DESC');
+
+    return query.getOne();
+  }
+
   findCurrentWeekPatientLeaderboard(
     patientId: number,
   ): Promise<PatientLeaderboard> {
