@@ -2,14 +2,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLeaderboardDto } from '../domain/dtos/create-learderboard.dto';
 import { Leaderboard } from '../domain/leaderboard.entity';
 import { LeaderboardRepository } from '../domain/leaderboard.repository';
-import { EntityManager, Raw, Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Inject } from '@nestjs/common';
-import { Patient, PatientLeaderboard, TreatmentTasks } from '@/entities';
+import { Patient, PatientLeaderboard, TreatmentTasks, User } from '@/entities';
 import { FormatDateService } from '@/shared/services/format-date.service';
 import { Rank } from '../domain/rank.enum';
 import { SummaryLastParticipationRaw } from '../domain/raw/summary-last-participation.raw';
 import { Environment } from '@/shared/constants/environment';
 import { RankService } from '@/shared/services/rank.service';
+import { CurrentWeekLeaderboardRowRaw } from '../domain/raw/current-leaderboard.raw';
 
 export class LeaderboardRepositoryTypeOrmPostgres
   implements LeaderboardRepository
@@ -25,6 +26,42 @@ export class LeaderboardRepositoryTypeOrmPostgres
     private readonly patientRepository: Repository<Patient>,
     @Inject(EntityManager) private readonly entityManager: EntityManager,
   ) {}
+  findCurrentWeekLeaderboard(
+    rank: Rank,
+  ): Promise<CurrentWeekLeaderboardRowRaw[]> {
+    const { end, start } = FormatDateService.getCurrentDateRange();
+
+    const query = this.treatmentTaskRepository
+      .createQueryBuilder('tt')
+      .select([
+        't.patient_id',
+        'u.first_name',
+        'u.last_name',
+        'COUNT(*) AS qty_tasks',
+        'COUNT(tt.performance_date) AS qty_tasks_completed',
+        'ROUND(COUNT(tt.performance_date)::numeric / COUNT(*)::numeric, 4) AS accuracy',
+      ])
+      .innerJoin('tt.treatment', 't')
+      .innerJoin(User, 'u', 'u.id = t.patientId')
+      .innerJoin(PatientLeaderboard, 'pl', 'pl.patientId = t.patientId')
+      .innerJoin(Leaderboard, 'l', 'l.id = pl.leaderboardId')
+      .where(
+        `DATE(tt.assignment_date AT TIME ZONE 'GMT-5') BETWEEN :start AND :end`,
+        { start, end },
+      )
+      .andWhere(
+        `DATE(pl.joining_date AT TIME ZONE 'GMT-5') BETWEEN :start AND :end`,
+        { start, end },
+      )
+      .andWhere('l.rank = :rank', { rank })
+      .groupBy('t.patientId')
+      .addGroupBy('u.firstName')
+      .addGroupBy('u.lastName')
+      .orderBy('accuracy', 'DESC', 'NULLS LAST');
+
+    return query.getRawMany<CurrentWeekLeaderboardRowRaw>();
+  }
+
   async updatePatientRank(
     patientId: number,
     options?: { tx?: EntityManager },
@@ -265,8 +302,8 @@ export class LeaderboardRepositoryTypeOrmPostgres
     throw new Error('Method not implemented.');
   }
 
-  findOne<G>(id: G): Promise<Leaderboard> {
-    throw new Error('Method not implemented.');
+  findOne(id: number): Promise<Leaderboard> {
+    return this.repository.findOne({ where: { id } });
   }
 
   update<G>(id: G, payload: CreateLeaderboardDto): Promise<Leaderboard> {

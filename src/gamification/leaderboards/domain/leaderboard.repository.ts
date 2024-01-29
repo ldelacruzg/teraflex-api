@@ -5,11 +5,17 @@ import { Rank } from './rank.enum';
 import { PatientLeaderboard } from '@/entities';
 import { EntityManager } from 'typeorm';
 import { SummaryLastParticipationRaw } from './raw/summary-last-participation.raw';
+import { CurrentWeekLeaderboardRowRaw } from './raw/current-leaderboard.raw';
 
 export abstract class LeaderboardRepository extends Resource<
   Leaderboard,
   CreateLeaderboardDto
 > {
+  // obtener la tabla de clasificación de la semana actual
+  abstract findCurrentWeekLeaderboard(
+    rank: Rank,
+  ): Promise<CurrentWeekLeaderboardRowRaw[]>;
+
   // reajustar el rango del paciente
   abstract updatePatientRank(
     patientId: number,
