@@ -11,6 +11,7 @@ import { LeaderboardRepository } from '@/gamification/leaderboards';
 import { PatientRepository } from '@/gamification/patients';
 import { FormatDateService } from '@/shared/services/format-date.service';
 import { Environment } from '@/shared/constants/environment';
+import { AssignedAndCompletedTasksRaw } from '../domain/dtos/raw/assigned-and-completed-tasks.raw';
 
 export class TreatmentTaskRepositoryTypeOrmPostgres
   implements TreatmentTaskRepository
@@ -25,6 +26,21 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+  getAssignedAndCompletedTasksHistory(
+    patientId: number,
+  ): Promise<AssignedAndCompletedTasksRaw> {
+    const query = this.repository
+      .createQueryBuilder('a')
+      .select([
+        'count(*) as qty_tasks',
+        'count(a.performanceDate) as qty_tasks_completed',
+      ])
+      .innerJoin('a.treatment', 't')
+      .where('t.patientId = :patientId', { patientId });
+
+    return query.getRawOne<AssignedAndCompletedTasksRaw>();
+  }
+
   async getWeeklySummary(
     pLeaderboardId: number,
     patientId: number,

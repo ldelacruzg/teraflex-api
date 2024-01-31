@@ -4,11 +4,17 @@ import { CreateTreatmentTaskDto } from './dtos/create-treatment-task.dto';
 import { IFindAssignedTasksByPatient } from './interfaces';
 import { LinkRawOne } from './dtos/raw/multimedia.raw';
 import { EntityManager } from 'typeorm';
+import { AssignedAndCompletedTasksRaw } from './dtos/raw/assigned-and-completed-tasks.raw';
 
 export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  // obtener el total de tareas asignadas y completadas en toda la historia
+  abstract getAssignedAndCompletedTasksHistory(
+    patientId: number,
+  ): Promise<AssignedAndCompletedTasksRaw>;
+
   // obtener weekly summary (crear método)
   abstract getWeeklySummary(
     pLeaderboardId: number,
