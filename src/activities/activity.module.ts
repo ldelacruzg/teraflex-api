@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryService } from './services/category/category.service';
 import { CategoryController } from './controllers/category/category.controller';
@@ -47,7 +47,7 @@ import { MultimediaModule } from '@/multimedia/multimedia.module';
     NotificationModule,
     UserModule,
     MultimediaModule,
-    GamificationModule,
+    forwardRef(() => GamificationModule),
   ],
   providers: [
     CategoryService,
@@ -77,5 +77,6 @@ import { MultimediaModule } from '@/multimedia/multimedia.module';
     TaskController,
     TreatmentTaskController,
   ],
+  exports: [TreatmentTaskRepository],
 })
 export class ActivityModule {}

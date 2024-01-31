@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '@entities/user.entity';
 import { UserController } from './controllers/users/user.controller';
@@ -15,7 +15,7 @@ import { GamificationModule } from '@/gamification/gamification.module';
   imports: [
     TypeOrmModule.forFeature([User, UserValidation]),
     SharedModule,
-    GamificationModule,
+    forwardRef(() => GamificationModule),
   ],
   controllers: [UserController, GroupController],
   providers: [UserService, UserRepository, GroupRepository, GroupService],

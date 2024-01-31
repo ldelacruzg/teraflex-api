@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { PatientLeaderboard, TreatmentTasks, User } from '@/entities';
@@ -18,10 +18,12 @@ import {
   LeaderboardRepositoryTypeOrmPostgres,
   LeaderboardService,
 } from './leaderboards';
+import { ActivityModule } from '@/activities/activity.module';
 
 @Module({
   imports: [
     SharedModule,
+    forwardRef(() => ActivityModule),
     TypeOrmModule.forFeature([
       User,
       Patient,
