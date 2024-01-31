@@ -26,14 +26,36 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+
+  getWeeklyAssignedAndCompletedTasks(
+    patientId: number,
+  ): Promise<AssignedAndCompletedTasksRaw> {
+    const { end, start } = FormatDateService.getCurrentDateRange();
+
+    const query = this.repository
+      .createQueryBuilder('a')
+      .select([
+        'count(*)::integer as qty_tasks',
+        'count(a.performanceDate)::integer as qty_tasks_completed',
+      ])
+      .innerJoin('a.treatment', 't')
+      .where('t.patientId = :patientId', { patientId })
+      .andWhere(
+        `date(a.assignmentDate at time zone 'GTM-5') between :start and :end`,
+        { start, end },
+      );
+
+    return query.getRawOne<AssignedAndCompletedTasksRaw>();
+  }
+
   getAssignedAndCompletedTasksHistory(
     patientId: number,
   ): Promise<AssignedAndCompletedTasksRaw> {
     const query = this.repository
       .createQueryBuilder('a')
       .select([
-        'count(*) as qty_tasks',
-        'count(a.performanceDate) as qty_tasks_completed',
+        'count(*)::integer as qty_tasks',
+        'count(a.performanceDate)::integer as qty_tasks_completed',
       ])
       .innerJoin('a.treatment', 't')
       .where('t.patientId = :patientId', { patientId });
