@@ -72,6 +72,9 @@ export class MultimediaRepository {
     const linkIds = taskMultimedia.map(
       (taskMultimedia) => taskMultimedia.linkId,
     );
+
+    if (linkIds.length === 0) return [];
+
     const links = await this.link
       .createQueryBuilder()
       .where('id IN (:...linkIds)', { linkIds })

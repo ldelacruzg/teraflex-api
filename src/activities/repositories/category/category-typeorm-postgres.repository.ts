@@ -17,6 +17,9 @@ export class CategoryRepositoryTypeOrmPostgres implements CategoryRepository {
     const categoryIds = taskCategories.map(
       (taskCategory) => taskCategory.categoryId,
     );
+
+    if (categoryIds.length === 0) return [];
+
     const categories = await this.category
       .createQueryBuilder()
       .where('id IN (:...categoryIds)', { categoryIds })
