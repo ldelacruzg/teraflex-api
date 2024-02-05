@@ -12,6 +12,7 @@ import { PatientRepository } from '@/gamification/patients';
 import { FormatDateService } from '@/shared/services/format-date.service';
 import { Environment } from '@/shared/constants/environment';
 import { AssignedAndCompletedTasksRaw } from '../domain/dtos/raw/assigned-and-completed-tasks.raw';
+import { User } from '@/entities';
 
 export class TreatmentTaskRepositoryTypeOrmPostgres
   implements TreatmentTaskRepository
@@ -26,6 +27,25 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+
+  findLastTasksCompletedByTherapist(therapistId: number) {
+    return this.repository
+      .createQueryBuilder('tt')
+      .select([
+        'tt.id as "assignmentId"',
+        'tsk.title as title',
+        'CONCAT(u.first_name, \' \', u.last_name) as "patientFullName"',
+        'tt.performance_date as "updatedAt"',
+      ])
+      .innerJoin('tt.treatment', 't')
+      .innerJoin('tt.task', 'tsk')
+      .innerJoin(User, 'u', 't.patient_id = u.id')
+      .where('t.therapist_id = :therapistId', { therapistId })
+      .andWhere('tt.performance_date IS NOT NULL')
+      .orderBy('tt.assignment_date', 'DESC')
+      .limit(8)
+      .getRawMany();
+  }
 
   getWeeklyAssignedAndCompletedTasks(
     patientId: number,

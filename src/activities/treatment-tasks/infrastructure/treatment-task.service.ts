@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ITreatmentTaskService } from '../domain/treatment-task-service.interface';
 import { Treatment, TreatmentTasks } from '@/entities';
 import { TreatmentTaskRepository } from '../domain/treatment-task.repository';
@@ -26,6 +30,21 @@ export class TreatmentTaskService implements ITreatmentTaskService {
     private readonly leaderboardRepository: LeaderboardRepository,
     private readonly userRepository: UserRepository,
   ) {}
+  async getLastTaskCompleted(options: { therapistId: number }) {
+    const { therapistId } = options;
+
+    // verify if the user exists and is a therapist
+    const user = await this.userRepository.findTherapistById(therapistId);
+
+    if (!user) {
+      throw new NotFoundException(
+        `El terapeuta con id (${therapistId}) no existe`,
+      );
+    }
+
+    return this.repository.findLastTasksCompletedByTherapist(therapistId);
+  }
+
   // get number of pacients by age
   async getNumberOfPacientsByAges() {
     const numberPacientsByAges =

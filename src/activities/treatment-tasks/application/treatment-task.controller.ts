@@ -123,4 +123,23 @@ export class TreatmentTaskController {
       message: 'Número de pacientes por edades obtenido correctamente',
     };
   }
+
+  @Get('therapists/:therapistId/patients/last-completed')
+  @ApiOperation({
+    summary: 'Get last task completed of patients by therapist',
+  })
+  @Role(RoleEnum.THERAPIST)
+  async getLastTaskCompleted(
+    @Param('therapistId', ParseIntPipe) therapistId: number,
+  ): Promise<ResponseDataInterface> {
+    // get last task completed
+    const lastCompletedTask = await this.service.getLastTaskCompleted({
+      therapistId,
+    });
+
+    return {
+      message: 'ültimas tareas completadas obtenidas correctamente',
+      data: lastCompletedTask,
+    };
+  }
 }

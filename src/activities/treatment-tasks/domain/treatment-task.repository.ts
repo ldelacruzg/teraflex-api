@@ -10,6 +10,9 @@ export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  // obtener utlimas tareas completadas de los pacientes por terapeuta
+  abstract findLastTasksCompletedByTherapist(therapistId: number): Promise<any>;
+
   // obtener el total de tareas asignadas y completadas en la semana
   abstract getWeeklyAssignedAndCompletedTasks(
     patientId: number,

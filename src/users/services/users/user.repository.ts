@@ -14,6 +14,11 @@ export class UserRepository {
     private groupRepo: GroupRepository,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
+  findTherapistById(therapistId: number) {
+    return this.userRepository.findOne({
+      where: { id: therapistId, role: RoleEnum.THERAPIST },
+    });
+  }
 
   findNumberPatientsByAge() {
     return this.userRepository
