@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ITaskService } from '../domain/task-service.interface';
 import { CreateTaskDto } from '../domain/dtos/create-task.dto';
 import { Task } from '../domain/task.entity';
@@ -6,6 +6,8 @@ import { TaskRespository } from '../domain/task.repository';
 import { CategoryRepository } from '@/activities/repositories/category/category.respository';
 import { MultimediaRepository } from '@/multimedia/services/multimedia.repository';
 import { ITaskWithRelations } from '../domain/interfaces';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TaskService implements ITaskService {
@@ -14,6 +16,28 @@ export class TaskService implements ITaskService {
     private readonly categoryRepository: CategoryRepository,
     private readonly multimediaRepository: MultimediaRepository,
   ) {}
+  async getAllTasks(options: { userId?: number; status?: boolean }) {
+    const { userId, status } = options;
+
+    // get tasks
+    const tasks = await this.repository.findTasksWithCategoriesByTherapist(
+      userId,
+      status,
+    );
+
+    // return tasks
+    return tasks.map((task) => {
+      const categoryIds = task.tasksCategories.map(
+        ({ categoryId }) => categoryId,
+      );
+
+      delete task.tasksCategories;
+      return {
+        ...task,
+        categoryIds,
+      };
+    });
+  }
 
   async findOneWithRelations(id: number): Promise<ITaskWithRelations> {
     // Obtener tarea

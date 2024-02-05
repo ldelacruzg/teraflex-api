@@ -13,6 +13,27 @@ export class TaskRepositoryTypeOrmPostgres implements TaskRespository {
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
 
+  findTasksWithCategoriesByTherapist(therapistId: number, status?: boolean) {
+    const query = this.task
+      .createQueryBuilder('task')
+      .innerJoinAndSelect('task.tasksCategories', 'tasksCategories')
+      .where('(task.isPublic = :isPublic OR task.createdById = :therapistId)', {
+        isPublic: true,
+        therapistId,
+      });
+
+    // if status exists, add where clause
+    if (status !== undefined) {
+      query.andWhere('task.status = :_status', { _status: status });
+    }
+
+    // order by the date of creation
+    query.orderBy('task.createdAt', 'DESC');
+
+    // get tasks
+    return query.getMany();
+  }
+
   async exists(ids: number[]): Promise<boolean> {
     const count = await this.task
       .createQueryBuilder()
