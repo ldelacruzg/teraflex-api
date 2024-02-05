@@ -113,4 +113,14 @@ export class TreatmentTaskController {
       data: weeklySummary,
     };
   }
+
+  @Get('patients/number-of-pacients-by-ages')
+  @ApiOperation({ summary: 'Get number of pacients by ages' })
+  @Role(RoleEnum.ADMIN, RoleEnum.THERAPIST)
+  async getNumberOfPacientsByAges(): Promise<ResponseDataInterface> {
+    return {
+      data: await this.service.getNumberOfPacientsByAges(),
+      message: 'Número de pacientes por edades obtenido correctamente',
+    };
+  }
 }

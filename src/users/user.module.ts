@@ -19,6 +19,6 @@ import { GamificationModule } from '@/gamification/gamification.module';
   ],
   controllers: [UserController, GroupController],
   providers: [UserService, UserRepository, GroupRepository, GroupService],
-  exports: [UserService],
+  exports: [UserService, UserRepository],
 })
 export class UserModule {}

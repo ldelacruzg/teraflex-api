@@ -1,15 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@entities/user.entity';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { RoleEnum } from '@security/jwt-strategy/role.enum';
 import { Category } from '@entities/category.entity';
 import { GroupRepository } from '@users/services/groups/group.repository';
 import { GetManyUsersI, GetUserI } from '@users/interfaces/user.interfaces';
 import { Group } from '@entities/group.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserRepository {
-  constructor(private groupRepo: GroupRepository) {}
+  constructor(
+    private groupRepo: GroupRepository,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+  ) {}
+
+  findNumberPatientsByAge() {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .select(['extract(year from age(user.birth_date)) as "age"', 'count(*)'])
+      .where('user.role = :role', { role: RoleEnum.PATIENT })
+      .andWhere('extract(year from age(user.birth_date)) > 0')
+      .groupBy('age')
+      .getRawMany<{ age: number; count: number }>();
+  }
+
   async findById(cnx: EntityManager, id: number) {
     return await cnx
       .createQueryBuilder()
