@@ -1,8 +1,9 @@
-import { Category, TaskCategory } from '@/entities';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Category, Task, TaskCategory } from '@/entities';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { CategoryRepository } from './category.respository';
 import { CreateCategoryDto } from '@/activities/controllers/category/dto/create-category.dto';
+import { UpdateTaskDto } from '@/activities/tasks/domain/dtos/update-task.dto';
 
 export class CategoryRepositoryTypeOrmPostgres implements CategoryRepository {
   constructor(
@@ -10,7 +11,48 @@ export class CategoryRepositoryTypeOrmPostgres implements CategoryRepository {
     private readonly category: Repository<Category>,
     @InjectRepository(TaskCategory)
     private readonly taskCategory: Repository<TaskCategory>,
+    @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
+
+  async updateTaskWithRelations(options: {
+    missingCategories: number[];
+    newsCategories: number[];
+    taskId: number;
+    createdById: number;
+    payload: UpdateTaskDto;
+  }) {
+    const { missingCategories, newsCategories, taskId, createdById, payload } =
+      options;
+    return this.entityManager.transaction(async (tx) => {
+      // Eliminar las categorias faltantes
+      if (missingCategories.length > 0) {
+        const deleteTaskCategory = missingCategories.map((categoryId) => ({
+          taskId,
+          categoryId,
+        }));
+
+        for (const criteria of deleteTaskCategory) {
+          await tx.delete(TaskCategory, criteria);
+        }
+      }
+
+      // Crear los regitros en la tabla relacionada (TaskCategory)
+      if (newsCategories.length > 0) {
+        const inputTasksCategories = newsCategories.map((categoryId) => ({
+          taskId,
+          categoryId,
+          createdById,
+        }));
+
+        const tasksCategories = this.taskCategory.create(inputTasksCategories);
+        await tx.save(tasksCategories);
+      }
+
+      // Actualiza y devuelve los datos de la tarea
+      delete payload.categories;
+      return await tx.update(Task, taskId, payload);
+    });
+  }
 
   async findTaskCategories(taskId: number): Promise<Category[]> {
     const taskCategories = await this.taskCategory.find({ where: { taskId } });

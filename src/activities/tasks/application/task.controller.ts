@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -27,6 +28,7 @@ import { CreateTaskDto } from '../domain/dtos/create-task.dto';
 import { CurrentUser } from '@/security/jwt-strategy/auth.decorator';
 import { InfoUserInterface } from '@/security/jwt-strategy/info-user.interface';
 import { ParseBoolAllowUndefinedPipe } from '@/shared/pipes/parse-bool-allow-undefined.pipe';
+import { UpdateTaskDto } from '../domain/dtos/update-task.dto';
 
 @Controller()
 @UseInterceptors(ResponseHttpInterceptor)
@@ -102,6 +104,28 @@ export class TaskController {
     return {
       message: 'Tareas obtenidas correctamente',
       data: tasks,
+    };
+  }
+
+  @Put('tasks/:id')
+  @ApiOperation({ summary: 'Update a task' })
+  @Role(RoleEnum.THERAPIST)
+  async updateTask(
+    @Req() req,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<ResponseDataInterface> {
+    // Asigna el usuario de modificación
+    const userLogged = req.user as InfoUserInterface;
+    updateTaskDto.updatedById = userLogged.id;
+
+    // Actualiza la tarea
+    const task = await this.service.updateTask(id, updateTaskDto);
+
+    // Devuleve la tarea modificada
+    return {
+      message: 'Tarea actualizada correctamente',
+      data: task,
     };
   }
 }
