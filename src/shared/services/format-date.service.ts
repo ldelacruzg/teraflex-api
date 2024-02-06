@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 
 @Injectable()
 export class FormatDateService {
-  private formatDate(date: Date): string {
+  public formatDate(date: Date): string {
     return moment(date)
       .locale('es')
       .tz('America/Guayaquil')

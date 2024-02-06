@@ -14,25 +14,21 @@ export class DateFormatInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((element) => {
-        if (!element) return;
-
-        if (Array.isArray(element.data)) {
-          element.data = element.data.map((item) =>
-            this.formatDateService.formatDates(item),
-          );
-        } else if (Array.isArray(element)) {
-          element = element.map((item) =>
-            this.formatDateService.formatDates(item),
-          );
-        } else if (element.data) {
-          element.data = this.formatDateService.formatDates(element.data);
-        } else {
-          element = this.formatDateService.formatDates(element);
-        }
-
-        return element;
+      map((element: any) => {
+        return this.formatDates(element);
       }),
     );
+  }
+
+  private formatDates(obj: any): any {
+    for (const key in obj) {
+      if (obj[key] instanceof Date) {
+        obj[key] = this.formatDateService.formatDate(obj[key]);
+      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+        obj[key] = this.formatDates(obj[key]);
+      }
+    }
+
+    return obj;
   }
 }
