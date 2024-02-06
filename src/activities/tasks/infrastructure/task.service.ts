@@ -19,6 +19,25 @@ export class TaskService implements ITaskService {
     private readonly categoryRepository: CategoryRepository,
     private readonly multimediaRepository: MultimediaRepository,
   ) {}
+  async deleteTask(data: { id: number; updatedById: number }) {
+    const { id, updatedById } = data;
+
+    // Consulta la tarea por Id
+    const task = await this.repository.findOne(id);
+
+    // Verifica si no existe la tarea
+    if (!task) {
+      throw new NotFoundException(`La tarea con id (${id}) no existe`);
+    }
+
+    // cambia el estado de la tarea como "eliminada" (false)
+    return this.repository.changeStatus({
+      id,
+      status: false,
+      updatedById,
+    });
+  }
+
   async updateTask(id: number, updateTaskDto: UpdateTaskDto) {
     const { categories, updatedById } = updateTaskDto;
 

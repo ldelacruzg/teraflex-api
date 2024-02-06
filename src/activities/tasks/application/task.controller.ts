@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -125,6 +126,29 @@ export class TaskController {
     // Devuleve la tarea modificada
     return {
       message: 'Tarea actualizada correctamente',
+      data: task,
+    };
+  }
+
+  @Delete('tasks/:id')
+  @ApiOperation({ summary: 'Delete a task' })
+  @Role(RoleEnum.THERAPIST)
+  async deleteTask(
+    @Req() req,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ResponseDataInterface> {
+    // Asigna el usuario de eliminación
+    const userLogged = req.user as InfoUserInterface;
+
+    // Elimina la tarea
+    const task = await this.service.deleteTask({
+      id,
+      updatedById: userLogged.id,
+    });
+
+    // Devuelve la tarea eliminada
+    return {
+      message: 'Tarea eliminada correctamente',
       data: task,
     };
   }

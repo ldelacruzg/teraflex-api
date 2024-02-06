@@ -2,7 +2,7 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { CreateTaskDto } from '../domain/dtos/create-task.dto';
 import { Task } from '../domain/task.entity';
 import { TaskRespository } from '../domain/task.repository';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Repository, UpdateResult } from 'typeorm';
 import { TaskCategory, TaskMultimedia } from '@/entities';
 import { CreateTaskCategoryDto } from '../domain/dtos/create-task-category.dto';
 import { CreateTaskLinkDto } from '../domain/dtos/create-task-link.dto';
@@ -12,6 +12,22 @@ export class TaskRepositoryTypeOrmPostgres implements TaskRespository {
     @InjectRepository(Task) private readonly task: Repository<Task>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
+  async changeStatus(options: {
+    id: number;
+    status: boolean;
+    updatedById: number;
+  }): Promise<UpdateResult> {
+    const { id, status, updatedById } = options;
+
+    const query = this.task
+      .createQueryBuilder()
+      .update()
+      .set({ status, updatedById })
+      .where('id = :id', { id })
+      .returning('*');
+
+    return query.execute();
+  }
 
   findTasksWithCategoriesByTherapist(therapistId: number, status?: boolean) {
     const query = this.task
