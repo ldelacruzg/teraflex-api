@@ -266,7 +266,8 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
 
     const query = this.repository
       .createQueryBuilder('a')
-      .innerJoinAndSelect('treatments', 't', 't.id = a.treatmentId')
+      .innerJoinAndSelect('a.treatment', 't')
+      .innerJoinAndSelect('a.task', 'tsk')
       .where('t.patientId = :patientId', { patientId });
 
     if (taskDone !== undefined) {
@@ -280,6 +281,9 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     if (treatmentActive !== undefined) {
       query.andWhere('t.isActive = :isActive', { isActive: treatmentActive });
     }
+
+    query.orderBy('a.assignmentDate', 'DESC');
+    query.addOrderBy('a.expirationDate', 'DESC');
 
     return query.getMany();
   }
