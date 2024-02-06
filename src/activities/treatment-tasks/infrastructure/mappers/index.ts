@@ -11,6 +11,16 @@ export class TreatmentTasksMapper {
   ): AssignedTaskDetailDto {
     return {
       assignmentId: assignedTask.id,
+      assignmentDate: assignedTask.assignmentDate,
+      expirationDate: assignedTask.expirationDate,
+      performanceDate: assignedTask.performanceDate,
+      treatment: {
+        id: assignedTask.treatment.id,
+        title: assignedTask.treatment.title,
+        description: assignedTask.treatment.description,
+        startDate: assignedTask.treatment.startDate,
+        endDate: assignedTask.treatment.endDate,
+      },
       task: {
         id: assignedTask.task.id,
         title: assignedTask.task.title,

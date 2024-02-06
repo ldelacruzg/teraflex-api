@@ -241,9 +241,10 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
   async findAssignedTaskDetails(assignmentId: number): Promise<TreatmentTasks> {
     const query = await this.repository
       .createQueryBuilder('a')
+      .innerJoinAndSelect('a.treatment', 't')
       .innerJoinAndSelect('a.task', 'tsk')
-      .innerJoinAndSelect('tsk.tasksMultimedia', 'tm')
-      .innerJoinAndSelect('tm.link', 'l')
+      .leftJoinAndSelect('tsk.tasksMultimedia', 'tm')
+      .leftJoinAndSelect('tm.link', 'l')
       .where('a.id = :assignmentId', { assignmentId })
       .getOne();
 

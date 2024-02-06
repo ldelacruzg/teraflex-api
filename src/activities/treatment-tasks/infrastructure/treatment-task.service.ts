@@ -168,7 +168,7 @@ export class TreatmentTaskService implements ITreatmentTaskService {
     assignmentId: number,
   ): Promise<AssignedTaskFullDetailDto> {
     // validar que la asignación existe
-    const assignmentExists = this.repository.exists([assignmentId]);
+    const assignmentExists = await this.repository.exists([assignmentId]);
 
     if (!assignmentExists) {
       throw new BadRequestException(
