@@ -249,6 +249,36 @@ export class TreatmentTaskService implements ITreatmentTaskService {
     throw new Error('Method not implemented.');
   }
 
+  async removeMany(ids: number[]) {
+    // verify if the assignments exists
+    const assignments = await this.repository.findAssignedTasksByIds(ids);
+
+    if (assignments.length !== ids.length) {
+      throw new BadRequestException(
+        ids.length > 1 
+          ? `Las asignaciones con ids (${ids}) no existen`
+          : `La asignación con id (${ids}) no existe`,
+      );
+    }
+
+    // verify if the assignment belogs to the same patient
+    if (ids.length > 1) {
+      const patientId = assignments[0].treatment.patientId;
+      const isSamePatient = assignments.every(
+        (assignment) => assignment.treatment.patientId === patientId,
+      );
+
+      if (!isSamePatient) {
+        throw new NotFoundException(
+          `Las asignaciones con ids (${ids}) no pertenecen al mismo paciente`,
+        );
+      }
+    }
+
+    // delete the assignments
+    return this.repository.removeMany(ids);
+  }
+
   remove<G>(id: G): Promise<Treatment> {
     throw new Error('Method not implemented.');
   }

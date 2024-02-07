@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  ParseArrayPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -12,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { TreatmentTaskService } from '../infrastructure/treatment-task.service';
 import { AssignTasksToTreatmentBodyDto } from '../domain/dtos/create-treatment-task.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Role } from '@/security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '@/security/jwt-strategy/role.enum';
 import { ResponseHttpInterceptor } from '@/shared/interceptors/response-http.interceptor';
@@ -140,6 +142,27 @@ export class TreatmentTaskController {
     return {
       message: 'ültimas tareas completadas obtenidas correctamente',
       data: lastCompletedTask,
+    };
+  }
+
+  @Delete('assignments')
+  @ApiOperation({
+    summary: 'Delete one or more tasks assigned to a patient',
+  })
+  @ApiQuery({ name: 'id', required: true })
+  @Role(RoleEnum.THERAPIST)
+  async deleteTasksFromUser(
+    @Query('id', new ParseArrayPipe({ items: Number })) assignmentIds: number[],
+  ): Promise<ResponseDataInterface> {
+    // remove tasks from user
+    const removedTasks = await this.service.removeMany(assignmentIds);
+
+    return {
+      message:
+        assignmentIds.length > 1
+          ? 'Tareas asignadas eliminadas correctamente'
+          : 'La tarea asignada fue eliminada correctamente',
+      data: removedTasks,
     };
   }
 }
