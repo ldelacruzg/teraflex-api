@@ -27,6 +27,13 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
+  findAssignedTasksByIds(ids: number[]): Promise<TreatmentTasks[]> {
+    return this.repository
+      .createQueryBuilder('a')
+      .innerJoinAndSelect('a.treatment', 't')
+      .where('a.id IN (:...ids)', { ids })
+      .getMany();
+  }
 
   findLastTasksCompletedByTherapist(therapistId: number) {
     return this.repository
