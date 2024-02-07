@@ -11,7 +11,7 @@ import { ResponseDataInterface } from '../interfaces/response-data.interface';
 export class ResponseHttpInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map(({ message, data }: ResponseDataInterface) => {
+      map(({ message, data, formatDate }: ResponseDataInterface) => {
         const statusCode = context.switchToHttp().getResponse().statusCode;
         const method = context.switchToHttp().getRequest().method;
 
@@ -19,6 +19,7 @@ export class ResponseHttpInterceptor implements NestInterceptor {
           return {
             statusCode,
             message: message || 'Registro eliminado correctamente',
+            formatDate,
           };
         }
 
@@ -26,6 +27,7 @@ export class ResponseHttpInterceptor implements NestInterceptor {
           statusCode,
           message: message || 'Operación realizada correctamente',
           data,
+          formatDate,
         };
       }),
     );

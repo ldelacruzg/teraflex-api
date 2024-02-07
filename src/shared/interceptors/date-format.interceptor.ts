@@ -7,6 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FormatDateService } from '../services/format-date.service';
+import { ResponseDataInterface } from '../interfaces/response-data.interface';
 
 @Injectable()
 export class DateFormatInterceptor implements NestInterceptor {
@@ -14,7 +15,12 @@ export class DateFormatInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((element: any) => {
+      map((element: ResponseDataInterface) => {
+        if (element.formatDate === false) {
+          delete element.formatDate;
+          return element;
+        }
+        
         return this.formatDates(element);
       }),
     );
