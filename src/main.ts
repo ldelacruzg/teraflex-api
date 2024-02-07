@@ -50,6 +50,12 @@ async function bootstrap() {
   // configurar carpeta de archivos estáticos
   app.useStaticAssets(join(__dirname, '..', Environment.PUBLIC_DIR), {
     prefix: '/uploads/',
+    setHeaders: (res, path) => {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+      res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
   });
 
   await app.listen(Environment.PORT);
