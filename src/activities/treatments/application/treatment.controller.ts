@@ -92,6 +92,7 @@ export class TreatmentController {
 
     return {
       message: 'Las tareas del tratamiento se obtuvieron correctamente',
+      formatDate: false,
       data: tasks,
     };
   }
