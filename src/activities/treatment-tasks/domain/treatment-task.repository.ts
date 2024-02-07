@@ -3,13 +3,16 @@ import { TreatmentTasks } from './treatment-tasks.entity';
 import { CreateTreatmentTaskDto } from './dtos/create-treatment-task.dto';
 import { IFindAssignedTasksByPatient } from './interfaces';
 import { LinkRawOne } from './dtos/raw/multimedia.raw';
-import { EntityManager } from 'typeorm';
+import { DeleteResult, EntityManager } from 'typeorm';
 import { AssignedAndCompletedTasksRaw } from './dtos/raw/assigned-and-completed-tasks.raw';
 
 export abstract class TreatmentTaskRepository extends Resource<
   TreatmentTasks,
   CreateTreatmentTaskDto
 > {
+  // eliminar uno o varias tareas asignadas
+  abstract removeMany(ids: number[]): Promise<DeleteResult>;
+
   // obtener tareas asignadas por varios id
   abstract findAssignedTasksByIds(ids: number[]): Promise<TreatmentTasks[]>;
 

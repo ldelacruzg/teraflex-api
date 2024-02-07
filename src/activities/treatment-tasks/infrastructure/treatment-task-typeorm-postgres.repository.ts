@@ -1,4 +1,4 @@
-import { EntityManager, Repository } from 'typeorm';
+import { DeleteResult, EntityManager, Repository } from 'typeorm';
 import { CreateTreatmentTaskDto } from '../domain/dtos/create-treatment-task.dto';
 import { TreatmentTaskRepository } from '../domain/treatment-task.repository';
 import { TreatmentTasks } from '../domain/treatment-tasks.entity';
@@ -318,6 +318,14 @@ export class TreatmentTaskRepositoryTypeOrmPostgres
 
   update<G>(id: G, payload: CreateTreatmentTaskDto): Promise<TreatmentTasks> {
     throw new Error('Method not implemented.');
+  }
+
+  removeMany(ids: number[]): Promise<DeleteResult> {
+    return this.repository
+      .createQueryBuilder()
+      .delete()
+      .where('id IN (:...ids)', { ids })
+      .execute();
   }
 
   remove<G>(id: G): Promise<TreatmentTasks> {
