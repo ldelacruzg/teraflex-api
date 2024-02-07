@@ -34,6 +34,7 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     const query = this.treatmentTasks
       .createQueryBuilder('a')
       .innerJoinAndSelect('a.task', 'tsk')
+      .innerJoinAndSelect('a.treatment', 't')
       .where('a.treatmentId = :treatmentId', { treatmentId })
       .andWhere(
         new Brackets((qb) => {
