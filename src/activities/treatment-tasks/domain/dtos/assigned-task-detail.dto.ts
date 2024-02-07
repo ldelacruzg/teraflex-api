@@ -2,9 +2,6 @@ import { IFrecuency } from '../treatment-tasks.entity';
 
 export class AssignedTaskDetailDto {
   assignmentId: number;
-  assignmentDate: Date;
-  expirationDate: Date;
-  performanceDate: Date;
   treatment: Treatment;
   task: Task;
   setting: TaskSetting;
