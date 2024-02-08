@@ -13,6 +13,7 @@ export class TreatmentRawOneDto extends PickType(Treatment, ['id', 'title']) {
   numberTasks: number;
   completedTasks: number;
   pendingTasks: number;
+  overdueTasks: number;
 }
 
 export class TreatmentTypeOrmPostgresMapper {
@@ -29,6 +30,7 @@ export class TreatmentTypeOrmPostgresMapper {
       numberTasks: parseInt(rawOne.numberTasks),
       completedTasks: parseInt(rawOne.completedTasks),
       pendingTasks: parseInt(rawOne.pendingTasks),
+      overdueTasks: parseInt(rawOne.numberTasks) - parseInt(rawOne.completedTasks),
     };
   }
 }

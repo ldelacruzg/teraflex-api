@@ -10,7 +10,6 @@ import {
 import { TreatmentTasks } from '@/entities';
 import {
   TreatmentRawOneDto,
-  TreatmentTypeOrmPostgresMapper,
 } from './mappers/treatment-typeorm-postgres.mapper';
 
 export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
@@ -99,35 +98,12 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     const isSubQuery = tasksNumber !== undefined && tasksNumber;
 
     if (isSubQuery) {
-      query.select(['t.id', 't.title']);
-      query.addSelect(
-        (subQuery) =>
-          subQuery
-            .select('count(*)', 'numberTasks')
-            .from(TreatmentTasks, 'tt')
-            .where('tt.treatmentId = t.id'),
-        'numberTasks',
-      );
-
-      query.addSelect(
-        (subQuery) =>
-          subQuery
-            .select('count(*)', 'completedTasks')
-            .from(TreatmentTasks, 'tt')
-            .where('tt.treatmentId = t.id')
-            .andWhere('tt.performanceDate IS NOT NULL'),
-        'completedTasks',
-      );
-
-      query.addSelect(
-        (subQuery) =>
-          subQuery
-            .select('count(*)', 'pendingTasks')
-            .from(TreatmentTasks, 'tt')
-            .where('tt.treatmentId = t.id')
-            .andWhere('tt.performanceDate IS NULL'),
-        'pendingTasks',
-      );
+      query.select(['t.id AS id', 't.title as title']);
+      query.addSelect('COUNT(tt.id)::integer', 'numberTasks');
+      query.addSelect('COUNT(tt.performance_date)::integer', 'completedTasks');
+      query.addSelect(`COUNT(CASE WHEN date(now() AT TIME ZONE 'America/Guayaquil') > tt.expiration_date AND tt.performance_date IS NULL THEN tt.id END)::integer`, 'overdueTasks');
+      query.addSelect(`COUNT(CASE WHEN date(now() AT TIME ZONE 'America/Guayaquil') <= tt.expiration_date AND tt.performance_date IS NULL THEN tt.id END)::integer`, 'pendingTasks');
+      query.innerJoin('t.treatmentTasks', 'tt');
     }
 
     if (patientId) {
@@ -138,10 +114,15 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
       query.andWhere('t.isActive = :isActive', { isActive: treatmentActive });
     }
 
+    if (isSubQuery) {
+      query.groupBy('t.id')
+        .addGroupBy('t.title');
+    }
+
     query.orderBy('t.startDate', 'DESC');
 
     return isSubQuery
-      ? TreatmentTypeOrmPostgresMapper.fromRawMany(await query.getRawMany())
+      ? query.getRawMany<TreatmentRawOneDto>()
       : query.getMany();
   }
 

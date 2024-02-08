@@ -53,10 +53,10 @@ export class TreatmentController {
   @ApiOperation({ summary: 'Get all treatments' })
   @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
   async getAll(
-    @Query('patient-id', ParseIntAllowsUndefinedPipe) patientId: number,
-    @Query('treatment-active', ParseBoolAllowUndefinedPipe)
+    @Query('patientId', ParseIntAllowsUndefinedPipe) patientId: number,
+    @Query('treatmentActive', ParseBoolAllowUndefinedPipe)
     treatmentActive: boolean,
-    @Query('tasks-number', ParseBoolAllowUndefinedPipe)
+    @Query('tasksNumber', ParseBoolAllowUndefinedPipe)
     tasksNumber: boolean,
   ): Promise<ResponseDataInterface> {
     const treatments = await this.service.findAll({
