@@ -103,7 +103,7 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
       query.addSelect('COUNT(tt.performance_date)::integer', 'completedTasks');
       query.addSelect(`COUNT(CASE WHEN date(now() AT TIME ZONE 'America/Guayaquil') > tt.expiration_date AND tt.performance_date IS NULL THEN tt.id END)::integer`, 'overdueTasks');
       query.addSelect(`COUNT(CASE WHEN date(now() AT TIME ZONE 'America/Guayaquil') <= tt.expiration_date AND tt.performance_date IS NULL THEN tt.id END)::integer`, 'pendingTasks');
-      query.innerJoin('t.treatmentTasks', 'tt');
+      query.leftJoin('t.treatmentTasks', 'tt');
     }
 
     if (patientId) {
