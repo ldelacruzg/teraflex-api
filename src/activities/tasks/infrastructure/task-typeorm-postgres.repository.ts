@@ -33,6 +33,7 @@ export class TaskRepositoryTypeOrmPostgres implements TaskRespository {
     const query = this.task
       .createQueryBuilder('task')
       .innerJoinAndSelect('task.tasksCategories', 'tasksCategories')
+      .innerJoinAndSelect('tasksCategories.category', 'category')
       .where('(task.isPublic = :isPublic OR task.createdById = :therapistId)', {
         isPublic: true,
         therapistId,

@@ -111,10 +111,15 @@ export class TaskService implements ITaskService {
       const categoryIds = task.tasksCategories.map(
         ({ categoryId }) => categoryId,
       );
+      
+      const categories = task.tasksCategories.map(
+        ({ category }) => category,
+      );
 
       delete task.tasksCategories;
       return {
         ...task,
+        categories,
         categoryIds,
       };
     });
