@@ -12,6 +12,7 @@ import {
   TreatmentRawOneDto,
 } from './mappers/treatment-typeorm-postgres.mapper';
 import moment from 'moment-timezone';
+import { TreatmentSummary } from '../domain/dtos/treatment-summary.dto';
 
 export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
   constructor(
@@ -20,6 +21,21 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     @InjectRepository(TreatmentTasks)
     private readonly treatmentTasks: Repository<TreatmentTasks>,
   ) {}
+  findTreatmentSummary(treatmentId: number): Promise<TreatmentSummary> {
+    return this.treatment
+      .createQueryBuilder('t')
+      .select(['t.id AS id', 't.title as title'])
+      .addSelect('COUNT(tt.id)::integer', 'numberTasks')
+      .addSelect('COUNT(tt.performance_date)::integer', 'completedTasks')
+      .addSelect(`COUNT(CASE WHEN date(now() AT TIME ZONE 'America/Guayaquil') > tt.expiration_date AND tt.performance_date IS NULL THEN tt.id END)::integer`, 'overdueTasks')
+      .addSelect(`COUNT(CASE WHEN date(now() AT TIME ZONE 'America/Guayaquil') <= tt.expiration_date AND tt.performance_date IS NULL THEN tt.id END)::integer`, 'pendingTasks')
+      .leftJoin('t.treatmentTasks', 'tt')
+      .where('t.id = :id', { id: treatmentId })
+      .groupBy('t.id')
+      .addGroupBy('t.title')
+      .getRawOne<TreatmentSummary>();
+  }
+
   finishTreatment(treatmentId: number): Promise<UpdateResult> {
     const today = moment().tz('America/Guayaquil').format('YYYY-MM-DD');
 

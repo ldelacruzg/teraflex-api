@@ -126,4 +126,19 @@ export class TreatmentController {
       data: result,
     };
   }
+
+  // obtener el resumen de un tratamiento
+  @Get(':treatmentId/summary')
+  @ApiOperation({ summary: 'Get a treatment summary' })
+  @Role(RoleEnum.THERAPIST, RoleEnum.PATIENT)
+  async getTreatmentSummary(
+    @Param('treatmentId', ParseIntPipe) treatmentId: number,
+  ): Promise<ResponseDataInterface> {
+    const summary = await this.service.getTreatmentSummary(treatmentId);
+
+    return {
+      message: 'Resumen del tratamiento obtenido correctamente',
+      data: summary,
+    };
+  }
 }

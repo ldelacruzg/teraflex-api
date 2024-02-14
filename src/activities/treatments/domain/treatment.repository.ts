@@ -8,6 +8,7 @@ import {
 import { TreatmentTasks } from '@/entities';
 import { TreatmentRawOneDto } from '../infrastructure/mappers/treatment-typeorm-postgres.mapper';
 import { UpdateResult } from 'typeorm';
+import { TreatmentSummary } from './dtos/treatment-summary.dto';
 
 export abstract class TreatmentRepository extends Resource<
   Treatment,
@@ -15,6 +16,9 @@ export abstract class TreatmentRepository extends Resource<
 > {
   // finalizar tratamiento
   abstract finishTreatment(treatmentId: number): Promise<UpdateResult>;
+
+  // obtener el resumen de un tratamiento
+  abstract findTreatmentSummary(treatmentId: number): Promise<TreatmentSummary>;
 
   abstract findTasks(
     treatmentId: number,

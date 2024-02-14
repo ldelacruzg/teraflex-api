@@ -7,10 +7,13 @@ import {
 } from './interfaces';
 import { AssignedTaskDetailDto } from '@/activities/treatment-tasks/domain/dtos/assigned-task-detail.dto';
 import { UpdateResult } from 'typeorm';
+import { TreatmentSummary } from './dtos/treatment-summary.dto';
 
 export interface ITreatmentService
   extends Resource<Treatment, CreateTreatmentDto> {
   finishTreatment(treatmentId: number): Promise<UpdateResult>;
+
+  getTreatmentSummary(treatmentId: number): Promise<TreatmentSummary>;
 
   findAllTreatmentTasks(
     options: IFindAllTreatmentTasksOptions,
