@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -108,6 +109,21 @@ export class TreatmentController {
     return {
       message: 'Tratamiento obtenido correctamente',
       data: treatment,
+    };
+  }
+
+  // finalizar tratamiento
+  @Patch(':treatmentId/finish')
+  @ApiOperation({ summary: 'Finish a treatment' })
+  @Role(RoleEnum.THERAPIST)
+  async finishTreatment(
+    @Param('treatmentId', ParseIntPipe) treatmentId: number,
+  ): Promise<ResponseDataInterface> {
+    const result = await this.service.finishTreatment(treatmentId);
+
+    return {
+      message: 'Tratamiento finalizado correctamente',
+      data: result,
     };
   }
 }

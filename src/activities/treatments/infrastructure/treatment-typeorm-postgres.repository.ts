@@ -1,4 +1,4 @@
-import { Brackets, EntityManager, Repository } from 'typeorm';
+import { Brackets, EntityManager, Repository, UpdateResult } from 'typeorm';
 import { Treatment } from '../domain/treatment.entity';
 import { TreatmentRepository } from '../domain/treatment.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +11,7 @@ import { TreatmentTasks } from '@/entities';
 import {
   TreatmentRawOneDto,
 } from './mappers/treatment-typeorm-postgres.mapper';
+import moment from 'moment-timezone';
 
 export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
   constructor(
@@ -19,6 +20,17 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     @InjectRepository(TreatmentTasks)
     private readonly treatmentTasks: Repository<TreatmentTasks>,
   ) {}
+  finishTreatment(treatmentId: number): Promise<UpdateResult> {
+    const today = moment().tz('America/Guayaquil').format('YYYY-MM-DD');
+
+    return this.treatment
+      .createQueryBuilder()
+      .update(Treatment)
+      .set({ isActive: false, endDate: today })
+      .where('id = :id', { id: treatmentId })
+      .returning('*')
+      .execute();
+  }
 
   findTasks(
     treatmentId: number,

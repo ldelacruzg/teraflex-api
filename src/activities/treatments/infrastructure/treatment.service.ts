@@ -11,6 +11,7 @@ import {
 } from '../domain/interfaces';
 import { AssignedTaskDetailDto } from '@/activities/treatment-tasks/domain/dtos/assigned-task-detail.dto';
 import { TreatmentTasksMapper } from '@/activities/treatment-tasks/infrastructure/mappers';
+import { UpdateResult } from 'typeorm';
 
 @Injectable()
 export class TreatmentService implements ITreatmentService {
@@ -18,6 +19,26 @@ export class TreatmentService implements ITreatmentService {
     private readonly repository: TreatmentRepository,
     private readonly patientRepository: PatientRepository,
   ) {}
+  
+  async finishTreatment(treatmentId: number): Promise<UpdateResult> {
+    // verificar que el tratamiento exista
+    const treatmentExists = await this.repository.findOne(treatmentId);
+    if (!treatmentExists) {
+      throw new BadRequestException(
+        `El tratamiento con id (${treatmentId}) no existe`,
+      );
+    }
+
+    // verificar que el tratamiento no este finalizado
+    if (treatmentExists.endDate !== null) {
+      throw new BadRequestException(
+        `El tratamiento con id (${treatmentId}) ya está finalizado`,
+      );
+    }
+
+    // finalizar el tratamiento
+    return this.repository.finishTreatment(treatmentId);
+  }
 
   async findAllTreatmentTasks(
     options: IFindAllTreatmentTasksOptions,
