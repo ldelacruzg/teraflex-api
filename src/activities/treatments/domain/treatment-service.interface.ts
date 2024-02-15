@@ -11,6 +11,8 @@ import { TreatmentSummary } from './dtos/treatment-summary.dto';
 
 export interface ITreatmentService
   extends Resource<Treatment, CreateTreatmentDto> {
+  toggleActive(treatmentId: number): Promise<UpdateResult>;
+
   finishTreatment(treatmentId: number): Promise<UpdateResult>;
 
   getTreatmentSummary(treatmentId: number): Promise<TreatmentSummary>;

@@ -14,6 +14,9 @@ export abstract class TreatmentRepository extends Resource<
   Treatment,
   CreateTreatmentDto
 > {
+  // activar o desactivar un tratamiento
+  abstract toggleActive(treatmentId: number): Promise<UpdateResult>;
+
   // finalizar tratamiento
   abstract finishTreatment(treatmentId: number): Promise<UpdateResult>;
 

@@ -21,6 +21,16 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     @InjectRepository(TreatmentTasks)
     private readonly treatmentTasks: Repository<TreatmentTasks>,
   ) {}
+  toggleActive(treatmentId: number): Promise<UpdateResult> {
+    return this.treatment
+      .createQueryBuilder()
+      .update(Treatment)
+      .set({ isActive: () => 'NOT "is_active"' })
+      .where('id = :id', { id: treatmentId })
+      .returning('*')
+      .execute();
+  }
+
   findTreatmentSummary(treatmentId: number): Promise<TreatmentSummary> {
     return this.treatment
       .createQueryBuilder('t')

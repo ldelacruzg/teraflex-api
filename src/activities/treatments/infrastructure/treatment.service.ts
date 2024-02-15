@@ -20,6 +20,23 @@ export class TreatmentService implements ITreatmentService {
     private readonly repository: TreatmentRepository,
     private readonly patientRepository: PatientRepository,
   ) {}
+  async toggleActive(treatmentId: number): Promise<UpdateResult> {
+    // verificar que existe el tratamiento
+    const treament = await this.repository.findOne(treatmentId);
+    if (!treament) {
+      throw new BadRequestException(`El tratamiento con id (${treatmentId}) no existe`);
+    }
+
+    // verificar que no este finalizado
+    if (treament.endDate !== null) {
+      throw new BadRequestException(
+        `El tratamiento con id (${treatmentId}) ya está finalizado`,
+      );
+    }
+    
+    return this.repository.toggleActive(treatmentId);
+  }
+
   async getTreatmentSummary(treatmentId: number): Promise<TreatmentSummary> {
     // verificar que el tratamiento exista
     const treatmentExists = await this.repository.exists([treatmentId]);

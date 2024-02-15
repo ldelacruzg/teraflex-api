@@ -141,4 +141,19 @@ export class TreatmentController {
       data: summary,
     };
   }
+
+  // activar/desactivar tratamiento
+  @Patch(':treatmentId/toggle-active')
+  @ApiOperation({ summary: 'Activate or deactivate a treatment' })
+  @Role(RoleEnum.THERAPIST)
+  async toggleTreatment(
+    @Param('treatmentId', ParseIntPipe) treatmentId: number,
+  ): Promise<ResponseDataInterface> {
+    const result = await this.service.toggleActive(treatmentId);
+
+    return {
+      message: 'Tratamiento activado/desactivado correctamente',
+      data: result,
+    };
+  }
 }
