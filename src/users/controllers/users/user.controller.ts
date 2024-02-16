@@ -67,6 +67,7 @@ export class UserController {
   async findById(@Param('id', ParseIntPipe) id: number) {
     return {
       data: await this.service.findById(id),
+      formatDate: false,
     } as ResponseDataInterface;
   }
 
@@ -114,6 +115,7 @@ export class UserController {
   async getMyProfile(@CurrentUser() { id }: InfoUserInterface) {
     return {
       data: await this.service.findById(id),
+      formatDate: false,
     } as ResponseDataInterface;
   }
 
@@ -129,6 +131,7 @@ export class UserController {
   ) {
     return {
       data: await this.service.getAllPatients(user, status),
+      formatDate: false,
     } as ResponseDataInterface;
   }
 
