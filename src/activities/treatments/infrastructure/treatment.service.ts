@@ -13,6 +13,7 @@ import { AssignedTaskDetailDto } from '@/activities/treatment-tasks/domain/dtos/
 import { TreatmentTasksMapper } from '@/activities/treatment-tasks/infrastructure/mappers';
 import { UpdateResult } from 'typeorm';
 import { TreatmentSummary } from '../domain/dtos/treatment-summary.dto';
+import { UpdateTreatmentDto } from '../domain/dtos/update-treatment.dto';
 
 @Injectable()
 export class TreatmentService implements ITreatmentService {
@@ -20,6 +21,16 @@ export class TreatmentService implements ITreatmentService {
     private readonly repository: TreatmentRepository,
     private readonly patientRepository: PatientRepository,
   ) {}
+  updateTreatment(treatmentId: number, payload: UpdateTreatmentDto): Promise<UpdateResult> {
+    // verificar que el tratamiento exista
+    const treatmentExists = this.repository.exists([treatmentId]);
+    if (!treatmentExists) {
+      throw new BadRequestException(`El tratamiento con id (${treatmentId}) no existe`);
+    }
+
+    return this.repository.updateTreatment(treatmentId, payload);
+  }
+
   async toggleActive(treatmentId: number): Promise<UpdateResult> {
     // verificar que existe el tratamiento
     const treament = await this.repository.findOne(treatmentId);
@@ -126,7 +137,7 @@ export class TreatmentService implements ITreatmentService {
     return this.repository.findOne(id);
   }
 
-  update(id: number, payload: CreateTreatmentDto): Promise<Treatment> {
+  update(id: number, payload: UpdateTreatmentDto): Promise<Treatment> {
     throw new Error('Method not implemented.');
   }
 

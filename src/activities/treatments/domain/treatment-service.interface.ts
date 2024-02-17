@@ -8,9 +8,15 @@ import {
 import { AssignedTaskDetailDto } from '@/activities/treatment-tasks/domain/dtos/assigned-task-detail.dto';
 import { UpdateResult } from 'typeorm';
 import { TreatmentSummary } from './dtos/treatment-summary.dto';
+import { UpdateTreatmentDto } from './dtos/update-treatment.dto';
 
 export interface ITreatmentService
-  extends Resource<Treatment, CreateTreatmentDto> {
+  extends Resource<Treatment, CreateTreatmentDto | UpdateTreatmentDto> {
+  updateTreatment(
+    treatmentId: number,
+    payload: UpdateTreatmentDto,
+  ): Promise<UpdateResult>;
+  
   toggleActive(treatmentId: number): Promise<UpdateResult>;
 
   finishTreatment(treatmentId: number): Promise<UpdateResult>;

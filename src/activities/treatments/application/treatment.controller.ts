@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
   UseInterceptors,
@@ -23,6 +24,7 @@ import { CreateTreatmentDto } from '../domain/dtos/create-treament.dto';
 import { ResponseDataInterface } from '@/shared/interfaces/response-data.interface';
 import { ParseBoolAllowUndefinedPipe } from '@/shared/pipes/parse-bool-allow-undefined.pipe';
 import { ParseIntAllowsUndefinedPipe } from '@/shared/pipes/parse-int-allows-undefined.pipe';
+import { UpdateTreatmentDto } from '../domain/dtos/update-treatment.dto';
 
 @Controller('treatments')
 @UseInterceptors(ResponseHttpInterceptor)
@@ -153,6 +155,22 @@ export class TreatmentController {
 
     return {
       message: 'Tratamiento activado/desactivado correctamente',
+      data: result,
+    };
+  }
+
+  // editar tratamiento
+  @Put(':treatmentId')
+  @ApiOperation({ summary: 'Edit a treatment' })
+  @Role(RoleEnum.THERAPIST)
+  async update(
+    @Param('treatmentId', ParseIntPipe) treatmentId: number,
+    @Body() payload: UpdateTreatmentDto,
+  ): Promise<ResponseDataInterface> {
+    const result = await this.service.updateTreatment(treatmentId, payload);
+
+    return {
+      message: 'Tratamiento actualizado correctamente',
       data: result,
     };
   }

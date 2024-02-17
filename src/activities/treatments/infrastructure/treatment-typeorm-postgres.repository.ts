@@ -13,6 +13,7 @@ import {
 } from './mappers/treatment-typeorm-postgres.mapper';
 import moment from 'moment-timezone';
 import { TreatmentSummary } from '../domain/dtos/treatment-summary.dto';
+import { UpdateTreatmentDto } from '../domain/dtos/update-treatment.dto';
 
 export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
   constructor(
@@ -21,6 +22,10 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     @InjectRepository(TreatmentTasks)
     private readonly treatmentTasks: Repository<TreatmentTasks>,
   ) {}
+  updateTreatment(treatmentId: number, payload: UpdateTreatmentDto): Promise<UpdateResult> {
+    return this.treatment.update({ id: treatmentId }, payload);
+  }
+
   toggleActive(treatmentId: number): Promise<UpdateResult> {
     return this.treatment
       .createQueryBuilder()
@@ -170,7 +175,7 @@ export class TreatmentRepositoryTypeOrmPostgres implements TreatmentRepository {
     });
   }
 
-  update(
+  async update(
     id: number,
     payload: CreateTreatmentDto,
     tx?: any,

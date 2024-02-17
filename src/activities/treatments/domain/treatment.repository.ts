@@ -9,11 +9,15 @@ import { TreatmentTasks } from '@/entities';
 import { TreatmentRawOneDto } from '../infrastructure/mappers/treatment-typeorm-postgres.mapper';
 import { UpdateResult } from 'typeorm';
 import { TreatmentSummary } from './dtos/treatment-summary.dto';
+import { UpdateTreatmentDto } from './dtos/update-treatment.dto';
 
 export abstract class TreatmentRepository extends Resource<
   Treatment,
   CreateTreatmentDto
 > {
+  // actualizar un tratamiento
+  abstract updateTreatment(treatmentId: number, payload: UpdateTreatmentDto): Promise<UpdateResult>;
+
   // activar o desactivar un tratamiento
   abstract toggleActive(treatmentId: number): Promise<UpdateResult>;
 
