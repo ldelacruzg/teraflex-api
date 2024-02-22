@@ -60,4 +60,8 @@ export class FormatDateService {
       .format('YYYY-MM-DD');
     return { start, end };
   }
+
+  public static formatDateToNotification(date: Date) {
+    return moment(date).locale('es').format('dddd D [de] MMMM [del] YYYY');
+  }
 }

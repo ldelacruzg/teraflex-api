@@ -14,7 +14,12 @@ import {
 } from '@nestjs/common';
 import { TreatmentTaskService } from '../infrastructure/treatment-task.service';
 import { AssignTasksToTreatmentBodyDto } from '../domain/dtos/create-treatment-task.dto';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Role } from '@/security/jwt-strategy/roles.decorator';
 import { RoleEnum } from '@/security/jwt-strategy/role.enum';
 import { ResponseHttpInterceptor } from '@/shared/interceptors/response-http.interceptor';
@@ -23,6 +28,12 @@ import { JwtAuthGuard } from '@/security/jwt-strategy/jwt-auth.guard';
 import { RoleGuard } from '@/security/jwt-strategy/roles.guard';
 import { ResponseDataInterface } from '@/shared/interfaces/response-data.interface';
 import { ParseBoolAllowUndefinedPipe } from '@/shared/pipes/parse-bool-allow-undefined.pipe';
+import { UserService } from '@/users/services/users/user.service';
+import { CurrentUser } from '@/security/jwt-strategy/auth.decorator';
+import { InfoUserInterface } from '@/security/jwt-strategy/info-user.interface';
+import { NotificationService } from '@/notifications/services/notifications/notification.service';
+import { TreatmentService } from '@/activities/treatments';
+import { FormatDateService } from '@/shared/services/format-date.service';
 
 @Controller()
 @UseInterceptors(ResponseHttpInterceptor, CacheInterceptor)
@@ -30,18 +41,39 @@ import { ParseBoolAllowUndefinedPipe } from '@/shared/pipes/parse-bool-allow-und
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class TreatmentTaskController {
-  constructor(private readonly service: TreatmentTaskService) {}
+  constructor(
+    private readonly service: TreatmentTaskService,
+    private readonly userService: UserService,
+    private readonly notificationService: NotificationService,
+    private readonly treatmentService: TreatmentService,
+  ) {}
 
   @Post('treatments/:treatmentId/assign-tasks')
   @ApiOperation({ summary: 'Assign tasks to treatment' })
   @Role(RoleEnum.THERAPIST)
   async create(
+    @CurrentUser() userLogged: InfoUserInterface,
     @Param('treatmentId', ParseIntPipe) treatmentId: number,
     @Body() payload: AssignTasksToTreatmentBodyDto,
   ): Promise<ResponseDataInterface> {
-    const assigments = await this.service.assignTasksToTreatment({
-      ...payload,
-      treatmentId,
+    const [assigments, therapist, treatment] = await Promise.all([
+      this.service.assignTasksToTreatment({ ...payload, treatmentId }),
+      this.userService.findById(userLogged.id),
+      this.treatmentService.findOne(treatmentId),
+    ]);
+
+    // notify the patient
+    const lenTasks = payload.tasks.length;
+    const bodyNotification = `El terapeuta ${therapist.lastName} te ha asignado`;
+
+    await this.notificationService.sendNotification(treatment.patientId, {
+      title: lenTasks > 1 ? 'Nuevas tareas asignadas' : 'Nueva tarea asignada',
+      body:
+        lenTasks > 1
+          ? `${bodyNotification} ${lenTasks} tareas nuevas`
+          : `${bodyNotification} una nueva tarea hasta el ${FormatDateService.formatDateToNotification(
+              payload.tasks[0].expirationDate,
+            )}`,
     });
 
     return {

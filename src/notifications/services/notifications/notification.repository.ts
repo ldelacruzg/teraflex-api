@@ -12,6 +12,7 @@ export class NotificationRepository {
   async getByUser(cnx: EntityManager, userId: number, status?: boolean) {
     return await cnx.find(Notification, {
       where: { userId, status: status == undefined ? true : status },
+      order: { createdAt: 'DESC' },
     });
   }
 
