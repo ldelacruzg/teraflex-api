@@ -10,9 +10,9 @@ export * from '@entities/notification-token.entity';
 
 // Module gamification
 export * from '@gamification/patients/domain/patient.entity';
-export * from '@gamification/streaks/domain/streak.entity';
-export * from '@gamification/store-items/domain/store-item.entity';
-export * from '@gamification/purchased-items/domain/purchased-item.entity';
+export * from '@/entities/streak.entity';
+export * from '@entities/store-item.entity';
+export * from '@entities/purchased-item.entity';
 export * from '@gamification/use-store-items/domain/use-store-item.entity';
 export * from '@gamification/leaderboards/domain/leaderboard.entity';
 export * from '@gamification/patient-leaderboards/domain/patient-leaderboard.entity';
