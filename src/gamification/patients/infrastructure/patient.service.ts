@@ -14,6 +14,24 @@ export class PatientService implements IPatientService {
     private readonly tretamentTaskRepository: TreatmentTaskRepository,
   ) {}
 
+  async redeemProduct(patientId: number, flexicoins: number): Promise<void> {
+    const patient = await this.findOne(patientId);
+
+    if (!patient) {
+      throw new BadRequestException(
+        `El paciente con id (${patientId}) no existe`,
+      );
+    }
+
+    if (patient.flexicoins - flexicoins < 0) {
+      throw new BadRequestException(
+        `No tienes suficientes flexicoins para canjear el código`,
+      );
+    }
+
+    await this.repository.updateFlexicoins(patientId, -flexicoins);
+  }
+
   async getGlobalSummary(patientId: number): Promise<GlobalSummaryDto> {
     // verificar si existe el usuario
     const patient = await this.findOne(patientId);
