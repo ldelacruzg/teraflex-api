@@ -13,5 +13,5 @@ Dockerfile
 Dockerfile.dev
 docker-compose.yml
 docker-compose.dev.yml
-yarn.lock
-package-lock.json
+.env
+firebase.json
