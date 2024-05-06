@@ -1,23 +1,8 @@
 version: '3.9'
 
 services:
-  teraflex-api:
-    depends_on:
-      - teraflex-db
-    container_name: teraflex-api
-    image: node:18-alpine
-    working_dir: /app
-    expose:
-      - 3000
-    ports:
-      - 3000:3000
-    volumes:
-      - .:/app
-    env_file:
-      - ./.env
-    command: sh -c "yarn install && yarn start:dev"
   teraflex-db:
-    container_name: ${DATABASE_HOST}
+    container_name: teraflex-db
     image: postgres:14.0-alpine
     ports:
       - 5432:5432

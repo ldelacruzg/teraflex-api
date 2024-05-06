@@ -37,37 +37,37 @@ STORE_FREE_APPOINTMENT_FXC=100
 
 Tener en cuenta que en la variable de HOSTNAME apunta a un contendor de Docker.
 
-## Ejecución de la aplicación con Docker
+## Levantar base de datos con Docker
 
 1. Abrir una terminal y ubicarse en la carpeta raíz del proyecto
 2. Ejecutar el siguiente comando:
 
 ```bash
-$ docker compose -f ./docker-compose.dev.yml up
+docker compose -f docker-compose.dev.yml up -d
 ```
+
+## Ejecución del Servicio Web
+
+1. Abrir una terminal y ubicarse en la carpeta raíz del proyecto
+2. Ejecutar cualquiera de los siguientes comandos:
+
+```bash
+yarn start:dev
+```
+
+```bash
+npm run start:dev
+```
+
+Una vez el servicio web este en ejecución podrá hacer peticiones en [TeraFlex API](http://localhost:3000/api). Es recomendable que utilice una herramienta como cliente, por ejemplo: Postman, Insomnia, entre otras.
 
 ### Ejecución por primera vez
 
-Si es la primera vez que ejecuta el proyecto deberá activar la variable de entorno **DATABASE_SYNC=true** que se encuentra en el archivo **.env**, luego podrá desactivarla, este paso permitirá crear la base de datos con un usuario por defecto.
+Si es la primera vez que ejecuta el proyecto deberá activar la variable de entorno **DATABASE_SYNC=true** que se encuentra en el archivo **.env**, luego podrá desactivarla, este paso permitirá crear la base de datos con un usuario por defecto (administrador).
 
 - **Usuario**: 1234567890
 - **Contraseña**: 12345
 
-### Ejecución con la extensión VS Code "Dev Containers: Attach to Running Container..."
-
-Si usted trabaja con Visual Studio Code podrá abrir una ventana con el contenedor del proyecto que este ejecutandose, para ello deberá seguir los siguiente pasos:
-
-1. Presionar **Ctrl + Shift + P**
-2. Escribir o buscar la opción **Dev Containers: Attach to Running Container...** y presionar **Enter**
-3. Seleccionar el servicio "teraflex-api"
-
-### Ejecución con la extensión VS Code "Dev Containers: Reopen in Container..."
-
-En caso de que aún no este corriendo los servicios, podrá realizar todo los pasos anteriores desde el comando "docker compose" con una sola opción, para ello debera seguir los siguiente pasos:
-
-1. Presionar **Ctrl + Shift + P**
-2. Escribir o buscar la opción **Dev Containers: Reopen in Container...**
-
 ### Información adicional
 
-Es necesario el archivo "firebase.json" para la conexión con Firebase Cloud Messaging. Es recomendable que éste archivo esté en la raíz del proyecto.
+Es necesario el archivo **firebase.json** para la conexión con Firebase Cloud Messaging. Es recomendable que dicho archivo esté en la raíz del proyecto.
