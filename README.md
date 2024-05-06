@@ -49,7 +49,13 @@ docker compose -f docker-compose.dev.yml up -d
 ## Ejecución del Servicio Web
 
 1. Abrir una terminal y ubicarse en la carpeta raíz del proyecto
-2. Ejecutar cualquiera de los siguientes comandos:
+2. Instalar dependencias
+
+```bash
+npm install
+```
+
+3. Ejecutar cualquiera de los siguientes comandos:
 
 ```bash
 yarn start:dev
